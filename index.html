@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
+ <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-NQ3SSGYQ8H"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -49,7 +49,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
 /* ---------- top bar ---------- */
-.bar{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;background:var(--chrome);border-bottom:1px solid var(--line);position:relative;z-index:50;flex:0 0 auto}
+.bar{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;background:var(--chrome);border-bottom:1px solid var(--line);position:relative;z-index:1000;flex:0 0 auto}
 .tabs{display:flex;gap:.25rem;overflow-x:auto;flex:1 1 auto;min-width:0;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
 .tab{border:1px solid transparent;background:transparent;padding:.45rem .8rem;border-radius:.5rem;white-space:nowrap;font-weight:700;color:var(--muted)}
@@ -65,7 +65,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .brand{font-family:var(--brand-font);font-weight:900;font-size:1.45rem;line-height:1;letter-spacing:-.01em;padding:0 .35rem 0 .15rem;white-space:nowrap;flex:0 0 auto;user-select:none}
 .brand .c1,.wordmark .c1{color:var(--koi-pink)} .brand .c2,.wordmark .c2{color:var(--lily-green)} .brand .c3,.wordmark .c3{color:var(--pond-blue)}
 .menu-wrap{position:relative}
-.menu{position:absolute;right:0;top:calc(100% + .4rem);background:var(--chrome);border:1px solid var(--line);border-radius:.75rem;padding:.4rem;min-width:15rem;box-shadow:0 12px 32px rgba(10,20,30,.18);display:none;z-index:60}
+.menu{position:absolute;right:0;top:calc(100% + .4rem);background:var(--chrome);border:1px solid var(--line);border-radius:.75rem;padding:.4rem;min-width:15rem;box-shadow:0 12px 32px rgba(10,20,30,.18);display:none;z-index:1001;max-height:calc(100vh - 5rem);max-height:calc(100dvh - 5rem);overflow-y:auto;overscroll-behavior:contain}
 .menu.open{display:block}
 .menu button.item{display:flex;width:100%;align-items:center;gap:.6rem;border:0;background:none;padding:.55rem .6rem;border-radius:.5rem;text-align:left}
 .menu button.item:hover{background:var(--chrome-2)}
@@ -81,12 +81,12 @@ button{font:inherit;color:inherit;cursor:pointer}
 .sync{padding:.3rem .6rem .5rem;font-size:.8rem;color:var(--muted)}
 
 /* ---------- board ---------- */
-.board{position:relative;flex:1 1 auto;overflow:hidden;--u:12px}
+.board{position:relative;z-index:0;isolation:isolate;flex:1 1 auto;overflow:hidden;--u:12px}
 .board.bg-slate{background-color:#1E2A35;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:28px 28px}
 .board.bg-white{background-color:#F1F3F4;background-image:radial-gradient(rgba(0,0,0,.07) 1px,transparent 1px);background-size:28px 28px}
 .board.bg-cork{background-color:#BF956A;background-image:radial-gradient(rgba(90,50,20,.25) 1px,transparent 1.5px),radial-gradient(rgba(255,235,200,.25) 1px,transparent 1.5px);background-size:9px 9px,13px 13px;background-position:0 0,4px 6px}
 .board.bg-green{background-color:#23392F;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:28px 28px}
-.board.bg-pond{background-color:#173A55;background-image:radial-gradient(ellipse 70% 60% at 50% 45%,#1F5470 0%,#173A55 55%,#0F2033 100%)}
+.board.bg-pond{background-color:#173A55;background-image:url("assets/pond-bg.jpg"),radial-gradient(ellipse 70% 60% at 50% 45%,#1F5470 0%,#173A55 55%,#0F2033 100%);background-size:cover;background-position:center}
 .empty{position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.75);text-align:center;padding:2rem;font-size:1.1rem}
 .bg-white .empty,.bg-cork .empty{color:rgba(0,0,0,.6)}
 
@@ -98,6 +98,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .is-min .note-head{border-bottom:0;padding-bottom:.5em}
 .dragging .note-head{cursor:grabbing}
 .grip{width:.8em;height:1.2em;flex:0 0 auto;opacity:.45}
+.koi-tag{height:1.75em;width:auto;margin:-.25em 0;flex:0 0 auto;opacity:.72;pointer-events:none;user-select:none;-webkit-user-drag:none;margin-right:.05em}
 .note-title{margin:0;font-size:1em;font-weight:700;line-height:1.2;flex:0 1 auto;min-width:1ch;outline:none;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .note-title[contenteditable]:not([contenteditable="false"]){cursor:text;white-space:normal;border-radius:3px}
 .note-title[contenteditable]:not([contenteditable="false"]):focus{background:rgba(255,255,255,.55)}
@@ -147,7 +148,7 @@ body.present .exit-present{display:inline-flex}
 .btn:disabled:hover{background:var(--chrome)}
 
 /* ---------- trash ---------- */
-.trash-wrap{position:fixed;inset:0;z-index:150;background:rgba(10,20,30,.45);display:grid;place-items:center;padding:1rem}
+.trash-wrap{position:fixed;inset:0;z-index:2000;background:rgba(10,20,30,.45);display:grid;place-items:center;padding:1rem}
 .trash-wrap[hidden]{display:none}
 .trash-panel{width:100%;max-width:34rem;max-height:min(82vh,42rem);overflow:auto;background:var(--chrome);color:var(--ink);border:1px solid var(--line);border-radius:.9rem;padding:1rem 1.1rem;box-shadow:0 20px 50px rgba(0,0,0,.35)}
 .trash-head{display:flex;justify-content:space-between;align-items:center;gap:1rem}
@@ -165,7 +166,7 @@ body.present .exit-present{display:inline-flex}
 .btn.danger-btn{color:var(--danger)}
 
 /* ---------- toast ---------- */
-.toast{position:fixed;left:50%;bottom:calc(1rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--chrome);padding:.7rem 1rem;border-radius:.6rem;display:none;gap:1rem;align-items:center;z-index:100;max-width:calc(100% - 2rem);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.toast{position:fixed;left:50%;bottom:calc(1rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--chrome);padding:.7rem 1rem;border-radius:.6rem;display:none;gap:1rem;align-items:center;z-index:2500;max-width:calc(100% - 2rem);box-shadow:0 10px 30px rgba(0,0,0,.3)}
 .toast.show{display:flex}
 .toast button{background:none;border:0;color:inherit;font-weight:700;text-decoration:underline;padding:0}
 
@@ -188,7 +189,7 @@ body.present .exit-present{display:inline-flex}
 
 /* ---------- sign-in screen ---------- */
 /* koi pond scene: pure decoration, never catches clicks */
-.auth{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:1.25rem;background-color:#12263A;background-image:radial-gradient(ellipse 70% 60% at 50% 48%,#1F5470 0%,#173A55 55%,#0F2033 100%);overflow:auto}
+.auth{position:fixed;inset:0;z-index:3000;display:grid;place-items:center;padding:1.25rem;background-color:#12263A;background-image:radial-gradient(ellipse 70% 60% at 50% 48%,#1F5470 0%,#173A55 55%,#0F2033 100%);overflow:auto}
 .auth[hidden]{display:none}
 .pond{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 .pond svg.ripples{position:absolute;inset:0;width:100%;height:100%}
@@ -243,7 +244,7 @@ body.present .exit-present{display:inline-flex}
 .acct{padding:.2rem .6rem .5rem;font-size:.85rem;color:var(--muted);word-break:break-all}
 
 /* ---------- floating window (picture-in-picture) ---------- */
-.pip{padding:.6rem;display:flex;flex-direction:column;gap:.5rem;height:100%;overflow:auto;background:#1E2A35}
+.pip{padding:.6rem;display:flex;flex-direction:column;gap:.5rem;height:100%;overflow:auto;background:#173A55}
 .pip-top{color:#fff;display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;padding:.1rem .2rem}
 .pip-top b{font-size:1.05rem}
 .pip-top span{font-size:.85rem;opacity:.75}
@@ -262,7 +263,7 @@ body.pip-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 <header class="bar" id="bar">
   <span class="brand" aria-label="Floatle"><span class="c1">F</span><span class="c2">l</span><span class="c3">o</span><span class="c1">a</span><span class="c2">t</span><span class="c3">l</span><span class="c1">e</span></span>
   <div class="present-title" id="presentTitle"></div>
-  <nav class="tabs" id="tabs" role="tablist" aria-label="Classes"></nav>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Boards"></nav>
   <span class="date" id="date"></span>
   <div class="menu-wrap edit-only">
     <button class="btn primary" id="addBtn" aria-haspopup="true" aria-expanded="false">
@@ -283,14 +284,14 @@ body.pip-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8"/></svg><span class="lbl">Present</span>
   </button>
   <div class="menu-wrap edit-only">
-    <button class="btn" id="setBtn" aria-haspopup="true" aria-expanded="false" title="Class settings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span class="lbl">Class</span>
+    <button class="btn" id="setBtn" aria-haspopup="true" aria-expanded="false" title="Board settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span class="lbl">Settings</span>
     </button>
     <div class="menu" id="setMenu" role="menu"></div>
   </div>
   <button class="btn exit-present" id="exitBtn">Edit board</button>
 </header>
-<main class="board" id="board" aria-label="Class board"></main>
+<main class="board" id="board" aria-label="Board"></main>
 <div class="auth" id="auth" hidden>
   <div class="pond" aria-hidden="true">
     <svg class="ripples" viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice">
@@ -331,7 +332,7 @@ body.pip-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
   <img class="under-pad" src="assets/lilypad.png" alt="" aria-hidden="true">
   <form class="auth-card" id="authForm" novalidate>
     <h1>Floatle</h1>
-    <p class="auth-sub" id="authSub">Sign in to see your class boards on any device.</p>
+    <p class="auth-sub" id="authSub">Sign in to see your boards on any device.</p>
     <label for="authEmail" id="emailWrap">Email</label>
     <input type="email" id="authEmail" autocomplete="email" required>
     <label for="authPw" id="pwLabel">Password</label>
@@ -342,7 +343,7 @@ body.pip-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
       <button type="button" id="authSwitch">Create an account</button>
       <button type="button" id="authForgot">Forgot password?</button>
     </div>
-    <p class="auth-note" id="authNote">Students: choose &ldquo;Use without an account&rdquo; below.</p>
+    <p class="auth-note" id="authNote">Just trying it out? You can use Floatle without an account.</p>
     <button type="button" class="auth-skip" id="authSkip">Use without an account (saves on this device only)</button>
   </form>
   </div>
@@ -350,7 +351,7 @@ body.pip-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 <div class="trash-wrap" id="trashWrap" hidden>
   <div class="trash-panel" role="dialog" aria-modal="true" aria-labelledby="trashTitle">
     <div class="trash-head"><h2 id="trashTitle">Trash</h2><button class="btn" id="trashClose">Done</button></div>
-    <p class="trash-sub">Deleted notes and classes stay here for 30 days, then are removed for good.</p>
+    <p class="trash-sub">Deleted notes and boards stay here for 30 days, then are removed for good.</p>
     <div id="trashList"></div>
   </div>
 </div>
@@ -370,14 +371,14 @@ const BG_SWATCH = { pond:"#1F5470", slate:"#1E2A35", green:"#23392F", white:"#F1
 const uid = () => Math.random().toString(36).slice(2,10);
 
 const TYPES = {
-  objective:{ label:"SWBAT", kind:"text", color:"lemon", w:44, h:24, text:"Students will be able to " },
+  objective:{ label:"Objective", kind:"text", color:"lemon", w:44, h:24, text:"" },
   agenda:{ label:"Agenda", kind:"list", color:"sky", w:30, h:44, items:["Do Now",""] },
   homework:{ label:"Homework", kind:"text", color:"rose", w:30, h:26, text:"" },
   reminder:{ label:"Reminder", kind:"text", color:"tangerine", w:26, h:20, text:"" },
   list:{ label:"Checklist", kind:"list", color:"mint", w:28, h:32, items:[""] },
   note:{ label:"Blank note", kind:"text", color:"paper", w:26, h:22, text:"" }
 };
-const PH = { objective:"What students will learn today", homework:"Assignment and due date", reminder:"Something students shouldn't forget", note:"Type here" };
+const PH = { objective:"What you want to get done today", homework:"What's due and when", reminder:"Something you don't want to forget", note:"Type here" };
 
 function makeNote(type, pos){
   const t = TYPES[type];
@@ -389,13 +390,13 @@ function makeNote(type, pos){
 }
 let zTop = 10;
 function seed(){
-  const n1 = makeNote("objective",{x:3,y:5}); n1.text = "Students will be able to identify the main idea of a passage and support it with two details from the text."; n1.w=48; n1.h=26;
+  const n1 = makeNote("objective",{x:3,y:5}); n1.text = "Finish the project outline and share it with the team."; n1.w=48; n1.h=26;
   const n2 = makeNote("agenda",{x:55,y:5});
-  n2.items = ["Do Now: quick write (5 min)","Mini-lesson: finding the main idea","Partner practice","Exit ticket"].map(t=>({id:uid(),t,done:false}));
+  n2.items = ["Check messages (10 min)","Draft the outline","Quick check-in","Plan tomorrow"].map(t=>({id:uid(),t,done:false}));
   n2.w=40; n2.h=50;
-  const n3 = makeNote("homework",{x:3,y:37}); n3.text = "Read pages 42–47 and answer questions 1–3.\nDue Thursday."; n3.w=48; n3.h=26;
-  const b = { id:uid(), name:"Period 1", bg:"pond", notes:[n1,n2,n3] };
-  const b2 = { id:uid(), name:"Period 2", bg:"green", notes:[] };
+  const n3 = makeNote("homework",{x:3,y:37}); n3.text = "Submit the final draft.\nDue Friday."; n3.w=48; n3.h=26;
+  const b = { id:uid(), name:"My board", bg:"pond", notes:[n1,n2,n3] };
+  const b2 = { id:uid(), name:"Board 2", bg:"green", notes:[] };
   return { v:1, active:b.id, boards:[b,b2], updatedAt:0 };
 }
 
@@ -555,7 +556,7 @@ document.addEventListener("visibilitychange", () => {
 /* ---------- sign-in screen ---------- */
 let authMode = "signin";
 const AUTH_COPY = {
-  signin:{ sub:"Sign in to see your class boards on any device.", btn:"Sign in", sw:"Create an account", pw:true },
+  signin:{ sub:"Sign in to see your boards on any device.", btn:"Sign in", sw:"Create an account", pw:true },
   signup:{ sub:"Create a free account with your school, work or personal email.", btn:"Create account", sw:"I already have an account", pw:true },
   forgot:{ sub:"Enter your email and we'll send a link to reset your password.", btn:"Send reset link", sw:"Back to sign in", pw:false },
   reset:{ sub:"Choose a new password.", btn:"Save new password", sw:"Back to sign in", pw:true }
@@ -614,6 +615,8 @@ const ICON = {
   trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>'
 };
+// full address so the koi also shows inside the floating (picture-in-picture) window
+const KOI_TAG = new URL("assets/koi-mini.png", location.href).href;
 const txt = el => (el && el.innerText !== undefined) ? el.innerText : (el ? el.textContent : "");
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
 const firstLine = n => n.kind === "list"
@@ -626,7 +629,7 @@ function noteHTML(n, forPip){
   const body = n.kind === "list"
     ? `<ol class="list">${n.items.map(it => `<li class="${it.done?"done":""}" data-item="${it.id}"><button class="check" data-act="check" aria-label="${it.done?"Mark not done":"Mark done"}" aria-pressed="${it.done}">${ICON.check}</button><span class="item-text" contenteditable="${ed}">${esc(it.t)}</span></li>`).join("")}</ol>`
     : `<div class="note-text" contenteditable="${ed}" data-ph="${esc(PH[n.type]||"Type here")}">${esc(n.text)}</div>`;
-  return `<header class="note-head">${ICON.grip}
+  return `<header class="note-head">${ICON.grip}<img class="koi-tag" src="${KOI_TAG}" alt="" aria-hidden="true" draggable="false">
       <h2 class="note-title" contenteditable="${ed}" spellcheck="false">${esc(n.title)}</h2>
       <span class="preview">${esc(firstLine(n))}</span>
       <span class="spacer"></span>
@@ -659,7 +662,7 @@ function renderNote(n){
 function renderTabs(){
   tabsEl.innerHTML = state.boards.map(b =>
     `<button class="tab" role="tab" data-board="${b.id}" aria-selected="${b.id===state.active}">${esc(b.name)}</button>`).join("")
-    + `<button class="tab add edit-only" id="addClass" title="Add a class">+ Class</button>`;
+    + `<button class="tab add edit-only" id="addClass" title="Add a new board">+ Class</button>`;
   $("presentTitle").textContent = board().name;
 }
 function renderBoard(){
@@ -667,7 +670,7 @@ function renderBoard(){
   boardEl.className = "board bg-" + (BGS[b.bg] ? b.bg : "slate");
   boardEl.innerHTML = "";
   if (!b.notes.length){
-    boardEl.innerHTML = `<div class="empty"><div>This class has no notes yet.<br>${presenting ? "Choose Edit board to add some." : "Use Add note to post today's plan."}</div></div>`;
+    boardEl.innerHTML = `<div class="empty"><div>This board is empty.<br>${presenting ? "Choose Edit board to add notes." : "Use Add note to post your first note."}</div></div>`;
   }
   b.notes.forEach(n => boardEl.appendChild(noteEl(n)));
   sizeUnit();
@@ -679,21 +682,21 @@ function renderAddMenu(){
 function renderSettings(){
   const b = board();
   $("setMenu").innerHTML = `
-    <label for="className">Class name</label>
+    <label for="className">Board name</label>
     <div style="padding:0 .6rem .4rem"><input type="text" id="className" value="${esc(b.name)}" maxlength="40"></div>
     <h3>Background</h3>
     <div class="bg-row">${Object.keys(BGS).map(k => `<button data-bg="${k}" aria-pressed="${b.bg===k}" title="${BGS[k]}" aria-label="${BGS[k]}" style="background:${BG_SWATCH[k]}"></button>`).join("")}</div>
     <hr>
-    <button class="item" data-set="dup">Duplicate this class</button>
+    <button class="item" data-set="dup">Duplicate this board</button>
     <button class="item" data-set="expand">Expand all notes</button>
     <button class="item" data-set="collapse">Minimize all notes</button>
-    <button class="item" data-set="export">Export all classes (backup file)</button>
-    <button class="item" data-set="import">Import classes from a file</button>
+    <button class="item" data-set="export">Export all boards (backup file)</button>
+    <button class="item" data-set="import">Import boards from a file</button>
     <button class="item" data-set="trash">Trash${state.trash.length ? " (" + state.trash.length + ")" : ""}</button>
     <hr>
     <button class="item" data-set="feedback">Send feedback (2&ndash;3 min, anonymous)</button>
     <hr>
-    <button class="item danger" data-set="del" ${state.boards.length<2?"disabled":""}>Delete this class</button>
+    <button class="item danger" data-set="del" ${state.boards.length<2?"disabled":""}>Delete this board</button>
     <hr>
     ${sb ? (userId
       ? `<div class="acct" id="syncLine">${esc(syncLabel)}</div><button class="item" data-set="signout">Sign out</button>`
@@ -755,7 +758,7 @@ $("addMenu").addEventListener("click", e => {
 let delArm = false;
 $("setMenu").addEventListener("input", e => {
   if (e.target.id === "className"){
-    board().name = e.target.value.trim() || "Untitled class";
+    board().name = e.target.value.trim() || "Untitled board";
     renderTabs(); save("typing");
   }
 });
@@ -790,7 +793,7 @@ $("setMenu").addEventListener("click", e => {
     state.boards.splice(state.boards.indexOf(b)+1, 0, copy);
     state.active = copy.id; render(); save();
     toggleMenu($("setBtn"), $("setMenu"), false);
-    toast("Class duplicated. Rename it under Class.");
+    toast("Board duplicated. Rename it under Settings.");
   } else if (act === "expand" || act === "collapse"){
     b.notes.forEach(n => n.min = act === "collapse"); renderBoard(); save();
   } else if (act === "del"){
@@ -807,7 +810,7 @@ $("setMenu").addEventListener("click", e => {
 
 tabsEl.addEventListener("click", e => {
   if (e.target.id === "addClass"){
-    const nb = { id:uid(), name:"Period " + (state.boards.length+1), bg:"slate", notes:[] };
+    const nb = { id:uid(), name:"Board " + (state.boards.length+1), bg:"pond", notes:[] };
     state.boards.push(nb); state.active = nb.id; render(); save();
     renderSettings(); toggleMenu($("setBtn"), $("setMenu"), true);
     const inp = $("className"); inp.focus(); inp.select();
@@ -998,7 +1001,7 @@ function restoreFromTrash(tid){
   state.trash.splice(i, 1);
   render(); save();
   if (!$("trashWrap").hidden) renderTrash();
-  toast((t.type === "note" ? "Note restored" : "Class restored") + where + ".");
+  toast((t.type === "note" ? "Note restored" : "Board restored") + where + ".");
 }
 function relDays(ms){
   const d = Math.floor((Date.now() - ms) / DAY_MS);
@@ -1016,11 +1019,11 @@ function renderTrash(){
     if (t.type === "board"){
       const c = (t.item.notes || []).length;
       return `<div class="trash-item" data-tid="${t.id}"><span class="swatch" style="background:${BG_SWATCH[t.item.bg] || BG_SWATCH.slate}"></span>
-        <div class="trash-info"><b>${esc(t.item.name)} (whole class)</b><div class="pv">${c} note${c === 1 ? "" : "s"}</div><div class="meta">${meta}</div></div>${acts}</div>`;
+        <div class="trash-info"><b>${esc(t.item.name)} (whole board)</b><div class="pv">${c} note${c === 1 ? "" : "s"}</div><div class="meta">${meta}</div></div>${acts}</div>`;
     }
     const n = t.item;
     return `<div class="trash-item" data-tid="${t.id}"><span class="swatch" style="background:${COLORS[n.color] || COLORS.lemon}"></span>
-      <div class="trash-info"><b>${esc(n.title || "Note")}</b><div class="pv">${esc(firstLine(n)) || "&nbsp;"}</div><div class="meta">From ${esc(t.boardName || "a class")} &bull; ${meta}</div></div>${acts}</div>`;
+      <div class="trash-info"><b>${esc(n.title || "Note")}</b><div class="pv">${esc(firstLine(n)) || "&nbsp;"}</div><div class="meta">From ${esc(t.boardName || "a board")} &bull; ${meta}</div></div>${acts}</div>`;
   }).join("") + `<div class="trash-foot"><button class="btn danger-btn" id="emptyTrash">Empty trash</button></div>`;
 }
 function openTrash(){ renderTrash(); $("trashWrap").hidden = false; setTimeout(() => $("trashClose").focus(), 30); }
@@ -1214,7 +1217,7 @@ $("importFile").addEventListener("change", async e => {
     const next = JSON.parse(await f.text());
     if (!next || !Array.isArray(next.boards) || !next.boards.length) throw 0;
     setState(next);
-    render(); save(); toast("Imported " + state.boards.length + " class" + (state.boards.length>1?"es":"") + ".");
+    render(); save(); toast("Imported " + state.boards.length + " board" + (state.boards.length>1?"s":"") + ".");
   } catch(err){ toast("That file isn't a Floatle backup. Choose a file made with Export."); }
 });
 
