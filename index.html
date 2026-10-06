@@ -318,7 +318,12 @@ body.pip-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 .tm-add svg{width:1em;height:1em}
 .tm-foot{display:flex;justify-content:space-between;gap:.5em;flex-wrap:wrap;margin-top:.45em;padding-top:.35em;border-top:1px dashed rgba(0,0,0,.2);font-size:.7em}
 body.present .tm-edit{display:none !important}
-.pip .tm-edit,.pip .t-timer{display:none !important}
+.pip .tm-edit{display:none !important}
+.pip .tpanel{position:relative;left:auto;top:auto;width:auto;max-height:none;flex:0 0 auto;font-size:14px;z-index:auto}
+.pip .tpanel .tp-head{cursor:default;touch-action:auto}
+.pip .tpanel .grip{display:none}
+.pip .tp-dial{max-width:13em}
+.pip .tp-big{font-size:4em}
 
 /* ---------- timer panel linked to a Timed note ---------- */
 .tpanel{position:absolute;width:clamp(260px,calc(var(--u) * 25),520px);background:#FFFFFF;color:#1B2530;border-radius:14px;border-top:5px solid #6E56CF;box-shadow:0 2px 6px rgba(0,0,0,.2),0 24px 50px -16px rgba(0,0,0,.55);display:flex;flex-direction:column;font-size:clamp(13px,calc(var(--u) * 1.15),22px);max-height:calc(100% - 1rem)}
@@ -1358,9 +1363,12 @@ boardEl.addEventListener("keydown", e => {
   }
 });
 
-/* timer panel: buttons */
+/* timer panel: buttons (same code for the board and the Float window) */
 boardEl.addEventListener("click", e => {
   const p = e.target.closest(".tpanel"); if (!p) return;
+  panelClick(e, p, false);
+});
+function panelClick(e, p, inPip){
   const n = findNote(p.dataset.tp); if (!n) return;
   const btn = e.target.closest("[data-act]"); if (!btn) return;
   const a = btn.dataset.act, tp = n.tp || (n.tp = {});
@@ -1372,9 +1380,9 @@ boardEl.addEventListener("click", e => {
   else if (TACTS.has(a)) timedAct(n, a, -1);
   else return;
   save(); renderNote(n); renderPanel(n);
-  const again = boardEl.querySelector(`.tpanel[data-tp="${n.id}"] [data-act="${a}"]`);
+  const again = (inPip ? pipWin.document : document).querySelector(`.tpanel[data-tp="${n.id}"] [data-act="${a}"]`);
   if (again && a !== "pclose") again.focus();
-});
+}
 
 /* timer panel: drag by its top bar */
 let pdrag = null;
@@ -1570,7 +1578,8 @@ $("pipBtn").addEventListener("click", async () => {
     return;
   }
   try {
-    pipWin = await window.documentPictureInPicture.requestWindow({ width:380, height:520 });
+    const hasTimer = board().notes.some(n => n.kind === "timed" && n.tp && n.tp.open);
+    pipWin = await window.documentPictureInPicture.requestWindow({ width:380, height: hasTimer ? 680 : 520 });
   } catch(e){
     toast("Your browser blocked the floating window here. Open this page in its own tab and try Float again.");
     return;
@@ -1584,6 +1593,7 @@ $("pipBtn").addEventListener("click", async () => {
   d.body.addEventListener("click", e => {
     if (pipSuppressClick){ pipSuppressClick = false; e.preventDefault(); e.stopPropagation(); return; }
     if (e.target.closest("[data-pact=undo]")){ undo(); return; }
+    const tpn = e.target.closest(".tpanel"); if (tpn){ panelClick(e, tpn, true); return; }
     const noteNode = e.target.closest(".note"); if (!noteNode) return;
     const n = findNote(noteNode.dataset.id); if (!n) return;
     handleNoteAction(n, e, noteNode, true);
@@ -1618,6 +1628,12 @@ function renderPip(){
     const el = noteEl(n, true);
     el.style.cssText = `--paper:${COLORS[n.color]};--s:1`;
     el.querySelector(".note-head").title = "Drag to reorder. Click to minimize or expand.";
+    // a Timed note with its timer open floats its Visual / Countdown timer too, pinned at the top
+    if (n.kind === "timed" && n.tp && n.tp.open){
+      const tp = panelEl(n);
+      tp.style.cssText = "";
+      root.insertBefore(pipWin.document.importNode(tp, true), root.querySelector(".note"));
+    }
     root.appendChild(el);
   });
   root.scrollTop = scroll;
