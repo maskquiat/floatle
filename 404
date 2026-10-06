@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Floatle</title>
+<script>
+  // Short links: floatle.com/K7M2QX opens the shared board with that code.
+  // GitHub Pages shows this page for any address it doesn't know, so we send
+  // 6-character codes to the board viewer and everything else to the home page.
+  (function () {
+    var path = location.pathname.replace(/^\/+|\/+$/g, "");
+    var code = path.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (code.length === 6 && path.replace(/[^A-Za-z0-9]/g, "").length === path.length) {
+      location.replace("/?s=" + code);
+    } else {
+      location.replace("/");
+    }
+  })();
+</script>
+<style>
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #173A55; color: #fff;
+         font-family: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif; text-align: center; padding: 1rem; }
+  a { color: #FA82B1; }
+</style>
+</head>
+<body>
+  <p>Opening Floatle&hellip; If nothing happens, <a href="/">go to floatle.com</a>.</p>
+</body>
+</html>
