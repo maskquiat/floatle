@@ -272,6 +272,37 @@ body.present .exit-present{display:inline-flex}
 .pip .note.pip-lifted .note-head{cursor:grabbing}
 body.pip-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 
+/* ---------- share with a sub ---------- */
+.share-panel{max-width:38rem}
+.share-intro{line-height:1.5;margin:.6rem 0 1rem}
+.share-body{display:flex;gap:1.2rem;align-items:flex-start;flex-wrap:wrap;margin-top:.8rem}
+.share-qr{width:13rem;height:auto;border:1px solid var(--line);border-radius:.6rem;background:#fff;flex:0 0 auto}
+.share-info{flex:1 1 14rem;min-width:0;display:flex;flex-direction:column;gap:.8rem}
+.share-label{color:var(--muted);font-size:.85rem}
+.share-code{font-family:var(--brand-font);font-size:2.3rem;letter-spacing:.14em;font-weight:900;line-height:1.1}
+.share-link{font-weight:700;font-size:1.1rem;word-break:break-all;color:var(--ink)}
+.share-acts{display:flex;flex-wrap:wrap;gap:.4rem}
+.share-help{color:var(--muted);font-size:.9rem;line-height:1.45;margin:.9rem 0 0}
+.share-foot{display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:.8rem;margin-top:1rem}
+.share-foot span{display:flex;gap:.4rem;flex-wrap:wrap}
+.view-badge{display:none;font-size:.8rem;font-weight:700;padding:.25rem .65rem;border-radius:999px;background:var(--chrome-2);color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+body.viewing .view-badge{display:inline-block}
+.viewer-only{display:none !important}
+body.viewing .viewer-only{display:inline-flex !important}
+body.viewing .exit-present{display:none !important}
+body.present.viewing #pipBtn{display:inline-flex !important}
+.auth-code{margin-top:.8rem;padding:.8rem 1rem;border-radius:.75rem;background:#E3F2FA}
+.auth-code[hidden]{display:none}
+.auth-card .auth-code label{margin:0}
+.auth-code-row{display:flex;gap:.4rem;margin-top:.45rem}
+.auth-card .auth-code-row input{margin:0;flex:1 1 auto;min-width:0;background:#FFFFFF;border-color:#B8DDF0;text-transform:uppercase;letter-spacing:.15em;font-weight:700}
+.auth-code-row button{flex:0 0 auto;border:0;border-radius:.75rem;background:#1E6F9C;color:#fff;font-weight:700;padding:0 1.1rem}
+.auth-code-row button:hover{background:#185A80}
+.view-missing{max-width:26rem;line-height:1.5}
+.view-missing p{margin:.3rem 0}
+.view-missing .auth-code-row{margin-top:.9rem}
+.view-missing input{flex:1 1 auto;min-width:0;font:inherit;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:.6rem .8rem;border-radius:.6rem;border:2px solid rgba(255,255,255,.4);background:#fff;color:#1B2530}
+
 /* ---------- add menu: Timed row with its clock button ---------- */
 .menu .item-row{display:flex;align-items:center;gap:.2rem}
 .menu .item-row .item{flex:1 1 auto}
@@ -396,6 +427,13 @@ body.present .tm-edit{display:none !important}
   <button class="btn edit-only" id="presentBtn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8"/></svg><span class="lbl">Present</span>
   </button>
+  <button class="btn edit-only" id="shareBtn" title="Share this board with a substitute (link + QR code)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 14v.01M14 21h.01M17 21h4v-4"/></svg><span class="lbl">Share</span>
+  </button>
+  <span class="view-badge">View only</span>
+  <button class="btn viewer-only" id="fullBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="lbl">Full screen</span>
+  </button>
   <div class="menu-wrap edit-only">
     <button class="btn" id="setBtn" aria-haspopup="true" aria-expanded="false" title="Board settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span class="lbl">Settings</span>
@@ -460,6 +498,13 @@ body.present .tm-edit{display:none !important}
       <button type="button" class="auth-skip" id="authSkip">Use without an account →</button>
       <p class="auth-note" id="authNote">Just trying it out? Notes save on this device only.</p>
     </div>
+    <div class="auth-code" id="authCode">
+      <label for="codeIn">Substitute teacher? Enter the board code</label>
+      <div class="auth-code-row">
+        <input type="text" id="codeIn" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7M2QX">
+        <button type="button" id="codeGo">Open</button>
+      </div>
+    </div>
   </form>
   </div>
 </div>
@@ -468,6 +513,12 @@ body.present .tm-edit{display:none !important}
     <div class="trash-head"><h2 id="trashTitle">Trash</h2><button class="btn" id="trashClose">Done</button></div>
     <p class="trash-sub">Deleted notes and boards stay here for 30 days, then are removed for good.</p>
     <div id="trashList"></div>
+  </div>
+</div>
+<div class="trash-wrap" id="shareWrap" hidden>
+  <div class="trash-panel share-panel" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+    <div class="trash-head"><h2 id="shareTitle">Share with a sub</h2><button class="btn" data-sh="close" id="shareClose">Done</button></div>
+    <div id="shareBody"></div>
   </div>
 </div>
 <input type="file" id="importFile" accept=".json,application/json" hidden>
@@ -547,8 +598,17 @@ function setState(next){
   if (!state.boards.some(b => b.id === state.active)) state.active = state.boards[0].id;
   zTop = Math.max(10, ...state.boards.flatMap(b => b.notes.map(n => n.z||0)));
 }
+/* Shared boards: floatle.com/?s=K7M2QX (or floatle.com/K7M2QX through 404.html) opens a
+   teacher's board in view-only mode. Nothing a viewer does is saved anywhere. */
+const CODE_ABC = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";   // no 0/O, 1/I/L so codes are easy to read and type
+const cleanCode = s => String(s || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+const VIEW_CODE = cleanCode(new URLSearchParams(location.search).get("s"));
+const viewing = VIEW_CODE.length === 6;
+let viewMsg = "";
+const placeholderState = () => ({ v:1, active:"shared", boards:[{ id:"shared", name:"Floatle", bg:"pond", notes:[] }], updatedAt:0, trash:[] });
+
 let state = null;
-setState(readCache(LOCAL_KEY) || seed());
+setState(viewing ? placeholderState() : (readCache(LOCAL_KEY) || seed()));
 
 let syncLabel = sb ? "Not signed in. Boards save in this browser only."
                    : "Boards save automatically in this browser. Use Export to move them to another device.";
@@ -624,8 +684,10 @@ function redo(){
 function save(kind){ recordHistory(kind); persist(); }
 function persist(){
   state.updatedAt = Date.now();
-  saveLocal();
-  if (sb && userId){ clearTimeout(remoteTimer); remoteTimer = setTimeout(pushRemote, 900); }
+  if (!viewing){
+    saveLocal();
+    if (sb && userId){ clearTimeout(remoteTimer); remoteTimer = setTimeout(pushRemote, 900); }
+  }
   updateUndoButtons();
   renderPip();
 }
@@ -634,6 +696,7 @@ async function pushRemote(){
   const { error } = await sb.from("boards").upsert({ user_id:userId, data:state, updated_ms:state.updatedAt || Date.now() });
   setSync(error ? "Can't reach the server right now. Changes are saved on this device and will sync later."
                 : "Signed in as " + userEmail + ". Boards sync to every device.");
+  if (!error) syncShares();
 }
 async function fetchRemote(){
   const { data, error } = await sb.from("boards").select("data, updated_ms").eq("user_id", userId).maybeSingle();
@@ -657,6 +720,7 @@ async function onSignedIn(user){
     state.updatedAt = Date.now(); pushRemote();
   }
   saveLocal(); render(); renderPip(); resetHistory();
+  syncShares();
 }
 async function pullRemote(){
   if (!sb || !userId) return;
@@ -674,7 +738,9 @@ async function signOut(){
   render(); renderPip(); resetHistory(); showAuth("signin");
 }
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && !document.activeElement?.isContentEditable) pullRemote();
+  if (document.visibilityState !== "visible") return;
+  if (viewing){ loadShared(false); return; }
+  if (!document.activeElement?.isContentEditable) pullRemote();
 });
 
 /* ---------- sign-in screen ---------- */
@@ -698,6 +764,7 @@ function showAuth(mode){
   g("emailWrap").hidden = g("authEmail").hidden = mode === "reset";
   g("authForgot").hidden = mode !== "signin";
   g("authGuest").hidden = g("authNote").hidden = g("authSkip").hidden = !(mode === "signin" || mode === "signup");
+  g("authCode").hidden = !(mode === "signin" || mode === "signup");
   g("authMsg").textContent = ""; g("authMsg").className = "auth-msg";
   g("auth").hidden = false;
   setTimeout(() => (mode === "reset" ? g("authPw") : g("authEmail")).focus(), 50);
@@ -705,7 +772,7 @@ function showAuth(mode){
 function hideAuth(){ const a = document.getElementById("auth"); if (a) a.hidden = true; }
 function authMsg(t, err){ const m = document.getElementById("authMsg"); m.textContent = t; m.className = "auth-msg" + (err ? " err" : ""); }
 
-if (sb){
+if (sb && !viewing){
   sb.auth.onAuthStateChange((event, session) => {
     if (event === "PASSWORD_RECOVERY"){ setTimeout(() => showAuth("reset"), 0); return; }
     if (session && session.user && session.user.id !== userId){
@@ -1071,7 +1138,9 @@ function renderBoard(){
   boardEl.className = "board bg-" + (BGS[b.bg] ? b.bg : "slate");
   boardEl.innerHTML = "";
   if (!b.notes.length){
-    boardEl.innerHTML = `<div class="empty"><div>This board is empty.<br>${presenting ? "Choose Edit board to add notes." : "Use Add note to post your first note."}</div></div>`;
+    boardEl.innerHTML = viewing
+      ? `<div class="empty">${viewMsg || "<div>This board is empty.</div>"}</div>`
+      : `<div class="empty"><div>This board is empty.<br>${presenting ? "Choose Edit board to add notes." : "Use Add note to post your first note."}</div></div>`;
   }
   b.notes.forEach(n => boardEl.appendChild(noteEl(n)));
   renderPanels();
@@ -1093,6 +1162,7 @@ function renderSettings(){
     <h3>Background</h3>
     <div class="bg-row">${Object.keys(BGS).map(k => `<button data-bg="${k}" aria-pressed="${b.bg===k}" title="${BGS[k]}" aria-label="${BGS[k]}" style="background:${BG_SWATCH[k]}"></button>`).join("")}</div>
     <hr>
+    <button class="item" data-set="share">Share with a sub (link + QR code)${b.shareCode ? " &bull; on" : ""}</button>
     <button class="item" data-set="dup">Duplicate this board</button>
     <button class="item" data-set="expand">Expand all notes</button>
     <button class="item" data-set="collapse">Minimize all notes</button>
@@ -1142,8 +1212,9 @@ document.addEventListener("click", e => {
 document.addEventListener("keydown", e => {
   if (e.key === "Escape"){
     if (!$("trashWrap").hidden){ closeTrash(); return; }
+    if (!$("shareWrap").hidden){ closeShare(); return; }
     document.querySelectorAll(".menu.open").forEach(m => m.classList.remove("open"));
-    if (presenting) setPresent(false);
+    if (presenting && !viewing) setPresent(false);
   }
 });
 
@@ -1189,11 +1260,13 @@ $("setMenu").addEventListener("click", e => {
     toggleMenu($("setBtn"), $("setMenu"), false); return;
   }
   if (act === "trash"){ toggleMenu($("setBtn"), $("setMenu"), false); openTrash(); return; }
+  if (act === "share"){ toggleMenu($("setBtn"), $("setMenu"), false); openShare(); return; }
   if (act === "feedback"){ window.open(FEEDBACK_URL, "_blank", "noopener"); toggleMenu($("setBtn"), $("setMenu"), false); return; }
   if (act === "import"){ $("importFile").click(); toggleMenu($("setBtn"), $("setMenu"), false); return; }
   if (act === "dup"){
     const copy = JSON.parse(JSON.stringify(b));
     copy.id = uid(); copy.name = b.name + " (copy)";
+    delete copy.shareCode;   // a copy gets its own code only if the teacher shares it
     const idMap = {};
     copy.notes.forEach(n => {
       const old = n.id; n.id = uid(); idMap[old] = n.id;
@@ -1213,6 +1286,10 @@ $("setMenu").addEventListener("click", e => {
   } else if (act === "del"){
     if (!delArm){ delArm = true; e.target.textContent = "Tap again to delete " + b.name; setTimeout(()=>{ delArm=false; renderSettings(); }, 3000); return; }
     delArm = false;
+    if (b.shareCode){   // deleting a board also turns off its share link
+      const c = b.shareCode; delete b.shareCode;
+      if (sb && userId) sb.from("shared_boards").delete().eq("code", c).then(() => {}, () => {});
+    }
     const i = state.boards.indexOf(b);
     state.boards.splice(i,1);
     const t = trashItem("board", b, null, i);
@@ -1556,7 +1633,7 @@ function onUndoKey(e){
   if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
   const k = (e.key || "").toLowerCase();
   if (k !== "z" && k !== "y") return;
-  if (!$("auth").hidden || !$("trashWrap").hidden) return;
+  if (!$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden) return;
   if (e.target && e.target.closest && e.target.closest("input")) return;   // text boxes (class name) keep their own undo
   if (presenting) return;
   e.preventDefault();
@@ -1691,6 +1768,255 @@ function pipPointerUp(e){
   save();                             // saves to this device + account, then redraws
 }
 
+/* ---------- share a board with a substitute: code, short link and QR code ----------
+   Each shared board gets a row in the "shared_boards" table (see floatle-sharing.sql).
+   Teachers can only change their own rows. Anyone can read ONE board by its exact code
+   through the get_shared_board() function, so codes can't be listed or guessed in bulk. */
+const lastShared = {};
+let shareCanvas = null;
+const shareData = b => { const c = JSON.parse(JSON.stringify(b)); delete c.shareCode; return c; };
+const shareURL = code => location.origin + "/?s=" + code;
+const shortLink = code => location.host + "/" + code;
+function newCode(){
+  const a = new Uint32Array(6); crypto.getRandomValues(a);
+  return Array.from(a, x => CODE_ABC[x % CODE_ABC.length]).join("");
+}
+async function syncShares(){
+  if (!sb || !userId || viewing) return;
+  for (const b of state.boards){
+    if (!b.shareCode) continue;
+    const json = JSON.stringify(shareData(b));
+    if (lastShared[b.id] === json) continue;
+    const { error } = await sb.from("shared_boards").update({ data: JSON.parse(json), updated_ms: Date.now() }).eq("code", b.shareCode);
+    if (!error) lastShared[b.id] = json;
+  }
+}
+async function startSharing(b){
+  for (let tries = 0; tries < 6; tries++){
+    const code = newCode();
+    const data = shareData(b);
+    const { error } = await sb.from("shared_boards").insert({ code, owner:userId, board_id:b.id, data, updated_ms:Date.now() });
+    if (!error){ b.shareCode = code; lastShared[b.id] = JSON.stringify(data); save(); return code; }
+    if (error.code === "23505" && /board/i.test(error.message || "")){
+      // this board was already shared from another device: use that code
+      const r = await sb.from("shared_boards").select("code").eq("owner", userId).eq("board_id", b.id).maybeSingle();
+      if (r.data){ b.shareCode = r.data.code; save(); syncShares(); return b.shareCode; }
+    }
+    if (error.code !== "23505") throw error;     // 23505 = that code is taken; try another
+  }
+  throw new Error("no code");
+}
+async function stopSharing(b){
+  const c = b.shareCode; if (!c) return;
+  const { error } = await sb.from("shared_boards").delete().eq("code", c);
+  if (error) throw error;
+  delete b.shareCode; delete lastShared[b.id]; save();
+}
+
+let qrLoading = null;
+function loadQR(){
+  if (window.qrcode) return Promise.resolve();
+  return qrLoading || (qrLoading = new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js";
+    s.onload = res; s.onerror = () => { qrLoading = null; rej(new Error("qr")); };
+    document.head.appendChild(s);
+  }));
+}
+// A printable card: board name, QR code, and the short link to type
+function qrCard(code, name){
+  const qr = window.qrcode(0, "M"); qr.addData(shareURL(code)); qr.make();
+  const n = qr.getModuleCount(), W = 640, cell = Math.floor(520 / (n + 8)), size = cell * (n + 8);
+  const top = 128, H = top + size + 132;
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const g = c.getContext("2d");
+  g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, W, H);
+  g.fillStyle = "#173A55"; g.fillRect(0, 0, W, 10);
+  g.textAlign = "center"; g.fillStyle = "#1B2530";
+  let fs = 34; const title = name || "Class board";
+  do { g.font = `700 ${fs}px "Atkinson Hyperlegible", Arial, sans-serif`; fs -= 2; } while (g.measureText(title).width > W - 60 && fs > 16);
+  g.fillText(title, W / 2, 66);
+  g.font = `400 20px "Atkinson Hyperlegible", Arial, sans-serif`; g.fillStyle = "#5B6874";
+  g.fillText("Class board on Floatle", W / 2, 100);
+  const x0 = (W - size) / 2 + cell * 4, y0 = top + cell * 4;
+  g.fillStyle = "#000000";
+  for (let r = 0; r < n; r++) for (let q = 0; q < n; q++) if (qr.isDark(r, q)) g.fillRect(x0 + q * cell, y0 + r * cell, cell, cell);
+  g.fillStyle = "#5B6874"; g.font = `400 21px "Atkinson Hyperlegible", Arial, sans-serif`;
+  g.fillText("Scan with a phone camera, or type this into a browser:", W / 2, top + size + 30);
+  g.fillStyle = "#1B2530"; g.font = `700 38px "Atkinson Hyperlegible", Arial, sans-serif`;
+  g.fillText(shortLink(code), W / 2, top + size + 82);
+  return c;
+}
+function copyText(text, msg){
+  const done = () => toast(msg || "Copied.");
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+  else fallback();
+  function fallback(){
+    const t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select();
+    try { document.execCommand("copy"); done(); } catch(e){ toast("Couldn't copy. Select the link and copy it."); }
+    t.remove();
+  }
+}
+// Copies the QR picture + link together, ready to paste into a lesson plan (Google Docs, Word, email)
+async function copyForPlan(b){
+  const code = b.shareCode, url = shareURL(code), short = shortLink(code);
+  const text = `Class board (Floatle): ${url}   Board code: ${code}`;
+  const dataUrl = shareCanvas ? shareCanvas.toDataURL("image/png") : "";
+  const html = `<p>${dataUrl ? `<img src="${dataUrl}" width="240" alt="QR code for the class board"><br>` : ""}<b>Class board:</b> <a href="${url}">${esc(short)}</a><br>Board code: <b>${code}</b> (go to ${esc(location.host)} and type it in)</p>`;
+  try {
+    const item = { "text/html": new Blob([html], { type:"text/html" }), "text/plain": new Blob([text], { type:"text/plain" }) };
+    await navigator.clipboard.write([new ClipboardItem(item)]);
+    toast("Copied the QR code and link. Paste them into your sub plans.");
+  } catch(err){
+    try {
+      const png = shareCanvas && await new Promise(r => shareCanvas.toBlob(r, "image/png"));
+      if (png){ await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]); toast("Copied the QR card. Paste it into your sub plans."); return; }
+    } catch(e2){}
+    copyText(text, "Copied the link. Use Download QR card for the picture.");
+  }
+}
+async function renderShare(){
+  const b = board(), box = $("shareBody");
+  $("shareTitle").textContent = "Share “" + b.name + "”";
+  shareCanvas = null;
+  if (!sb){ box.innerHTML = `<p class="share-intro">Sharing needs a connection to Floatle's server. Check your internet and reload the page.</p>`; return; }
+  if (!userId){
+    box.innerHTML = `<p class="share-intro">Sign in to share a board. Shared boards come from your account, so a substitute always sees your latest version.</p>
+      <button class="btn primary" data-sh="signin">Sign in or create an account</button>`;
+    return;
+  }
+  if (!b.shareCode){
+    box.innerHTML = `<p class="share-intro">Make a short link and QR code for this board to paste into your sub plans. A substitute can open it on any computer or phone without signing in. They see your notes and can run your timers, but they can't change your board. Edits you make later show up for them automatically.</p>
+      <button class="btn primary" data-sh="start">Create link and QR code</button>`;
+    return;
+  }
+  const code = b.shareCode;
+  box.innerHTML = `<div class="share-body">
+      <img class="share-qr" id="shareQR" alt="QR code that opens ${esc(shortLink(code))}">
+      <div class="share-info">
+        <div><div class="share-label">Board code</div><div class="share-code">${code}</div></div>
+        <div><div class="share-label">Short link</div><a class="share-link" href="${shareURL(code)}" target="_blank" rel="noopener">${esc(shortLink(code))}</a></div>
+        <div class="share-acts">
+          <button class="btn primary" data-sh="copyplan">Copy for sub plans</button>
+          <button class="btn" data-sh="download">Download QR card</button>
+          <button class="btn" data-sh="copylink">Copy link</button>
+        </div>
+      </div>
+    </div>
+    <p class="share-help">Anyone with this code can view this board, but only you can edit it. A sub can also go to <b>${esc(location.host)}</b> and type the code on the sign-in screen.</p>
+    <div class="share-foot">
+      <button class="btn" data-sh="preview">Preview as a sub</button>
+      <span><button class="btn" data-sh="newcode">New code</button><button class="btn danger-btn" data-sh="stop">Stop sharing</button></span>
+    </div>`;
+  try {
+    await loadQR();
+    if (board().shareCode !== code || !$("shareQR")) return;
+    shareCanvas = qrCard(code, b.name);
+    $("shareQR").src = shareCanvas.toDataURL("image/png");
+  } catch(e){
+    const img = $("shareQR");
+    if (img){ const p = document.createElement("p"); p.className = "share-help"; p.textContent = "The QR code couldn't load right now. The link and code still work."; img.replaceWith(p); }
+  }
+}
+function openShare(){ renderShare(); $("shareWrap").hidden = false; setTimeout(() => $("shareClose").focus(), 30); }
+function closeShare(){ $("shareWrap").hidden = true; renderSettings(); }
+function armBtn(btn, label, fn){
+  if (btn.dataset.armed){ fn(); return; }
+  btn.dataset.armed = "1"; const old = btn.textContent; btn.textContent = label;
+  setTimeout(() => { if (btn.isConnected){ delete btn.dataset.armed; btn.textContent = old; } }, 3500);
+}
+$("shareBtn").addEventListener("click", openShare);
+$("shareWrap").addEventListener("click", async e => {
+  if (e.target === $("shareWrap")){ closeShare(); return; }
+  const btn = e.target.closest("[data-sh]"); if (!btn) return;
+  const a = btn.dataset.sh, b = board();
+  if (a === "close") closeShare();
+  else if (a === "signin"){ closeShare(); try { localStorage.removeItem("swbats.skipLogin"); } catch(err){} showAuth("signin"); }
+  else if (a === "start"){
+    btn.disabled = true; btn.textContent = "Creating…";
+    try { await startSharing(b); renderShare(); }
+    catch(err){ btn.disabled = false; btn.textContent = "Create link and QR code"; toast("Couldn't create a link. Check your connection and try again."); }
+  }
+  else if (a === "copylink") copyText(shareURL(b.shareCode), "Link copied.");
+  else if (a === "copyplan") copyForPlan(b);
+  else if (a === "download"){
+    if (!shareCanvas){ toast("The QR code is still loading."); return; }
+    const link = document.createElement("a");
+    link.href = shareCanvas.toDataURL("image/png");
+    link.download = "floatle-" + (b.name || "board").replace(/[^\w-]+/g, "-").toLowerCase() + "-" + b.shareCode + ".png";
+    document.body.appendChild(link); link.click(); link.remove();
+    toast("QR card saved to your Downloads.");
+  }
+  else if (a === "preview") window.open(shareURL(b.shareCode), "_blank", "noopener");
+  else if (a === "newcode") armBtn(btn, "Tap again (old code stops working)", async () => {
+    try { await stopSharing(b); await startSharing(b); renderShare(); toast("New code made. The old code no longer works."); }
+    catch(err){ toast("Couldn't change the code. Check your connection and try again."); renderShare(); }
+  });
+  else if (a === "stop") armBtn(btn, "Tap again to stop sharing", async () => {
+    try { await stopSharing(b); renderShare(); toast("Sharing is off. The code no longer works."); }
+    catch(err){ toast("Couldn't turn sharing off. Check your connection and try again."); }
+  });
+});
+
+/* ---------- viewing a shared board (substitute) ---------- */
+let sharedUpdated = 0;
+function showMissing(netError){
+  viewMsg = `<div class="view-missing">${netError
+      ? `<p><b>Can't reach Floatle right now.</b></p><p>Check the internet connection, then reload this page.</p>`
+      : `<p><b>No class board found for code ${VIEW_CODE}.</b></p><p>Check the code in the lesson plan and try again. The teacher may also have turned sharing off.</p>`}
+    <div class="auth-code-row"><input id="vCode" maxlength="8" placeholder="Board code" aria-label="Board code" autocomplete="off"><button type="button" id="vGo">Open</button></div></div>`;
+  setState(placeholderState()); render();
+}
+async function loadShared(first){
+  if (!viewing) return;
+  if (!sb){ if (first) showMissing(true); return; }
+  let row = null, error = null;
+  try {
+    const r = await sb.rpc("get_shared_board", { p_code: VIEW_CODE });
+    error = r.error; row = Array.isArray(r.data) ? r.data[0] : r.data;
+  } catch(e){ error = e; }
+  if (error){ if (first) showMissing(true); return; }
+  if (!row || !row.data){ showMissing(false); return; }       // also covers "teacher stopped sharing"
+  if (!first && !viewMsg && (row.updated_ms || 0) <= sharedUpdated) return;
+  sharedUpdated = row.updated_ms || 0;
+  const bd = row.data, prev = (first || viewMsg) ? null : board();
+  if (!bd.id) bd.id = "shared";
+  if (!Array.isArray(bd.notes)) bd.notes = [];
+  // timers start fresh for the sub, and keep running through the teacher's later edits
+  bd.notes.forEach(n => {
+    if (n.kind !== "timed") return;
+    const o = prev && prev.notes.find(x => x.id === n.id);
+    if (o && o.kind === "timed"){
+      n.cur = o.cur; n.timer = o.timer; n.tp = o.tp;
+      (n.tasks || []).forEach(t => { const ot = (o.tasks || []).find(x => x.id === t.id); t.actual = ot ? ot.actual : null; });
+    } else {
+      n.cur = 0; n.timer = { running:false, endAt:0, rem:null };
+      (n.tasks || []).forEach(t => { t.actual = null; });
+    }
+  });
+  viewMsg = "";
+  setState({ v:1, active:bd.id, boards:[bd], updatedAt:0, trash:[] });
+  document.title = (bd.name || "Class board") + " · Floatle";
+  render(); renderPip(); resetHistory();
+}
+function openCode(val, onBad){
+  const c = cleanCode(val);
+  if (c.length !== 6){ onBad("Board codes have 6 letters and numbers."); return; }
+  location.href = location.pathname + "?s=" + c;
+}
+boardEl.addEventListener("click", e => { if (e.target.id === "vGo") openCode($("vCode").value, m => toast(m)); });
+boardEl.addEventListener("keydown", e => { if (e.target.id === "vCode" && e.key === "Enter"){ e.preventDefault(); openCode(e.target.value, m => toast(m)); } });
+$("codeGo").addEventListener("click", () => openCode($("codeIn").value, m => authMsg(m, true)));
+$("codeIn").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); openCode(e.target.value, m => authMsg(m, true)); } });
+$("fullBtn").addEventListener("click", () => {
+  const el = document.documentElement, req = el.requestFullscreen || el.webkitRequestFullscreen;
+  const ex = document.exitFullscreen || document.webkitExitFullscreen;
+  try {
+    if (document.fullscreenElement || document.webkitFullscreenElement){ ex && ex.call(document); }
+    else if (req){ const p = req.call(el); if (p && p.catch) p.catch(() => {}); }
+  } catch(e){}
+});
+
 if (sb){
   $("authSwitch").addEventListener("click", () => showAuth(authMode === "signin" ? "signup" : "signin"));
   $("authForgot").addEventListener("click", () => showAuth("forgot"));
@@ -1736,6 +2062,13 @@ $("importFile").addEventListener("change", async e => {
 
 render();
 resetHistory();
+if (viewing){
+  document.body.classList.add("viewing");
+  viewMsg = "<div>Loading the class board…</div>";
+  setPresent(true);
+  loadShared(true);
+  setInterval(() => { if (document.visibilityState === "visible") loadShared(false); }, 45000);
+}
 })();
 </script>
 </body>
