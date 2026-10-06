@@ -271,6 +271,100 @@ body.present .exit-present{display:inline-flex}
 .pip .note.pip-lifted{z-index:2;transform:scale(1.03);outline:3px solid #7FA4FF;outline-offset:2px;box-shadow:0 4px 8px rgba(0,0,0,.25),0 22px 40px -10px rgba(0,0,0,.6)}
 .pip .note.pip-lifted .note-head{cursor:grabbing}
 body.pip-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
+
+/* ---------- add menu: Timed row with its clock button ---------- */
+.menu .item-row{display:flex;align-items:center;gap:.2rem}
+.menu .item-row .item{flex:1 1 auto}
+.menu .item-clock{flex:0 0 auto;width:2.5rem;height:2.5rem;border:0;border-radius:.5rem;background:#EFEBFB;color:#4B3A99;display:grid;place-items:center;padding:0}
+.menu .item-clock:hover{background:#E2DBF8}
+.menu .item-clock svg{width:1.25rem;height:1.25rem}
+.new-pill{font-size:.7rem;font-weight:700;padding:.05rem .45rem;border-radius:999px;background:#4B3A99;color:#fff;margin-left:.15rem}
+
+/* ---------- Timed note (tasks + minutes) ---------- */
+.tm-now{display:flex;align-items:center;gap:.45em;padding:.3em .4em;margin:0 0 .4em;border-radius:.5em;background:rgba(255,255,255,.6)}
+.tm-mini{width:2.3em;height:2.3em;flex:0 0 auto}
+.tm-now-txt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.tm-now-txt b{font-size:1.1em;font-variant-numeric:tabular-nums}
+.tm-now-txt b.over{color:#A63A17}
+.tm-now-txt span{font-size:.68em;opacity:.8;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.tm-btn{flex:0 0 auto;width:1.9em;height:1.9em;border-radius:50%;border:0;display:grid;place-items:center;background:#1D1A14;color:#fff;padding:0}
+.tm-btn.alt{background:rgba(0,0,0,.12);color:inherit}
+.tm-btn:disabled{opacity:.35;cursor:default}
+.tm-btn svg{width:.85em;height:.85em}
+.tlist{list-style:none;margin:0;padding:0;font-size:.74em}
+.tm-now{font-size:.85em}
+.tm-add,.tm-foot{font-size:.62em !important}
+.trow{display:flex;align-items:center;gap:.4em;padding:.15em .25em;border-radius:.4em}
+.trow.is-cur{background:rgba(255,255,255,.6);box-shadow:inset 0 0 0 2px rgba(29,26,20,.5)}
+.tdot{flex:0 0 auto;width:1.6em;height:1.6em;font-size:.7em;border-radius:50%;display:grid;place-items:center;font-weight:700;border:2px solid rgba(0,0,0,.4)}
+.tdot svg{width:.95em;height:.95em}
+.is-done .tdot{background:#1F7A50;border-color:#1F7A50;color:#fff}
+.is-cur .tdot{border-color:transparent;background:#2E9E6A;color:#1D1A14}
+.tmain{flex:1 1 auto;min-width:0;display:flex;flex-direction:column}
+.task-text{outline:none;white-space:pre-wrap;word-break:break-word;min-width:2ch}
+.task-text:empty::before{content:attr(data-ph);opacity:.4}
+.is-done .task-text{text-decoration:line-through;text-decoration-thickness:.08em;opacity:.55}
+.took{font-size:.62em;font-weight:700;color:#1F6B45}
+.took.over{color:#9C3412}
+.tmin{flex:0 0 auto;display:flex;align-items:center;gap:.15em;font-size:.75em;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tm-step{border:0;background:rgba(255,255,255,.7);width:1.6em;height:1.6em;border-radius:50%;padding:0;font-weight:700;line-height:1}
+.tm-step:hover{background:#fff}
+.tm-x{border:0;background:none;width:1.5em;height:1.5em;padding:0;display:grid;place-items:center;opacity:.5;border-radius:.3em;flex:0 0 auto}
+.tm-x:hover{opacity:1;background:rgba(0,0,0,.08)}
+.tm-x svg{width:.8em;height:.8em}
+.tm-x-sp{width:1.5em;flex:0 0 auto}
+.tm-add{display:flex;align-items:center;gap:.35em;width:100%;margin-top:.35em;border:2px dashed rgba(0,0,0,.25);background:none;border-radius:.4em;padding:.3em .5em;font-size:.8em;font-weight:700;opacity:.85}
+.tm-add:hover{opacity:1;background:rgba(255,255,255,.4)}
+.tm-add svg{width:1em;height:1em}
+.tm-foot{display:flex;justify-content:space-between;gap:.5em;flex-wrap:wrap;margin-top:.45em;padding-top:.35em;border-top:1px dashed rgba(0,0,0,.2);font-size:.7em}
+body.present .tm-edit{display:none !important}
+.pip .tm-edit,.pip .t-timer{display:none !important}
+
+/* ---------- timer panel linked to a Timed note ---------- */
+.tpanel{position:absolute;width:clamp(260px,calc(var(--u) * 25),520px);background:#FFFFFF;color:#1B2530;border-radius:14px;border-top:5px solid #6E56CF;box-shadow:0 2px 6px rgba(0,0,0,.2),0 24px 50px -16px rgba(0,0,0,.55);display:flex;flex-direction:column;font-size:clamp(13px,calc(var(--u) * 1.15),22px);max-height:calc(100% - 1rem)}
+.tpanel .tp-body{overflow-y:auto;min-height:0}
+.tp-head{display:flex;align-items:center;gap:.4em;padding:.4em .45em .4em .7em;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;border-bottom:1px solid #E6E9EC}
+.tp-title{font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0;flex:1 1 auto}
+.tp-seg{display:flex;background:#EFEBFB;border-radius:999px;padding:2px;flex:0 0 auto}
+.tp-seg button{border:0;background:none;border-radius:999px;padding:.3em .7em;font-weight:700;font-size:.82em;color:#4B3A99}
+.tp-seg button[aria-pressed="true"]{background:#4B3A99;color:#fff}
+.tp-body{padding:.6em .9em .8em;display:flex;flex-direction:column;gap:.55em}
+.tp-now{font-size:.72em;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4B3A99}
+.tp-task{font-size:1.25em;font-weight:700;line-height:1.2;overflow-wrap:anywhere}
+.tp-dial{width:100%;height:auto;display:block;max-width:15em;margin:0 auto}
+.tp-dial text{font-family:var(--font);font-weight:700;font-size:20px;fill:#1B2530;paint-order:stroke;stroke:#FBFDFC;stroke-width:4px;stroke-linejoin:round}
+.tp-read{display:flex;justify-content:center;align-items:baseline;gap:.6em;flex-wrap:wrap}
+.tp-read b{font-size:2.2em;line-height:1;font-variant-numeric:tabular-nums}
+.tp-read b.over,.tp-big.over{color:#A63A17}
+.tp-read span,.tp-sub{color:#5B6874;font-size:.9em}
+.tp-big{text-align:center;font-size:5em;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:.25em}
+.tp-sub{text-align:center}
+.tp-bar{display:flex;gap:3px;margin:.5em 0 .3em}
+.tp-bar > span{height:.9em;border-radius:4px;position:relative;overflow:hidden;min-width:4px}
+.tp-bar i{position:absolute;left:0;top:0;bottom:0}
+.tp-ctrl{display:flex;justify-content:center;align-items:center;gap:.5em;flex-wrap:wrap}
+.tp-ctrl button{border:2px solid #D8DDE2;background:#fff;color:#1B2530;border-radius:999px;min-width:2.7em;height:2.7em;font-weight:700;padding:0 .6em;display:inline-flex;align-items:center;justify-content:center;gap:.35em}
+.tp-ctrl button:hover{background:#F3F5F7}
+.tp-ctrl button:disabled{opacity:.4;cursor:default}
+.tp-ctrl .tp-play{background:#1B2530;color:#fff;border-color:#1B2530;width:3.3em;height:3.3em;padding:0}
+.tp-ctrl .tp-play:hover{background:#2C3946}
+.tp-ctrl .tp-done{background:#4B3A99;border-color:#4B3A99;color:#fff}
+.tp-ctrl .tp-done:hover{background:#3E3083}
+.tp-ctrl svg{width:1.1em;height:1.1em}
+.tp-next{display:flex;gap:.6em;align-items:baseline;padding:.45em .7em;border-radius:.6em;background:#F3F5F7;font-size:.9em}
+.tp-next small{font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4B3A99;font-size:.75em;flex:0 0 auto}
+.tp-next b{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tp-sum{padding:.6em .8em;border-radius:.6em;background:#EFEBFB;line-height:1.4}
+.tp-sum .tp-sub{text-align:left}
+.tp-links{display:flex;flex-wrap:wrap;justify-content:center;gap:.1em 1em}
+.tp-links button{border:0;background:none;padding:.3em 0;font-size:.82em;color:#4B3A99;text-decoration:underline}
+.tm-pulse{animation:tmpulse 1.6s ease-in-out infinite}
+@keyframes tmpulse{0%,100%{opacity:1}50%{opacity:.4}}
+@media (prefers-reduced-motion:reduce){.tm-pulse{animation:none}}
+@media (max-width:700px){
+  .tpanel{position:relative !important;left:auto !important;top:auto !important;width:auto;flex:0 0 auto;font-size:15px;z-index:auto !important}
+  .tp-head{cursor:default;touch-action:auto}
+}
 </style>
 </head>
 <body>
@@ -380,7 +474,7 @@ body.pip-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 "use strict";
 const LS_KEY = "classboard.v1";
 const FEEDBACK_URL = "https://forms.gle/cc88cTfQVHkec1wc9";
-const COLORS = { lemon:"#FFE66B", mint:"#A6E8C6", sky:"#A9D8F7", rose:"#FFB8CB", tangerine:"#FFC98F", paper:"#FBFAF6" };
+const COLORS = { lemon:"#FFE66B", mint:"#A6E8C6", sky:"#A9D8F7", rose:"#FFB8CB", tangerine:"#FFC98F", lilac:"#D9CCFF", paper:"#FBFAF6" };
 const COLOR_KEYS = Object.keys(COLORS);
 const BGS = { pond:"Koi pond", slate:"Slate", green:"Chalkboard", white:"Whiteboard", cork:"Corkboard" };
 const BG_SWATCH = { pond:"#1F5470", slate:"#1E2A35", green:"#23392F", white:"#F1F3F4", cork:"#BF956A" };
@@ -392,6 +486,7 @@ const TYPES = {
   homework:{ label:"Homework", kind:"text", color:"rose", w:30, h:26, text:"" },
   reminder:{ label:"Reminder", kind:"text", color:"tangerine", w:26, h:20, text:"" },
   list:{ label:"Checklist", kind:"list", color:"mint", w:28, h:32, items:[""] },
+  timed:{ label:"Timed", kind:"timed", color:"lilac", w:32, h:50, tasks:[["",10]] },
   note:{ label:"Blank note", kind:"text", color:"paper", w:26, h:22, text:"" }
 };
 const PH = { objective:"What you want to get done today", homework:"What's due and when", reminder:"Something you don't want to forget", note:"Type here" };
@@ -401,6 +496,12 @@ function makeNote(type, pos){
   const n = { id:uid(), type, kind:t.kind, title:t.label, color:t.color,
     x:pos?pos.x:4, y:pos?pos.y:6, w:t.w, h:t.h, s:1, min:false, z:++zTop };
   if (t.kind === "list") n.items = t.items.map(s => ({ id:uid(), t:s, done:false }));
+  else if (t.kind === "timed"){
+    n.tasks = t.tasks.map(([s, m]) => ({ id:uid(), t:s, min:m, actual:null }));
+    n.cur = 0;
+    n.timer = { running:false, endAt:0, rem:null };
+    n.tp = { open:false, view:"visual", numbers:true, anchor:"clock", sound:true };
+  }
   else n.text = t.text;
   return n;
 }
@@ -483,13 +584,15 @@ function focusInfo(){
   if (!a || !a.isContentEditable) return null;
   const nn = a.closest(".note"); if (!nn) return null;
   const li = a.closest("[data-item]");
-  return { id:nn.dataset.id, item: li ? li.dataset.item : null,
+  const tr = a.closest("[data-task]");
+  return { id:nn.dataset.id, item: li ? li.dataset.item : null, task: tr ? tr.dataset.task : null,
     cls: a.classList.contains("note-title") ? "note-title" : a.classList.contains("note-text") ? "note-text" : "item-text" };
 }
 function refocus(f){
   if (!f) return;
   const nn = boardEl.querySelector(`.note[data-id="${f.id}"]`); if (!nn) return;
-  const el = f.item ? nn.querySelector(`[data-item="${f.item}"] .item-text`) : nn.querySelector("." + f.cls);
+  const el = f.task ? nn.querySelector(`[data-task="${f.task}"] .task-text`)
+    : f.item ? nn.querySelector(`[data-item="${f.item}"] .item-text`) : nn.querySelector("." + f.cls);
   if (el){ el.focus(); placeCaretEnd(el); }
 }
 function applySnapshot(json, pushTo){
@@ -629,7 +732,12 @@ const ICON = {
   smaller:'<svg viewBox="0 0 24 24" fill="currentColor"><text x="3" y="18" font-size="13" font-weight="700" font-family="Arial">A</text><path d="M14 11h7v2h-7z"/></svg>',
   bigger:'<svg viewBox="0 0 24 24" fill="currentColor"><text x="2" y="19" font-size="16" font-weight="700" font-family="Arial">A</text><path d="M16 11h2v-3h2v3h2v2h-2v3h-2v-3h-2z"/></svg>',
   trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>',
-  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>'
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 13V9M12 13l3 2M10 2h4"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l14 8-14 8z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
 };
 // full address so the koi also shows inside the floating (picture-in-picture) window
 const KOI_TAG = new URL("assets/koi-mini.png", location.href).href;
@@ -637,13 +745,283 @@ const txt = el => (el && el.innerText !== undefined) ? el.innerText : (el ? el.t
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
 const firstLine = n => n.kind === "list"
   ? (n.items.find(i => !i.done && i.t.trim())?.t || n.items[0]?.t || "")
+  : n.kind === "timed"
+  ? ((n.tasks || [])[n.cur || 0]?.t || (n.tasks || []).find(x => x.t.trim())?.t || "")
   : (n.text || "").split("\n").find(l => l.trim()) || "";
+
+/* ---------- Timed notes: tasks with minutes + a linked timer ----------
+   A Timed note keeps its own list of tasks (n.tasks), which task is current (n.cur),
+   and the timer state (n.timer). The timer is timestamp-anchored: while running we
+   store the moment it ends (endAt) instead of counting ticks, so it stays accurate
+   when the tab is in the background, and it syncs across devices with the board.
+   The panel settings (open, position, Visual/Countdown, etc.) live in n.tp. */
+const ZONE = { green:"#2E9E6A", yellow:"#F0B429", red:"#D9452B" };
+const TINTS = ["#AFC4F5", "#F4BFD6", "#BFE3AE", "#F7D49B", "#CDB9F2"];
+const TACTS = new Set(["tplay","tnext","tless","tmore","tadd","tdel","treset","ttimer"]);
+const tpt = (a, r) => { const t = a * Math.PI / 180; return [150 + r * Math.sin(t), 150 - r * Math.cos(t)]; };
+function sector(s, e, r){
+  const span = e - s;
+  if (span <= 0.05) return "";
+  if (span >= 359.95) return `M150 ${150 - r} A${r} ${r} 0 1 1 150 ${150 + r} A${r} ${r} 0 1 1 150 ${150 - r} Z`;
+  const p1 = tpt(s, r), p2 = tpt(e, r);
+  return `M150 150 L${p1[0].toFixed(2)} ${p1[1].toFixed(2)} A${r} ${r} 0 ${span > 180 ? 1 : 0} 1 ${p2[0].toFixed(2)} ${p2[1].toFixed(2)} Z`;
+}
+const TICKS = (() => { let d = ""; for (let i = 0; i < 60; i++){ const a = tpt(i * 6, 140), b = tpt(i * 6, i % 5 === 0 ? 124 : 132); d += `M${a[0].toFixed(1)} ${a[1].toFixed(1)} L${b[0].toFixed(1)} ${b[1].toFixed(1)} `; } return d; })();
+function fmtMs(ms){ const t = Math.max(0, Math.ceil(ms / 1000)), m = Math.floor(t / 60), s = t % 60; return m + ":" + (s < 10 ? "0" : "") + s; }
+function clockText(ms){ const d = new Date(ms); let h = d.getHours() % 12; if (h === 0) h = 12; const m = d.getMinutes(); return h + ":" + (m < 10 ? "0" : "") + m; }
+
+function tInfo(n){
+  const tasks = n.tasks || (n.tasks = []);
+  const tm = n.timer || (n.timer = { running:false, endAt:0, rem:null });
+  const cur = Math.min(n.cur || 0, tasks.length);
+  const t = tasks[cur] || null;
+  const now = Date.now();
+  const taskMs = t ? t.min * 60000 : 0;
+  const running = !!(t && tm.running);
+  const rem = t ? (running ? tm.endAt - now : (tm.rem ?? taskMs)) : 0;
+  const remPos = Math.max(0, rem);
+  const frac = taskMs ? Math.min(1, remPos / taskMs) : 0;
+  const zone = frac <= 0.15 ? "red" : frac <= 0.4 ? "yellow" : "green";
+  const upMs = tasks.slice(cur + 1).reduce((a, x) => a + x.min * 60000, 0);
+  return { tasks, tm, cur, t, now, taskMs, running, rem, remPos, frac, zone, zc: ZONE[zone],
+    over: !!t && rem < 0, allDone: tasks.length > 0 && cur >= tasks.length, finishAt: now + remPos + upMs };
+}
+function readoutOf(I){ return I.allDone ? "Done!" : !I.t ? "0:00" : I.over ? "+" + fmtMs(-I.rem) : fmtMs(I.remPos); }
+function subOf(I){
+  if (I.allDone) return "Every task finished";
+  if (!I.t) return "Add a task to start";
+  if (I.over) return "Past the plan for this task";
+  if (I.running) return "Ends at " + clockText(I.now + I.remPos);
+  return I.rem === I.taskMs ? "Ready" : "Paused";
+}
+function openPanelState(n){
+  const tp = n.tp || (n.tp = {});
+  tp.open = true;
+  if (tp.x == null){ tp.x = Math.min((n.x || 0) + (n.w || 30) + 1.5, 72); tp.y = Math.min(n.y || 4, 10); }
+  tp.z = ++zTop;
+}
+// Every change to a Timed note goes through here. Returns the new task for "tadd".
+function timedAct(n, act, i){
+  const I = tInfo(n), tm = I.tm, now = Date.now();
+  if (act === "tplay"){
+    if (!I.t) return;
+    unlockAudio();
+    if (I.running){ tm.running = false; tm.rem = tm.endAt - now; }
+    else { tm.running = true; tm.endAt = now + (tm.rem ?? I.taskMs); }
+  } else if (act === "tnext"){
+    if (!I.t) return;
+    I.t.actual = Math.max(0, I.taskMs - I.rem);           // how long it really took
+    n.cur = I.cur + 1;
+    const nx = n.tasks[n.cur], ms = nx ? nx.min * 60000 : 0;
+    tm.rem = ms; tm.endAt = now + ms; tm.running = !!(nx && I.running);
+  } else if (act === "tless" || act === "tmore"){
+    const idx = i < 0 ? I.cur : i, x = n.tasks[idx]; if (!x) return;
+    const m = clamp(x.min + (act === "tmore" ? 1 : -1), 1, 180), dm = (m - x.min) * 60000;
+    if (!dm) return;
+    x.min = m;
+    if (idx === I.cur){ if (I.running) tm.endAt += dm; else tm.rem = (tm.rem ?? I.taskMs) + dm; }
+  } else if (act === "tadd"){
+    const wasDone = I.cur >= n.tasks.length;
+    let at = i < 0 ? n.tasks.length : i + 1;
+    at = wasDone ? n.tasks.length : Math.max(at, I.cur + 1);   // never insert before the current task
+    const nt = { id:uid(), t:"", min:5, actual:null };
+    n.tasks.splice(at, 0, nt);
+    if (wasDone){ n.cur = at; tm.rem = nt.min * 60000; tm.running = false; }
+    return nt;
+  } else if (act === "tdel"){
+    if (i <= I.cur) return;
+    n.tasks.splice(i, 1);
+  } else if (act === "treset"){
+    n.tasks.forEach(x => { x.actual = null; });
+    n.cur = 0; tm.running = false; tm.rem = n.tasks[0] ? n.tasks[0].min * 60000 : null;
+  } else if (act === "ttimer"){
+    if (n.tp && n.tp.open) n.tp.open = false; else openPanelState(n);
+  }
+}
+
+function timedBodyHTML(n, ed){
+  const I = tInfo(n);
+  const strip = I.tasks.length ? `<div class="tm-now">
+      <svg class="tm-mini" viewBox="0 0 300 300" aria-hidden="true"><circle cx="150" cy="150" r="140" fill="#FFFFFF" stroke="rgba(0,0,0,.35)" stroke-width="14"/><path class="lv-wedge" d=""/><circle cx="150" cy="150" r="20" fill="#1D1A14"/></svg>
+      <div class="tm-now-txt"><b class="lv-readout"></b><span class="lv-cur"></span></div>
+      <button class="tm-btn" data-act="tplay" title="${I.running ? "Pause" : "Start"}" aria-label="${I.running ? "Pause" : "Start"}" ${I.t ? "" : "disabled"}>${I.running ? ICON.pause : ICON.play}</button>
+      <button class="tm-btn alt" data-act="tnext" title="Done, next task" aria-label="Done, next task" ${I.t ? "" : "disabled"}>${ICON.check}</button>
+    </div>` : "";
+  const rows = I.tasks.map((x, i) => {
+    const st = i < I.cur ? "is-done" : i === I.cur ? "is-cur" : "";
+    const dot = i < I.cur ? ICON.check : i === I.cur ? ICON.play : String(i + 1);
+    let took = "";
+    if (i < I.cur && x.actual != null){
+      const over = x.actual > x.min * 60000 + 30000;
+      took = `<span class="took${over ? " over" : ""}">took ${fmtMs(x.actual)}</span>`;
+    }
+    const tail = i > I.cur ? `<button class="tm-x tm-edit" data-act="tdel" title="Remove task" aria-label="Remove task">${ICON.x}</button>` : `<span class="tm-x-sp tm-edit"></span>`;
+    return `<li class="trow ${st}" data-task="${x.id}"><span class="tdot" aria-hidden="true">${dot}</span>
+      <div class="tmain"><span class="task-text" contenteditable="${ed}" data-ph="What's the task?">${esc(x.t)}</span>${took}</div>
+      <span class="tmin"><button class="tm-step tm-edit" data-act="tless" aria-label="One minute less">&minus;</button><span>${x.min} min</span><button class="tm-step tm-edit" data-act="tmore" aria-label="One minute more">+</button></span>${tail}</li>`;
+  }).join("");
+  const total = I.tasks.reduce((a, x) => a + x.min, 0);
+  return `${strip}<ol class="tlist">${rows}</ol>
+    <button class="tm-add tm-edit" data-act="tadd">${ICON.plus}Add a task</button>
+    <div class="tm-foot"><span>Planned <b>${total} min</b></span><span class="lv-finish"></span></div>`;
+}
+
+function panelEl(n){
+  const I = tInfo(n), tp = n.tp || (n.tp = {});
+  const vis = tp.view !== "countdown", onClock = tp.anchor !== "twelve";
+  const el = document.createElement("section");
+  el.className = "tpanel"; el.dataset.tp = n.id;
+  el.style.cssText = `left:${tp.x ?? 60}%;top:${tp.y ?? 8}%;z-index:${tp.z || zTop + 1}`;
+  el.setAttribute("aria-label", "Timer for " + (n.title || "Timed note"));
+  let labels = "";
+  for (let k = 1; k <= 12; k++){
+    const p = tpt(k * 30, 106);
+    labels += `<text x="${p[0].toFixed(1)}" y="${p[1].toFixed(1)}" text-anchor="middle" dominant-baseline="central">${onClock ? k : (k % 12) * 5}</text>`;
+  }
+  const dial = `<svg class="tp-dial" viewBox="0 0 300 300" aria-hidden="true">
+      <circle cx="150" cy="150" r="142" fill="#FBFDFC" stroke="#D8DDE2" stroke-width="2"/>
+      <g class="lv-segs"></g>
+      <path d="${TICKS}" stroke="#1B2530" stroke-width="2" stroke-linecap="round" fill="none"/>
+      ${labels}
+      <circle class="lv-ring" cx="150" cy="150" r="137" fill="none" stroke="transparent" stroke-width="6"/>
+      ${onClock ? `<line class="lv-hh" x1="150" y1="150" x2="150" y2="150" stroke="#1B2530" stroke-width="7" stroke-linecap="round"/><line class="lv-mh" x1="150" y1="150" x2="150" y2="150" stroke="#1B2530" stroke-width="4.5" stroke-linecap="round"/>` : ""}
+      <circle cx="150" cy="150" r="11" fill="#1B2530"/>
+    </svg>`;
+  const bar = `<div class="tp-bar" aria-hidden="true">${I.tasks.map((x, i) =>
+    `<span style="flex:${x.min} 1 0;background:${i < I.cur ? "#C3CBD1" : i === I.cur ? "#E6EAED" : TINTS[i % TINTS.length]}">${i === I.cur ? '<i class="lv-barfill"></i>' : ""}</span>`).join("")}</div>`;
+  const nx = I.tasks[I.cur + 1];
+  const est = I.tasks.reduce((a, x) => a + x.min, 0);
+  const took = I.tasks.reduce((a, x) => a + (x.actual || 0), 0);
+  const diff = Math.round(took / 60000 - est);
+  const reflect = diff > 0 ? `About ${diff} min longer than planned. Next time, try planning a little extra.`
+    : diff < 0 ? `About ${-diff} min faster than planned.` : "Right on your plan.";
+  const off = I.t ? "" : "disabled";
+  el.innerHTML = `<header class="tp-head">${ICON.grip}<b class="tp-title">${esc(n.title || "Timed")}</b>
+      <div class="tp-seg" role="group" aria-label="Timer style">
+        <button data-act="pview" data-v="visual" aria-pressed="${vis}">Visual</button>
+        <button data-act="pview" data-v="countdown" aria-pressed="${!vis}">Countdown</button>
+      </div>
+      <button class="tool" data-act="pclose" title="Close timer" aria-label="Close timer">${ICON.x}</button>
+    </header>
+    <div class="tp-body">
+      <div><div class="tp-now">${I.allDone ? "Finished" : I.t ? `Now &middot; task ${I.cur + 1} of ${I.tasks.length}` : "Timed"}</div><div class="tp-task lv-cur"></div></div>
+      ${vis ? dial + (tp.numbers !== false ? `<div class="tp-read"><b class="lv-readout"></b><span class="lv-sub"></span></div>` : "")
+            : `<div class="tp-big lv-readout"></div><div class="tp-sub lv-sub"></div>${bar}`}
+      <div class="tp-ctrl">
+        <button data-act="tless" title="One minute less" aria-label="One minute less for this task" ${off}>&minus;1</button>
+        <button class="tp-play" data-act="tplay" title="${I.running ? "Pause" : "Start"}" aria-label="${I.running ? "Pause" : "Start"}" ${off}>${I.running ? ICON.pause : ICON.play}</button>
+        <button data-act="tmore" title="One minute more" aria-label="One minute more for this task" ${off}>+1</button>
+        <button class="tp-done" data-act="tnext" ${off}>${ICON.check}<span>Done, next</span></button>
+      </div>
+      ${nx && !I.allDone ? `<div class="tp-next"><small>Up next</small><b class="lv-next"></b><span>${nx.min} min</span></div>` : ""}
+      ${I.allDone ? `<div class="tp-sum"><b>All done!</b><div>You planned <b>${est} min</b>. It took <b>${fmtMs(took)}</b>.</div><div class="tp-sub">${reflect}</div></div>` : ""}
+      <div class="tp-links">
+        ${vis ? `<button data-act="pnum">${tp.numbers === false ? "Show numbers" : "Hide numbers"}</button><button data-act="panchor">${onClock ? "Start dial at 12" : "Show on the clock"}</button>` : ""}
+        <button data-act="psound">${tp.sound === false ? "Sound: off" : "Sound: on"}</button>
+        <button data-act="treset">Start over</button>
+      </div>
+    </div>`;
+  return el;
+}
+function renderPanel(n){
+  const old = boardEl.querySelector(`.tpanel[data-tp="${n.id}"]`);
+  if (!(n.kind === "timed" && n.tp && n.tp.open && board().notes.includes(n))){ if (old) old.remove(); return; }
+  const el = panelEl(n);
+  if (old) old.replaceWith(el); else boardEl.appendChild(el);
+  tickTimed();
+}
+function renderPanels(){
+  boardEl.querySelectorAll(".tpanel").forEach(p => p.remove());
+  board().notes.forEach(n => { if (n.kind === "timed" && n.tp && n.tp.open) boardEl.appendChild(panelEl(n)); });
+  tickTimed();
+}
+
+// colored sections on the dial: the current task (green / yellow / red), then the next tasks
+function segPaths(n, I){
+  const d = new Date(I.now);
+  const a0 = (n.tp && n.tp.anchor === "twelve") ? 0 : (d.getMinutes() + d.getSeconds() / 60) * 6;
+  const lim = a0 + 360; let a = a0, out = "";
+  const path = (s, e, c) => `<path d="${sector(s, e, 128)}" fill="${c}" stroke="#FBFDFC" stroke-width="2"/>`;
+  if (I.t && I.remPos > 0){ const e = Math.min(lim, a + I.remPos / 60000 * 6); out += path(a, e, I.zc); a = e; }
+  I.tasks.slice(I.cur + 1).forEach((x, k) => {
+    if (a >= lim - 0.1) return;
+    const e = Math.min(lim, a + x.min * 6);
+    out += path(a, e, TINTS[(I.cur + 1 + k) % TINTS.length]); a = e;
+  });
+  return out;
+}
+
+/* chime when a task's time runs out (can be turned off per timer) */
+let actx = null;
+const chimed = new Set();
+function unlockAudio(){
+  try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); } catch(e){}
+}
+function chime(){
+  if (!actx) return;
+  try {
+    const t0 = actx.currentTime;
+    [0, 0.35, 0.7].forEach(dt => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = "sine"; o.frequency.value = 880;
+      g.gain.setValueAtTime(0.0001, t0 + dt);
+      g.gain.exponentialRampToValueAtTime(0.25, t0 + dt + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dt + 0.3);
+      o.connect(g); g.connect(actx.destination);
+      o.start(t0 + dt); o.stop(t0 + dt + 0.32);
+    });
+  } catch(e){}
+}
+
+// Updates the numbers, dial and colors in place 4 times a second (no re-render, so clicks and typing aren't interrupted)
+function tickTimed(){
+  if (!state) return;
+  state.boards.forEach(b => b.notes.forEach(n => {
+    if (n.kind !== "timed") return;
+    const I = tInfo(n);
+    if (I.running && I.rem <= 0 && I.rem > -5000 && !(n.tp && n.tp.sound === false)){
+      const key = I.t.id + ":" + I.tm.endAt;
+      if (!chimed.has(key)){ chimed.add(key); chime(); }
+    }
+  }));
+  const docs = [document];
+  if (typeof pipWin !== "undefined" && pipWin && !pipWin.closed) docs.push(pipWin.document);
+  board().notes.forEach(n => {
+    if (n.kind !== "timed") return;
+    const I = tInfo(n);
+    const ro = readoutOf(I), sub = subOf(I);
+    const name = I.allDone ? "All tasks done" : I.t ? (I.t.t || "Untitled task") : "No tasks yet";
+    const nx = I.tasks[I.cur + 1];
+    const fin = I.allDone ? "All done" : I.running ? "Finishes about " + clockText(I.finishAt) : I.t ? "Paused" : "";
+    const d = new Date(I.now), minF = d.getMinutes() + d.getSeconds() / 60, hourF = (d.getHours() % 12) + minF / 60;
+    const hh = tpt(hourF * 30, 70), mh = tpt(minF * 6, 108);
+    const ringOn = I.over || (I.running && I.zone === "red");
+    const set = (root, sel, v) => root.querySelectorAll(sel).forEach(el => { if (el.textContent !== v) el.textContent = v; });
+    docs.forEach(doc => doc.querySelectorAll(`.note[data-id="${n.id}"], .tpanel[data-tp="${n.id}"]`).forEach(root => {
+      set(root, ".lv-readout", ro); set(root, ".lv-sub", sub); set(root, ".lv-cur", name);
+      set(root, ".lv-finish", fin); set(root, ".lv-next", nx ? (nx.t || "Untitled task") : "");
+      root.querySelectorAll(".lv-readout").forEach(el => el.classList.toggle("over", I.over));
+      root.querySelectorAll(".lv-wedge").forEach(w => { w.setAttribute("d", sector(0, I.frac * 360, 128)); w.setAttribute("fill", I.zc); });
+      const dot = root.querySelector(".trow.is-cur .tdot"); if (dot) dot.style.background = I.zc;
+      const pv = root.querySelector(".preview"); if (pv && I.t) pv.textContent = ro + " · " + name;
+      const segs = root.querySelector(".lv-segs"); if (segs) segs.innerHTML = segPaths(n, I);
+      const hEl = root.querySelector(".lv-hh"), mEl = root.querySelector(".lv-mh");
+      if (hEl){ hEl.setAttribute("x2", hh[0].toFixed(1)); hEl.setAttribute("y2", hh[1].toFixed(1)); }
+      if (mEl){ mEl.setAttribute("x2", mh[0].toFixed(1)); mEl.setAttribute("y2", mh[1].toFixed(1)); }
+      const ring = root.querySelector(".lv-ring");
+      if (ring){ ring.setAttribute("stroke", ringOn ? "#D9452B" : "transparent"); ring.setAttribute("class", "lv-ring" + (ringOn ? " tm-pulse" : "")); }
+      const bf = root.querySelector(".lv-barfill"); if (bf){ bf.style.width = (I.frac * 100).toFixed(1) + "%"; bf.style.background = I.zc; }
+    }));
+  });
+}
+setInterval(tickTimed, 250);
 
 /* ---------- rendering ---------- */
 function noteHTML(n, forPip){
   const ed = forPip ? "false" : editableAttr();
   const body = n.kind === "list"
     ? `<ol class="list">${n.items.map(it => `<li class="${it.done?"done":""}" data-item="${it.id}"><button class="check" data-act="check" aria-label="${it.done?"Mark not done":"Mark done"}" aria-pressed="${it.done}">${ICON.check}</button><span class="item-text" contenteditable="${ed}">${esc(it.t)}</span></li>`).join("")}</ol>`
+    : n.kind === "timed" ? timedBodyHTML(n, ed)
     : `<div class="note-text" contenteditable="${ed}" data-ph="${esc(PH[n.type]||"Type here")}">${esc(n.text)}</div>`;
   return `<header class="note-head">${ICON.grip}<img class="koi-tag" src="${KOI_TAG}" alt="" aria-hidden="true" draggable="false">
       <h2 class="note-title" contenteditable="${ed}" spellcheck="false">${esc(n.title)}</h2>
@@ -653,6 +1031,7 @@ function noteHTML(n, forPip){
         <button class="tool t-edit" data-act="color" title="Change color" aria-label="Change color"><span class="dot"></span></button>
         <button class="tool t-edit" data-act="smaller" title="Smaller text" aria-label="Smaller text">${ICON.smaller}</button>
         <button class="tool t-edit" data-act="bigger" title="Bigger text" aria-label="Bigger text">${ICON.bigger}</button>
+        ${n.kind === "timed" ? `<button class="tool t-timer" data-act="ttimer" title="${n.tp && n.tp.open ? "Hide timer" : "Show timer"}" aria-label="${n.tp && n.tp.open ? "Hide timer" : "Show timer"}">${ICON.clock}</button>` : ""}
         <button class="tool" data-act="min" title="${n.min?"Expand":"Minimize to a bar"}" aria-label="${n.min?"Expand":"Minimize"}">${n.min?ICON.max:ICON.min}</button>
         <button class="tool t-edit" data-act="delete" title="Delete note" aria-label="Delete note">${ICON.trash}</button>
       </div>
@@ -673,6 +1052,7 @@ function renderNote(n){
   const old = boardEl.querySelector(`.note[data-id="${n.id}"]`);
   const el = noteEl(n);
   if (old) old.replaceWith(el); else boardEl.appendChild(el);
+  if (n.kind === "timed") tickTimed();
   return el;
 }
 function renderTabs(){
@@ -689,11 +1069,16 @@ function renderBoard(){
     boardEl.innerHTML = `<div class="empty"><div>This board is empty.<br>${presenting ? "Choose Edit board to add notes." : "Use Add note to post your first note."}</div></div>`;
   }
   b.notes.forEach(n => boardEl.appendChild(noteEl(n)));
+  renderPanels();
   sizeUnit();
 }
 function renderAddMenu(){
-  $("addMenu").innerHTML = Object.entries(TYPES).map(([k,t]) =>
-    `<button class="item" role="menuitem" data-type="${k}"><span class="swatch" style="background:${COLORS[t.color]}"></span>${t.label}</button>`).join("");
+  $("addMenu").innerHTML = Object.entries(TYPES).map(([k,t]) => {
+    const main = `<button class="item" role="menuitem" data-type="${k}"><span class="swatch" style="background:${COLORS[t.color]}"></span>${t.label}${k === "timed" ? '<span class="new-pill">New</span>' : ""}</button>`;
+    if (k !== "timed") return main;
+    // the clock button adds a Timed note and opens its timer beside it
+    return `<div class="item-row">${main}<button class="item-clock" role="menuitem" data-type="timed" data-timer="1" title="Add a Timed note with its timer" aria-label="Add a Timed note with its timer">${ICON.clock}</button></div>`;
+  }).join("");
 }
 function renderSettings(){
   const b = board();
@@ -765,9 +1150,10 @@ $("addMenu").addEventListener("click", e => {
   b.notes.push(n);
   if (b.notes.length === 1) boardEl.innerHTML = "";
   const el = renderNote(n);
+  if (n.kind === "timed" && btn.dataset.timer){ openPanelState(n); renderPanel(n); renderNote(n); }
   save();
   toggleMenu($("addBtn"), $("addMenu"), false);
-  const target = el.querySelector(n.kind==="list" ? ".item-text" : ".note-text");
+  const target = boardEl.querySelector(`.note[data-id="${n.id}"] ` + (n.kind==="list" ? ".item-text" : n.kind==="timed" ? ".task-text" : ".note-text")) || el.querySelector(".note-text");
   if (target){ target.focus(); placeCaretEnd(target); }
 });
 
@@ -804,7 +1190,14 @@ $("setMenu").addEventListener("click", e => {
     const copy = JSON.parse(JSON.stringify(b));
     copy.id = uid(); copy.name = b.name + " (copy)";
     const idMap = {};
-    copy.notes.forEach(n => { const old = n.id; n.id = uid(); idMap[old] = n.id; (n.items||[]).forEach(i => { i.id = uid(); i.done = false; }); });
+    copy.notes.forEach(n => {
+      const old = n.id; n.id = uid(); idMap[old] = n.id;
+      (n.items||[]).forEach(i => { i.id = uid(); i.done = false; });
+      if (n.kind === "timed"){
+        (n.tasks||[]).forEach(x => { x.id = uid(); x.actual = null; });
+        n.cur = 0; n.timer = { running:false, endAt:0, rem:null };
+      }
+    });
     if (Array.isArray(copy.pipOrder)) copy.pipOrder = copy.pipOrder.map(id => idMap[id]).filter(Boolean);
     state.boards.splice(state.boards.indexOf(b)+1, 0, copy);
     state.active = copy.id; render(); save();
@@ -875,10 +1268,22 @@ function handleNoteAction(n, e, noteNode, inPip){
     const li = btn.closest("[data-item]"); const it = n.items.find(i => i.id === li.dataset.item);
     if (it) it.done = !it.done;
   }
+  else if (TACTS.has(act) && n.kind === "timed"){
+    const li = btn.closest("[data-task]");
+    const idx = li ? n.tasks.findIndex(x => x.id === li.dataset.task) : -1;
+    const nt = timedAct(n, act, idx);
+    after();
+    if (act === "tadd" && nt && !inPip){
+      const el = boardEl.querySelector(`.note[data-id="${n.id}"] [data-task="${nt.id}"] .task-text`);
+      if (el) el.focus();
+    }
+    return;
+  }
   else if (act === "delete"){
     const b = board(); const idx = b.notes.indexOf(n);
     b.notes.splice(idx,1);
     const t = trashItem("note", n, b, idx);
+    boardEl.querySelector(`.tpanel[data-tp="${n.id}"]`)?.remove();
     noteNode.remove(); save();
     if (!b.notes.length) renderBoard();
     toast("Note moved to Trash.", () => restoreFromTrash(t.id));
@@ -889,6 +1294,7 @@ function handleNoteAction(n, e, noteNode, inPip){
     save();
     if (inPip) { const bn = boardEl.querySelector(`.note[data-id="${n.id}"]`); if (bn) renderNote(n); }
     else renderNote(n);
+    if (n.kind === "timed") renderPanel(n);
   }
 }
 
@@ -902,6 +1308,11 @@ boardEl.addEventListener("input", e => {
     const it = n.items.find(i => i.id === e.target.closest("[data-item]").dataset.item);
     if (it) it.t = txt(e.target).replace(/\n/g," ");
     if (!it?.t) e.target.innerHTML = "";
+  }
+  else if (e.target.classList.contains("task-text")){
+    const x = (n.tasks || []).find(i => i.id === e.target.closest("[data-task]").dataset.task);
+    if (x) x.t = txt(e.target).replace(/\n/g," ");
+    if (!x?.t) e.target.innerHTML = "";
   }
   noteNode.querySelector(".preview").textContent = firstLine(n);
   save("typing");
@@ -925,6 +1336,75 @@ boardEl.addEventListener("keydown", e => {
     el.focus(); placeCaretEnd(el);
   }
 });
+/* Timed note: Enter adds the next task, Backspace on an empty upcoming task removes it */
+boardEl.addEventListener("keydown", e => {
+  const t = e.target;
+  if (!t.classList?.contains("task-text")) return;
+  const noteNode = t.closest(".note"); const n = findNote(noteNode.dataset.id); if (!n) return;
+  const idx = n.tasks.findIndex(x => x.id === t.closest("[data-task]").dataset.task);
+  if (e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    const nt = timedAct(n, "tadd", idx); save();
+    const el = renderNote(n).querySelector(`[data-task="${nt.id}"] .task-text`);
+    renderPanel(n);
+    if (el) el.focus();
+  } else if (e.key === "Backspace" && !txt(t).trim() && idx > (n.cur || 0) && n.tasks.length > 1){
+    e.preventDefault();
+    n.tasks.splice(idx, 1); save();
+    const prev = n.tasks[idx - 1];
+    const el = renderNote(n).querySelector(`[data-task="${prev.id}"] .task-text`);
+    renderPanel(n);
+    if (el){ el.focus(); placeCaretEnd(el); }
+  }
+});
+
+/* timer panel: buttons */
+boardEl.addEventListener("click", e => {
+  const p = e.target.closest(".tpanel"); if (!p) return;
+  const n = findNote(p.dataset.tp); if (!n) return;
+  const btn = e.target.closest("[data-act]"); if (!btn) return;
+  const a = btn.dataset.act, tp = n.tp || (n.tp = {});
+  if (a === "pclose") tp.open = false;
+  else if (a === "pview") tp.view = btn.dataset.v;
+  else if (a === "pnum") tp.numbers = tp.numbers === false;
+  else if (a === "panchor") tp.anchor = tp.anchor === "twelve" ? "clock" : "twelve";
+  else if (a === "psound"){ tp.sound = tp.sound === false; if (tp.sound) unlockAudio(); }
+  else if (TACTS.has(a)) timedAct(n, a, -1);
+  else return;
+  save(); renderNote(n); renderPanel(n);
+  const again = boardEl.querySelector(`.tpanel[data-tp="${n.id}"] [data-act="${a}"]`);
+  if (again && a !== "pclose") again.focus();
+});
+
+/* timer panel: drag by its top bar */
+let pdrag = null;
+boardEl.addEventListener("pointerdown", e => {
+  if (narrow()) return;
+  const p = e.target.closest(".tpanel"); if (!p) return;
+  const n = findNote(p.dataset.tp); if (!n || !n.tp) return;
+  if (n.tp.z !== zTop){ n.tp.z = ++zTop; p.style.zIndex = n.tp.z; }
+  if (!e.target.closest(".tp-head") || e.target.closest("button")) return;
+  e.preventDefault();
+  const r = boardEl.getBoundingClientRect();
+  pdrag = { n, el:p, sx:e.clientX, sy:e.clientY, x:n.tp.x ?? 60, y:n.tp.y ?? 8, W:r.width, H:r.height, pid:e.pointerId, moved:false };
+  p.setPointerCapture(e.pointerId);
+});
+boardEl.addEventListener("pointermove", e => {
+  if (!pdrag || e.pointerId !== pdrag.pid) return;
+  const dx = (e.clientX - pdrag.sx) / pdrag.W * 100, dy = (e.clientY - pdrag.sy) / pdrag.H * 100;
+  if (Math.abs(dx) + Math.abs(dy) > 0.2) pdrag.moved = true;
+  pdrag.n.tp.x = clamp(pdrag.x + dx, -15, 92);
+  pdrag.n.tp.y = clamp(pdrag.y + dy, 0, 92);
+  pdrag.el.style.left = pdrag.n.tp.x + "%"; pdrag.el.style.top = pdrag.n.tp.y + "%";
+});
+function endPanelDrag(e){
+  if (!pdrag || (e && e.pointerId !== pdrag.pid)) return;
+  if (pdrag.moved) save();
+  pdrag = null;
+}
+boardEl.addEventListener("pointerup", endPanelDrag);
+boardEl.addEventListener("pointercancel", endPanelDrag);
+
 if (!PT) boardEl.addEventListener("paste", e => {
   if (!e.target.isContentEditable) return;
   e.preventDefault();
@@ -1141,6 +1621,7 @@ function renderPip(){
     root.appendChild(el);
   });
   root.scrollTop = scroll;
+  tickTimed();
 }
 
 function pipPointerDown(e){
