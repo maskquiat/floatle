@@ -55,6 +55,14 @@ button{font:inherit;color:inherit;cursor:pointer}
 .tab{border:1px solid transparent;background:transparent;padding:.45rem .8rem;border-radius:.5rem;white-space:nowrap;font-weight:700;color:var(--muted)}
 .tab[aria-selected="true"]{background:var(--chrome-2);color:var(--ink);border-color:var(--line)}
 .tab.add{font-weight:400}
+.bar-tools{display:contents}
+/* mid widths (landscape phones, small laptops): icons only so board tabs keep room */
+@media (max-width:1150px) and (min-width:701px){
+  .date{display:none}
+  .bar .btn .lbl{display:none}
+  #leaveBtn .lbl{display:inline}
+  .tabs{min-width:7rem}
+}
 .date{color:var(--muted);white-space:nowrap;font-size:.95rem}
 .btn{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--line);background:var(--chrome);padding:.45rem .75rem;border-radius:.5rem;white-space:nowrap}
 .btn:hover{background:var(--chrome-2)}
@@ -185,6 +193,20 @@ body.present .exit-present{display:inline-flex}
   .resize,.grip{display:none}
   .tools .t-edit{display:none !important}
   .empty{position:static}
+  /* top bar: row 1 = board tabs, row 2 = tools that swipe sideways */
+  .bar{flex-wrap:wrap;row-gap:.45rem;padding:calc(.45rem + env(safe-area-inset-top,0px)) .5rem .45rem}
+  .tabs{order:-1;flex:1 0 100%;padding-bottom:.05rem}
+  .tab{padding:.55rem .9rem;font-size:1rem;border-color:var(--line)}
+  .tab[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+  .bar-tools{display:flex;gap:.4rem;flex:1 0 100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:.1rem}
+  .bar-tools::-webkit-scrollbar{display:none}
+  .bar-tools > *{flex:0 0 auto}
+  .add-wrap{order:-2}
+  .set-wrap{order:-1}
+  .bar-tools .btn{min-width:44px;min-height:44px;justify-content:center}
+  /* menus open as a bottom sheet so nothing runs off the screen */
+  .menu{position:fixed;left:.5rem;right:.5rem;top:auto;bottom:calc(.5rem + env(safe-area-inset-bottom,0px));min-width:0;max-height:min(72vh,36rem);max-height:min(72dvh,36rem);border-radius:1rem;box-shadow:0 -8px 40px rgba(0,0,0,.45)}
+  .menu button.item{min-height:44px}
 }
 @media (prefers-reduced-motion:no-preference){
   .note.dragging{transition:box-shadow .15s}
@@ -454,8 +476,9 @@ body.viewing .rep-btn{display:none !important}
   <div class="present-title" id="presentTitle"></div>
   <nav class="tabs" id="tabs" role="tablist" aria-label="Boards"></nav>
   <span class="date" id="date"></span>
-  <div class="menu-wrap edit-only">
-    <button class="btn primary" id="addBtn" aria-haspopup="true" aria-expanded="false">
+  <div class="bar-tools" id="barTools">
+  <div class="menu-wrap edit-only add-wrap">
+    <button class="btn primary" id="addBtn" aria-label="Add note" aria-haspopup="true" aria-expanded="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="lbl">Add note</span>
     </button>
     <div class="menu" id="addMenu" role="menu"></div>
@@ -466,32 +489,33 @@ body.viewing .rep-btn{display:none !important}
   <button class="btn icon edit-only" id="redoBtn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" disabled>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>
   </button>
-  <button class="btn edit-only" id="pipBtn" title="Open a small always-on-top window">
+  <button class="btn edit-only" id="pipBtn" aria-label="Float" title="Open a small always-on-top window">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="5" rx="1" fill="currentColor"/></svg><span class="lbl">Float</span>
   </button>
-  <button class="btn edit-only" id="presentBtn">
+  <button class="btn edit-only" id="presentBtn" aria-label="Present" title="Present this board full screen">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8"/></svg><span class="lbl">Present</span>
   </button>
-  <button class="btn edit-only" id="shareBtn" title="Share this board with a substitute (link + QR code)">
+  <button class="btn edit-only" id="shareBtn" aria-label="Share" title="Share this board with a substitute (link + QR code)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 14v.01M14 21h.01M17 21h4v-4"/></svg><span class="lbl">Share</span>
   </button>
-  <button class="btn rep-btn edit-only" id="repBtn" title="Reports your substitutes left for you" hidden>
+  <button class="btn rep-btn edit-only" id="repBtn" aria-label="Sub reports" title="Reports your substitutes left for you" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="lbl">Sub reports</span><span class="rep-dot" id="repDot" hidden></span>
   </button>
   <span class="view-badge">View only</span>
   <button class="btn primary viewer-only" id="leaveBtn" title="Tell the teacher how the class went">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="lbl">Note for the teacher</span>
   </button>
-  <button class="btn viewer-only" id="fullBtn">
+  <button class="btn viewer-only" id="fullBtn" aria-label="Full screen">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="lbl">Full screen</span>
   </button>
-  <div class="menu-wrap edit-only">
-    <button class="btn" id="setBtn" aria-haspopup="true" aria-expanded="false" title="Board settings">
+  <div class="menu-wrap edit-only set-wrap">
+    <button class="btn" id="setBtn" aria-label="Board settings" aria-haspopup="true" aria-expanded="false" title="Board settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span class="lbl">Settings</span>
     </button>
     <div class="menu" id="setMenu" role="menu"></div>
   </div>
   <button class="btn exit-present" id="exitBtn">Edit board</button>
+  </div>
 </header>
 <main class="board" id="board" aria-label="Board"></main>
 <div class="auth" id="auth" hidden>
@@ -1199,6 +1223,12 @@ function renderTabs(){
     `<button class="tab" role="tab" data-board="${b.id}" aria-selected="${b.id===state.active}">${esc(b.name)}</button>`).join("")
     + `<button class="tab add edit-only" id="addClass" title="Add a new board">+ Class</button>`;
   $("presentTitle").textContent = board().name;
+  requestAnimationFrame(() => {
+    const at = tabsEl.querySelector('[aria-selected="true"]'); if (!at) return;
+    const l = at.offsetLeft - tabsEl.offsetLeft, r = l + at.offsetWidth;
+    if (l < tabsEl.scrollLeft) tabsEl.scrollLeft = Math.max(0, l - 12);
+    else if (r > tabsEl.scrollLeft + tabsEl.clientWidth) tabsEl.scrollLeft = r - tabsEl.clientWidth + 12;
+  });
 }
 function renderBoard(){
   const b = board();
