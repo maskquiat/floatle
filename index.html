@@ -175,6 +175,9 @@ body.present .exit-present{display:inline-flex}
   .date{display:none}
   .brand{display:none}
   .btn .lbl{display:none}
+  #leaveBtn .lbl{display:inline}
+  body.viewing .view-badge{display:none !important}
+  body.present .present-title{flex:1 1 auto;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:1.1rem}
   .board{overflow-y:auto;padding:.75rem;display:flex;flex-direction:column;gap:.6rem}
   .note{position:relative !important;left:auto !important;top:auto !important;width:auto !important;height:auto !important;min-height:0;z-index:auto !important;flex:0 0 auto}
   .note-body{max-height:none}
@@ -397,6 +400,48 @@ body.present .tm-edit{display:none !important}
 .tm-pulse{animation:tmpulse 1.6s ease-in-out infinite}
 @keyframes tmpulse{0%,100%{opacity:1}50%{opacity:.4}}
 @media (prefers-reduced-motion:reduce){.tm-pulse{animation:none}}
+/* ---------- sub reports (sub → teacher) ---------- */
+.rep-panel{max-width:40rem}
+.rep-privacy{display:flex;gap:.6rem;align-items:flex-start;margin:.7rem 0 .2rem;padding:.7rem .85rem;border-radius:.6rem;background:#FFF4D6;color:#5A4200;line-height:1.4;font-size:.92rem}
+.rep-privacy svg{width:1.2rem;height:1.2rem;flex:0 0 auto;margin-top:.1rem}
+.rep-form fieldset{border:0;margin:0;padding:.85rem 0 0;border-top:1px solid var(--line);margin-top:.85rem}
+.rep-form legend{font-weight:700;padding:0;margin-bottom:.45rem}
+.rep-form legend small{font-weight:400;color:var(--muted)}
+.rep-form label.lb{display:block;font-weight:700;margin:.2rem 0 .3rem}
+.rep-form input[type=text],.rep-form input[type=email],.rep-form textarea{width:100%;font:inherit;padding:.6rem .7rem;border:1px solid var(--line);border-radius:.55rem;background:var(--chrome-2);color:var(--ink)}
+.rep-form textarea{min-height:3.6rem;resize:vertical;margin-top:.45rem}
+.rep-two{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+@media (max-width:520px){.rep-two{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{border:2px solid var(--line);background:var(--chrome);border-radius:999px;padding:.45rem .85rem;font-weight:700;font-size:.92rem}
+.chip:hover{background:var(--chrome-2)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.rep-hint{color:var(--muted);font-size:.85rem;margin:.35rem 0 0}
+.rep-foot{display:flex;justify-content:flex-end;gap:.5rem;border-top:1px solid var(--line);padding-top:.85rem;margin-top:1rem;flex-wrap:wrap}
+.rep-msg{color:var(--danger);font-weight:700;margin:.7rem 0 0;min-height:1.2em}
+.rep-done{text-align:center;padding:1.2rem .5rem .4rem;line-height:1.5}
+.rep-done b{display:block;font-size:1.25rem;margin-bottom:.3rem}
+.rep-btn{position:relative}
+.rep-btn .rep-dot{position:absolute;top:-.35rem;right:-.35rem;min-width:1.25rem;height:1.25rem;padding:0 .3rem;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:.72rem;font-weight:700;display:grid;place-items:center;border:2px solid var(--chrome)}
+.rep-btn[hidden]{display:none !important}
+.rep-btn .rep-dot[hidden]{display:none}
+.ri-tags{display:block}
+.ri-sum{display:block}
+body.viewing .rep-btn{display:none !important}
+.ri{border-top:1px solid var(--line);padding:.8rem 0}
+.ri-head{display:flex;gap:.6rem;align-items:flex-start;width:100%;border:0;background:none;padding:0;text-align:left}
+.ri-head .ri-new{flex:0 0 auto;width:.65rem;height:.65rem;border-radius:50%;background:var(--accent);margin-top:.45rem}
+.ri-head .ri-new.read{background:transparent}
+.ri-main{flex:1 1 auto;min-width:0}
+.ri-main b{display:block}
+.ri-sum{color:var(--muted);font-size:.88rem;margin-top:.15rem}
+.ri-tag{display:inline-block;font-size:.75rem;font-weight:700;padding:.1rem .5rem;border-radius:999px;margin:.3rem .25rem 0 0;background:var(--chrome-2);border:1px solid var(--line)}
+.ri-tag.warn{background:#FDE7E3;border-color:#F3B9AE;color:#8A2414}
+.ri-tag.ok{background:#E3F4EA;border-color:#B5DEC4;color:#1F6B45}
+.ri-body{margin:.6rem 0 0 1.25rem;line-height:1.45}
+.ri-body dt{font-weight:700;font-size:.85rem;color:var(--muted);margin-top:.55rem}
+.ri-body dd{margin:.1rem 0 0;white-space:pre-wrap;word-break:break-word}
+.ri-acts{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem}
 @media (max-width:700px){
   .tpanel{position:relative !important;left:auto !important;top:auto !important;width:auto;flex:0 0 auto;font-size:15px;z-index:auto !important}
   .tp-head{cursor:default;touch-action:auto}
@@ -430,7 +475,13 @@ body.present .tm-edit{display:none !important}
   <button class="btn edit-only" id="shareBtn" title="Share this board with a substitute (link + QR code)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 14v.01M14 21h.01M17 21h4v-4"/></svg><span class="lbl">Share</span>
   </button>
+  <button class="btn rep-btn edit-only" id="repBtn" title="Reports your substitutes left for you" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="lbl">Sub reports</span><span class="rep-dot" id="repDot" hidden></span>
+  </button>
   <span class="view-badge">View only</span>
+  <button class="btn primary viewer-only" id="leaveBtn" title="Tell the teacher how the class went">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="lbl">Note for the teacher</span>
+  </button>
   <button class="btn viewer-only" id="fullBtn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="lbl">Full screen</span>
   </button>
@@ -519,6 +570,19 @@ body.present .tm-edit{display:none !important}
   <div class="trash-panel share-panel" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
     <div class="trash-head"><h2 id="shareTitle">Share with a sub</h2><button class="btn" data-sh="close" id="shareClose">Done</button></div>
     <div id="shareBody"></div>
+  </div>
+</div>
+<div class="trash-wrap" id="leaveWrap" hidden>
+  <div class="trash-panel rep-panel" role="dialog" aria-modal="true" aria-labelledby="leaveTitle">
+    <div class="trash-head"><h2 id="leaveTitle">Note for the teacher</h2><button class="btn" id="leaveClose">Close</button></div>
+    <div id="leaveBody"></div>
+  </div>
+</div>
+<div class="trash-wrap" id="repWrap" hidden>
+  <div class="trash-panel rep-panel" role="dialog" aria-modal="true" aria-labelledby="repTitle">
+    <div class="trash-head"><h2 id="repTitle">Sub reports</h2><button class="btn" id="repClose">Done</button></div>
+    <p class="trash-sub">Notes your substitutes left from a shared board. Only you can see them. Reports are deleted for good after 30 days.</p>
+    <div id="repList"></div>
   </div>
 </div>
 <input type="file" id="importFile" accept=".json,application/json" hidden>
@@ -721,6 +785,7 @@ async function onSignedIn(user){
   }
   saveLocal(); render(); renderPip(); resetHistory();
   syncShares();
+  loadReports();
 }
 async function pullRemote(){
   if (!sb || !userId) return;
@@ -732,6 +797,7 @@ async function signOut(){
   try { localStorage.removeItem(cacheKey()); } catch(e){}
   clearTimeout(remoteTimer);
   userId = null; userEmail = "";
+  reports = []; repExpanded = {}; repToasted = false; repPurged = false; updateRepBadge();
   try { await sb.auth.signOut(); } catch(e){}
   setState(readCache(LOCAL_KEY) || seed());
   setSync("Not signed in. Boards save in this browser only.");
@@ -741,6 +807,7 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState !== "visible") return;
   if (viewing){ loadShared(false); return; }
   if (!document.activeElement?.isContentEditable) pullRemote();
+  loadReports();
 });
 
 /* ---------- sign-in screen ---------- */
@@ -1163,6 +1230,7 @@ function renderSettings(){
     <div class="bg-row">${Object.keys(BGS).map(k => `<button data-bg="${k}" aria-pressed="${b.bg===k}" title="${BGS[k]}" aria-label="${BGS[k]}" style="background:${BG_SWATCH[k]}"></button>`).join("")}</div>
     <hr>
     <button class="item" data-set="share">Share with a sub (link + QR code)${b.shareCode ? " &bull; on" : ""}</button>
+    ${sb && userId ? `<button class="item" data-set="reports">Sub reports${reports.length && unreadCount() ? " (" + unreadCount() + " new)" : ""}</button>` : ""}
     <button class="item" data-set="dup">Duplicate this board</button>
     <button class="item" data-set="expand">Expand all notes</button>
     <button class="item" data-set="collapse">Minimize all notes</button>
@@ -1213,6 +1281,8 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape"){
     if (!$("trashWrap").hidden){ closeTrash(); return; }
     if (!$("shareWrap").hidden){ closeShare(); return; }
+    if (!$("leaveWrap").hidden){ closeLeave(); return; }
+    if (!$("repWrap").hidden){ closeReports(); return; }
     document.querySelectorAll(".menu.open").forEach(m => m.classList.remove("open"));
     if (presenting && !viewing) setPresent(false);
   }
@@ -1261,6 +1331,7 @@ $("setMenu").addEventListener("click", e => {
   }
   if (act === "trash"){ toggleMenu($("setBtn"), $("setMenu"), false); openTrash(); return; }
   if (act === "share"){ toggleMenu($("setBtn"), $("setMenu"), false); openShare(); return; }
+  if (act === "reports"){ toggleMenu($("setBtn"), $("setMenu"), false); openReports(); return; }
   if (act === "feedback"){ window.open(FEEDBACK_URL, "_blank", "noopener"); toggleMenu($("setBtn"), $("setMenu"), false); return; }
   if (act === "import"){ $("importFile").click(); toggleMenu($("setBtn"), $("setMenu"), false); return; }
   if (act === "dup"){
@@ -1633,7 +1704,7 @@ function onUndoKey(e){
   if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
   const k = (e.key || "").toLowerCase();
   if (k !== "z" && k !== "y") return;
-  if (!$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden) return;
+  if (!$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden || !$("leaveWrap").hidden || !$("repWrap").hidden) return;
   if (e.target && e.target.closest && e.target.closest("input")) return;   // text boxes (class name) keep their own undo
   if (presenting) return;
   e.preventDefault();
@@ -1904,6 +1975,7 @@ async function renderShare(){
       </div>
     </div>
     <p class="share-help">Anyone with this code can view this board, but only you can edit it. A sub can also go to <b>${esc(location.host)}</b> and type the code on the sign-in screen.</p>
+    <p class="share-help">Subs can also tap <b>Note for the teacher</b> on the board to tell you what got done, any drills or interruptions, and how the class did. Their notes show up under <b>Sub reports</b>.</p>
     <div class="share-foot">
       <button class="btn" data-sh="preview">Preview as a sub</button>
       <span><button class="btn" data-sh="newcode">New code</button><button class="btn danger-btn" data-sh="stop">Stop sharing</button></span>
@@ -1919,7 +1991,7 @@ async function renderShare(){
   }
 }
 function openShare(){ renderShare(); $("shareWrap").hidden = false; setTimeout(() => $("shareClose").focus(), 30); }
-function closeShare(){ $("shareWrap").hidden = true; renderSettings(); }
+function closeShare(){ $("shareWrap").hidden = true; renderSettings(); updateRepBadge(); }
 function armBtn(btn, label, fn){
   if (btn.dataset.armed){ fn(); return; }
   btn.dataset.armed = "1"; const old = btn.textContent; btn.textContent = label;
@@ -2015,6 +2087,208 @@ $("fullBtn").addEventListener("click", () => {
     if (document.fullscreenElement || document.webkitFullscreenElement){ ex && ex.call(document); }
     else if (req){ const p = req.call(el); if (p && p.catch) p.catch(() => {}); }
   } catch(e){}
+});
+
+/* ---------- sub reports: a substitute leaves an end-of-day note for the teacher ----------
+   Subs send through the submit_sub_report() function (see floatle-sub-reports.sql), which
+   checks the code is still shared and limits how often it can be used. Only the board's
+   owner can read the reports. Reports are deleted after 30 days. */
+const COVERAGE = { all:"Completed all of it", most:"Most of it", some:"Some of it", none:"Didn't get to it" };
+const INTERRUPT = { none:"None", fire:"Fire drill", lockdown:"Lockdown drill", shelter:"Shelter-in-place", assembly:"Assembly", other:"Other" };
+const BEHAVIOR = { great:"Great day", some:"A few concerns", followup:"Needs follow-up" };
+const SHIELD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>';
+const PRIVACY_LINE = "Please use <b>first names or initials only</b> for students. No full names, ID numbers or medical details. This note goes only to the classroom teacher.";
+let leave = null;          // the sub's answers while the page is open, so closing the form doesn't lose them
+const lsGet = k => { try { return localStorage.getItem(k) || ""; } catch(e){ return ""; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch(e){} };
+
+function chipsHTML(group, opts, picked){
+  return `<div class="chips" role="group">${Object.entries(opts).map(([k, l]) =>
+    `<button type="button" class="chip" data-chip="${group}" data-v="${k}" aria-pressed="${picked(k)}">${l}</button>`).join("")}</div>`;
+}
+function renderLeave(){
+  const box = $("leaveBody");
+  if (!leave) leave = { coverage:"", interruptions:new Set(), behavior:"", sent:false };
+  if (leave.sent){
+    box.innerHTML = `<div class="rep-done"><b>Thank you! Your note was sent.</b>The teacher will see it the next time they open Floatle.</div>
+      <div class="rep-foot"><button class="btn" data-lv="another">Send another note</button><button class="btn primary" data-lv="close">Back to the board</button></div>`;
+    return;
+  }
+  const L = leave;
+  box.innerHTML = `<p class="share-intro" style="margin-bottom:.2rem">Let the teacher know how class went for <b>${esc(board().name || "this class")}</b>. Tap what fits and add details if you like. It takes about a minute.</p>
+    <div class="rep-privacy" role="note">${SHIELD}<span>${PRIVACY_LINE}</span></div>
+    <form class="rep-form" id="leaveForm" novalidate>
+      <fieldset><legend>About you</legend>
+        <div class="rep-two">
+          <div><label class="lb" for="lvName">Your name</label><input type="text" id="lvName" maxlength="80" autocomplete="name" value="${esc(lsGet("floatle.subName"))}"></div>
+          <div><label class="lb" for="lvEmail">Your email <small style="font-weight:400;color:var(--muted)">(optional)</small></label><input type="email" id="lvEmail" maxlength="120" autocomplete="email" value="${esc(lsGet("floatle.subEmail"))}"></div>
+        </div>
+        <p class="rep-hint">Add your email only if you'd like the teacher to be able to follow up with you.</p>
+      </fieldset>
+      <fieldset><legend>How much of the plan did the class finish?</legend>
+        ${chipsHTML("coverage", COVERAGE, k => L.coverage === k)}
+        <textarea id="lvCoverage" maxlength="2000" placeholder="What got done, and what should the class pick up next time?"></textarea>
+      </fieldset>
+      <fieldset><legend>Was class interrupted? <small>(tap all that apply)</small></legend>
+        ${chipsHTML("interrupt", INTERRUPT, k => L.interruptions.has(k))}
+        <textarea id="lvInterrupt" maxlength="2000" placeholder="When and for how long? For example: 10:15 fire drill, about 15 minutes"></textarea>
+      </fieldset>
+      <fieldset><legend>How did the class do?</legend>
+        ${chipsHTML("behavior", BEHAVIOR, k => L.behavior === k)}
+        <textarea id="lvBehavior" maxlength="2000" placeholder="Students to praise or follow up with (first names or initials only)"></textarea>
+        <p class="rep-hint">Reminder: first names or initials only.</p>
+      </fieldset>
+      <fieldset><legend>Absences, late arrivals or early dismissals <small>(optional)</small></legend>
+        <textarea id="lvAttend" maxlength="2000" placeholder="First names or initials only"></textarea>
+      </fieldset>
+      <fieldset><legend>Anything else? <small>(optional)</small></legend>
+        <textarea id="lvOther" maxlength="2000" placeholder="Notes for the teacher, things you couldn't find, questions"></textarea>
+      </fieldset>
+      <p class="rep-msg" id="lvMsg" role="alert"></p>
+      <div class="rep-foot"><button type="button" class="btn" data-lv="close">Not now</button><button type="submit" class="btn primary" id="lvSend">Send to the teacher</button></div>
+    </form>`;
+}
+function openLeave(){
+  if (!leave || leave.sent || !$("leaveForm")) renderLeave();
+  $("leaveWrap").hidden = false;
+  setTimeout(() => { const n = $("lvName"); (n && !n.value ? n : $("leaveClose")).focus(); }, 30);
+}
+function closeLeave(){ $("leaveWrap").hidden = true; }
+$("leaveBtn").addEventListener("click", openLeave);
+$("leaveClose").addEventListener("click", closeLeave);
+$("leaveWrap").addEventListener("click", e => {
+  if (e.target === $("leaveWrap")){ closeLeave(); return; }
+  const chip = e.target.closest("[data-chip]");
+  if (chip){
+    const g = chip.dataset.chip, v = chip.dataset.v, L = leave;
+    if (g === "interrupt"){
+      if (v === "none"){ L.interruptions = L.interruptions.has("none") ? new Set() : new Set(["none"]); }
+      else { L.interruptions.delete("none"); L.interruptions.has(v) ? L.interruptions.delete(v) : L.interruptions.add(v); }
+      chip.parentElement.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(L.interruptions.has(c.dataset.v))));
+    } else {
+      L[g] = L[g] === v ? "" : v;   // tap again to clear
+      chip.parentElement.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(L[g] === c.dataset.v)));
+    }
+    return;
+  }
+  const a = e.target.closest("[data-lv]")?.dataset.lv;
+  if (a === "close") closeLeave();
+  else if (a === "another"){ leave = null; renderLeave(); }
+});
+$("leaveWrap").addEventListener("submit", async e => {
+  e.preventDefault();
+  const L = leave, v = id => ($(id)?.value || "").trim(), msg = t => { $("lvMsg").textContent = t; };
+  const name = v("lvName"), email = v("lvEmail");
+  if (!name){ msg("Add your name so the teacher knows who covered the class."); $("lvName").focus(); return; }
+  if (email && !/^\S+@\S+\.\S+$/.test(email)){ msg("That email doesn't look right. Fix it or leave it blank."); $("lvEmail").focus(); return; }
+  const texts = ["lvCoverage","lvInterrupt","lvBehavior","lvAttend","lvOther"].map(v);
+  if (!L.coverage && !L.behavior && !L.interruptions.size && !texts.some(Boolean)){ msg("Tap at least one answer or write a note before sending."); return; }
+  if (!sb){ msg("Can't reach Floatle right now. Check the internet connection and try again."); return; }
+  const btn = $("lvSend"); btn.disabled = true; btn.textContent = "Sending…"; msg("");
+  lsSet("floatle.subName", name); lsSet("floatle.subEmail", email);
+  try {
+    const { error } = await sb.rpc("submit_sub_report", {
+      p_code: VIEW_CODE, p_sub_name: name, p_sub_email: email,
+      p_coverage: L.coverage, p_coverage_notes: texts[0],
+      p_interruptions: [...L.interruptions].filter(x => x !== "none"), p_interruption_notes: texts[1],
+      p_behavior: L.behavior, p_behavior_notes: texts[2],
+      p_attendance_notes: texts[3], p_other_notes: texts[4]
+    });
+    if (error) throw error;
+    L.sent = true; renderLeave();
+  } catch(err){
+    const m = String((err && err.message) || "");
+    msg(/board_not_shared/.test(m) ? "The teacher has turned off sharing for this board, so the note can't be sent."
+      : /too_many_reports/.test(m) ? "Several notes were just sent from this board. Wait a little while, then try again."
+      : "The note didn't send. Check the internet connection and try again. Your answers are still here.");
+    btn.disabled = false; btn.textContent = "Send to the teacher";
+  }
+});
+
+/* teacher side: the Sub reports inbox */
+let reports = [], repExpanded = {}, repToasted = false, repPurged = false;
+const unreadCount = () => reports.filter(r => !r.read_at).length;
+function updateRepBadge(){
+  const btn = $("repBtn"), dot = $("repDot");
+  const show = !!(sb && userId && !viewing && (reports.length || state.boards.some(b => b.shareCode)));
+  btn.hidden = !show;
+  const n = unreadCount();
+  dot.hidden = !n; dot.textContent = n > 9 ? "9+" : String(n);
+  btn.title = n ? n + " new sub report" + (n > 1 ? "s" : "") : "Reports your substitutes left for you";
+}
+async function loadReports(){
+  if (!sb || !userId || viewing) return;
+  if (!repPurged){ repPurged = true; sb.rpc("purge_old_sub_reports").then(() => {}, () => {}); }
+  const { data, error } = await sb.from("sub_reports").select("*").order("created_at", { ascending:false }).limit(200);
+  if (error) return;     // table not set up yet or offline: keep quiet
+  reports = data || [];
+  updateRepBadge();
+  if (!$("repWrap").hidden) renderReports();
+  const n = unreadCount();
+  if (n && !repToasted){ repToasted = true; toast(`You have ${n} new sub report${n > 1 ? "s" : ""}.`, openReports, "Open"); }
+}
+function repDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { weekday:"short", month:"short", day:"numeric" }) + ", " + clockText(d.getTime());
+}
+function repText(r){
+  const lines = [`Sub report: ${r.board_name || "Class board"} (${repDate(r.created_at)})`, `Substitute: ${r.sub_name}${r.sub_email ? " <" + r.sub_email + ">" : ""}`];
+  const add = (k, v) => { if (v) lines.push(k + ": " + v); };
+  add("Plan covered", COVERAGE[r.coverage]); add("Notes", r.coverage_notes);
+  add("Interruptions", (r.interruptions || []).map(x => INTERRUPT[x] || x).join(", ")); add("Details", r.interruption_notes);
+  add("Class", BEHAVIOR[r.behavior]); add("Notes", r.behavior_notes);
+  add("Attendance", r.attendance_notes); add("Other", r.other_notes);
+  return lines.join("\n");
+}
+function renderReports(){
+  const list = $("repList");
+  if (!reports.length){
+    list.innerHTML = `<p class="trash-empty">No sub reports yet. When a sub opens one of your shared boards, they can tap <b>Note for the teacher</b> to leave one.</p>`;
+    return;
+  }
+  list.innerHTML = reports.map(r => {
+    const open = !!repExpanded[r.id];
+    const tags = [];
+    if (r.coverage) tags.push(`<span class="ri-tag${r.coverage === "all" ? " ok" : ""}">${COVERAGE[r.coverage]}</span>`);
+    if ((r.interruptions || []).length) tags.push(`<span class="ri-tag warn">${r.interruptions.map(x => INTERRUPT[x] || x).join(", ")}</span>`);
+    if (r.behavior) tags.push(`<span class="ri-tag${r.behavior === "great" ? " ok" : r.behavior === "followup" ? " warn" : ""}">${BEHAVIOR[r.behavior]}</span>`);
+    const row = (k, v) => v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : "";
+    const body = open ? `<dl class="ri-body">
+        ${row("Plan covered", r.coverage_notes)}${row("Interruptions", r.interruption_notes)}${row("How the class did", r.behavior_notes)}
+        ${row("Absences, late arrivals, early dismissals", r.attendance_notes)}${row("Anything else", r.other_notes)}
+        ${r.sub_email ? `<dt>Contact the sub</dt><dd><a href="mailto:${esc(r.sub_email)}?subject=${encodeURIComponent("Thanks for covering " + (r.board_name || "my class"))}">${esc(r.sub_email)}</a></dd>` : ""}
+        <div class="ri-acts"><button class="btn" data-ra="copy">Copy as text</button><button class="btn danger-btn" data-ra="delete">Delete</button></div>
+      </dl>` : "";
+    return `<div class="ri" data-rid="${r.id}">
+      <button class="ri-head" data-ra="toggle" aria-expanded="${open}"><span class="ri-new${r.read_at ? " read" : ""}" aria-label="${r.read_at ? "" : "New"}"></span>
+        <span class="ri-main"><b>${esc(r.board_name || "Class board")} &middot; ${esc(r.sub_name)}</b><span class="ri-sum">${repDate(r.created_at)}</span><span class="ri-tags">${tags.join("")}</span></span></button>
+      ${body}</div>`;
+  }).join("");
+}
+function openReports(){ renderReports(); $("repWrap").hidden = false; setTimeout(() => $("repClose").focus(), 30); loadReports(); }
+function closeReports(){ $("repWrap").hidden = true; renderSettings(); }
+$("repBtn").addEventListener("click", openReports);
+$("repClose").addEventListener("click", closeReports);
+$("repWrap").addEventListener("click", async e => {
+  if (e.target === $("repWrap")){ closeReports(); return; }
+  const btn = e.target.closest("[data-ra]"); if (!btn) return;
+  const id = btn.closest("[data-rid]").dataset.rid, r = reports.find(x => x.id === id); if (!r) return;
+  const a = btn.dataset.ra;
+  if (a === "toggle"){
+    repExpanded[id] = !repExpanded[id];
+    if (repExpanded[id] && !r.read_at){
+      r.read_at = new Date().toISOString();
+      sb.from("sub_reports").update({ read_at: r.read_at }).eq("id", id).then(() => {}, () => {});
+      updateRepBadge();
+    }
+    renderReports();
+    document.querySelector(`#repList [data-rid="${id}"] .ri-head`)?.focus();
+  } else if (a === "copy") copyText(repText(r), "Report copied.");
+  else if (a === "delete") armBtn(btn, "Tap again to delete", async () => {
+    const { error } = await sb.from("sub_reports").delete().eq("id", id);
+    if (error){ toast("Couldn't delete the report. Check your connection and try again."); return; }
+    reports = reports.filter(x => x.id !== id); renderReports(); updateRepBadge(); toast("Report deleted.");
+  });
 });
 
 if (sb){
