@@ -50,8 +50,21 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 /* ---------- top bar ---------- */
 .bar{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;background:var(--chrome);border-bottom:1px solid var(--line);position:relative;z-index:1000;flex:0 0 auto}
-.tabs{display:flex;gap:.25rem;overflow-x:auto;flex:1 1 auto;min-width:0;scrollbar-width:none}
+.tabs{display:flex;gap:.25rem;overflow-x:auto;flex:1 1 auto;min-width:0;scrollbar-width:none;scroll-behavior:smooth}
 .tabs::-webkit-scrollbar{display:none}
+/* when there are more boards than fit: a fade and an arrow on each side that has hidden boards */
+body.tabs-tight:not(.present) .date{display:none}
+.tabs-wrap{position:relative;display:flex;align-items:center;gap:.2rem;flex:1 1 auto;min-width:0}
+.tabs-wrap.can-left .tabs{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 2.2rem);mask-image:linear-gradient(to right,transparent 0,#000 2.2rem)}
+.tabs-wrap.can-right .tabs{-webkit-mask-image:linear-gradient(to left,transparent 0,#000 2.2rem);mask-image:linear-gradient(to left,transparent 0,#000 2.2rem)}
+.tabs-wrap.can-left.can-right .tabs{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 2.2rem,#000 calc(100% - 2.2rem),transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 2.2rem,#000 calc(100% - 2.2rem),transparent 100%)}
+.tab-arrow{position:relative;flex:0 0 auto;width:2.1rem;height:2.1rem;border-radius:50%;border:1px solid var(--line);background:var(--chrome-2);color:var(--ink);display:grid;place-items:center;padding:0}
+.tab-arrow:hover{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tab-arrow[hidden]{display:none}
+.tab-arrow svg{width:1rem;height:1rem}
+.tab-arrow .more{position:absolute;top:-.45rem;min-width:1.15rem;height:1.15rem;padding:0 .25rem;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:.7rem;font-weight:700;display:grid;place-items:center;border:2px solid var(--chrome);line-height:1}
+.tab-arrow.left .more{left:-.35rem}
+.tab-arrow.right .more{right:-.35rem}
 .tab{border:1px solid transparent;background:transparent;padding:.45rem .8rem;border-radius:.5rem;white-space:nowrap;font-weight:700;color:var(--muted)}
 .tab[aria-selected="true"]{background:var(--chrome-2);color:var(--ink);border-color:var(--line)}
 .tab.add{font-weight:400}
@@ -61,7 +74,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   .date{display:none}
   .bar .btn .lbl{display:none}
   #leaveBtn .lbl{display:inline}
-  .tabs{min-width:7rem}
+  .tabs-wrap{min-width:9rem}
 }
 .date{color:var(--muted);white-space:nowrap;font-size:.95rem}
 .btn{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--line);background:var(--chrome);padding:.45rem .75rem;border-radius:.5rem;white-space:nowrap}
@@ -144,7 +157,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 body.present .edit-only{display:none !important}
 body.present .present-title{display:block}
 body.present .brand{display:none}
-body.present .tabs{display:none}
+body.present .tabs-wrap{display:none}
 body.present .date{font-size:1.2rem;color:var(--ink);margin-left:auto}
 body.present .tools .t-edit{display:none !important}
 body.present .resize{display:none}
@@ -197,7 +210,9 @@ body.present .exit-present{display:inline-flex}
   .empty{position:static}
   /* top bar: row 1 = board tabs, row 2 = tools that swipe sideways */
   .bar{flex-wrap:wrap;row-gap:.45rem;padding:calc(.45rem + env(safe-area-inset-top,0px)) .5rem .45rem}
-  .tabs{order:-1;flex:1 0 100%;padding-bottom:.05rem}
+  .tabs-wrap{order:-1;flex:1 0 100%}
+  .tabs{padding-bottom:.05rem}
+  .tab-arrow{width:2.4rem;height:2.4rem}
   .tab{padding:.55rem .9rem;font-size:1rem;border-color:var(--line)}
   .tab[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
   .bar-tools{display:flex;gap:.4rem;flex:1 0 100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:.1rem}
@@ -499,13 +514,145 @@ body.present .img-drop .btn,body.present .img-drop .img-keys,body.present .img-d
   .tpanel{position:relative !important;left:auto !important;top:auto !important;width:auto;flex:0 0 auto;font-size:15px;z-index:auto !important}
   .tp-head{cursor:default;touch-action:auto}
 }
+
+/* ---------- Float window: controls hide until you move the mouse or tap ---------- */
+.pip{padding:.5rem .5rem 3.8rem}
+.pip-bar{position:fixed;right:.5rem;bottom:.5rem;z-index:20;display:flex;align-items:center;gap:.15rem;padding:.3rem;border-radius:999px;background:rgba(10,24,36,.9);box-shadow:0 8px 22px rgba(0,0,0,.35)}
+.pip-bar button{border:0;background:transparent;color:#fff;min-width:2.5rem;height:2.5rem;border-radius:999px;display:grid;place-items:center;font:inherit;font-weight:700;padding:0 .3rem;cursor:pointer}
+.pip-bar button:hover{background:rgba(255,255,255,.14)}
+.pip-bar button:disabled{opacity:.35;cursor:default}
+.pip-bar button:disabled:hover{background:transparent}
+.pip-bar svg{width:1.15rem;height:1.15rem}
+.pip-bar .pip-pct{min-width:3.1rem;text-align:center;color:#fff;font-size:.85rem;font-variant-numeric:tabular-nums}
+.pip-bar .pip-sep{width:1px;height:1.4rem;background:rgba(255,255,255,.28);margin:0 .15rem}
+.pip-bar .pip-close{background:#C63F77}
+.pip-bar .pip-close:hover{background:#B0346A}
+.pip-bar{transition:opacity .25s}
+body.pip-idle .pip-bar{opacity:0;pointer-events:none}
+.pip .note{--s:var(--ps,1)}
+.pip .tpanel{font-size:calc(14px * var(--ps,1))}
+
+/* ---------- scheduled boards ---------- */
+.sched-panel{max-width:46rem}
+.sched-row{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .8rem;padding:.75rem 0;border-top:1px solid var(--line)}
+.sched-row.off .sched-when{opacity:.4}
+.sched-name{display:flex;align-items:center;gap:.55rem;flex:1 1 11rem;min-width:0;font-weight:700}
+.sched-name span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sched-name input{width:1.25rem;height:1.25rem;flex:0 0 auto;accent-color:var(--accent)}
+.sched-when{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem}
+.sched-when input[type=time]{font:inherit;font-weight:700;padding:.4rem .5rem;border:1px solid var(--line);border-radius:.5rem;background:var(--chrome-2);color:var(--ink)}
+.days{display:flex;gap:.2rem}
+.days button{width:2.3rem;height:2.3rem;border-radius:.45rem;border:1px solid var(--line);background:var(--chrome);font-weight:700;font-size:.85rem;padding:0}
+.days button[aria-pressed="true"]{background:var(--ink);color:var(--chrome);border-color:var(--ink)}
+.sched-warn{flex:1 0 100%;font-size:.85rem;color:var(--danger);font-weight:700}
+.sched-prefs{display:flex;flex-direction:column;gap:.45rem;padding:.8rem 0 .3rem;border-top:1px solid var(--line);margin-top:.4rem}
+.sched-prefs label{display:flex;gap:.55rem;align-items:center}
+.sched-prefs input{width:1.15rem;height:1.15rem;accent-color:var(--accent)}
+.upnext{position:fixed;left:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:2400;display:flex;align-items:center;gap:.8rem;padding:.6rem .7rem .6rem 1rem;border-radius:.9rem;background:#10262E;color:#fff;box-shadow:0 12px 30px rgba(0,0,0,.35);max-width:calc(100% - 2rem)}
+.upnext[hidden]{display:none}
+.upnext svg{width:1.6rem;height:1.6rem;flex:0 0 auto;color:#FFB59A}
+.upnext-txt{display:flex;flex-direction:column;min-width:0;line-height:1.2}
+.upnext-txt small{color:#A9C1C6;font-size:.8rem;font-variant-numeric:tabular-nums}
+.upnext-txt b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.upnext button{border:1px solid #4A6A72;background:transparent;color:#fff;border-radius:.55rem;padding:.45rem .7rem;font-weight:700;white-space:nowrap}
+.upnext button.go{background:#C63F77;border-color:#C63F77}
+@media (prefers-reduced-motion:no-preference){
+  .board.sched-fade{animation:schedFade .7s ease}
+  @keyframes schedFade{from{opacity:0}to{opacity:1}}
+}
+
+/* ---------- Flashcards note ---------- */
+.kind-cards .note-body{display:flex;flex-direction:column;gap:.4em}
+.fc-top{display:flex;align-items:center;gap:.3em;flex-wrap:wrap;font-size:.62em}
+.fc-seg{display:flex;background:rgba(0,0,0,.08);border-radius:999px;padding:2px}
+.fc-seg button{border:0;background:none;border-radius:999px;padding:.35em .85em;font-weight:700}
+.fc-seg button[aria-pressed="true"]{background:#1D1A14;color:#fff}
+.fc-top .fc-edit-btn{margin-left:auto}
+.fc-pill{border:0;background:rgba(255,255,255,.7);border-radius:999px;padding:.4em .9em;font-weight:700;display:inline-flex;align-items:center;gap:.35em}
+.fc-pill:hover{background:#fff}
+.fc-pill svg{width:1em;height:1em}
+.fc-card{flex:1 1 auto;min-height:4em;border:0;border-radius:.5em;background:var(--card,#fff);box-shadow:0 2px 0 rgba(0,0,0,.12),0 8px 18px -10px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3em;padding:.6em .8em;text-align:center;color:#1D1A14;overflow:auto}
+.fc-side{font-size:.5em;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.6}
+.fc-front{font-size:1.55em;font-weight:700;line-height:1.15;overflow-wrap:anywhere}
+.fc-back{font-size:.95em;line-height:1.3;overflow-wrap:anywhere}
+.fc-ex{font-size:.8em;font-style:italic;opacity:.8;overflow-wrap:anywhere}
+.fc-hint{font-size:.45em;opacity:.55}
+.fc-nav{display:flex;align-items:center;justify-content:space-between;gap:.4em;font-size:.62em}
+.fc-nav .fc-arrows{display:flex;align-items:center;gap:.5em}
+.fc-round{width:2.4em;height:2.4em;border-radius:50%;border:0;background:#1D1A14;color:#fff;display:grid;place-items:center;padding:0}
+.fc-round svg{width:1.1em;height:1.1em}
+.fc-round:disabled{opacity:.3;cursor:default}
+.fc-pos{font-weight:700;min-width:3.5em;text-align:center;font-variant-numeric:tabular-nums}
+.fc-empty{flex:1 1 auto;display:grid;place-items:center;text-align:center;font-size:.7em;opacity:.75;padding:.5em}
+.fc-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.35em;font-size:.62em}
+.fc-row{display:grid;grid-template-columns:1.6em minmax(0,1fr) minmax(0,1.6fr) auto;gap:.4em;align-items:start;background:rgba(255,255,255,.6);border-radius:.5em;padding:.4em}
+.fc-row .fc-num{font-weight:700;opacity:.55;padding-top:.3em}
+.fc-field{outline:none;white-space:pre-wrap;word-break:break-word;min-height:1.4em;padding:.25em .4em;border-radius:.35em;background:#fff}
+.fc-field:focus{box-shadow:0 0 0 2px rgba(29,26,20,.55)}
+.fc-field:empty::before{content:attr(data-ph);opacity:.4}
+.fc-field.f{font-weight:700}
+.fc-field.ex{font-style:italic;font-size:.9em;margin-top:.3em}
+.fc-row-tools{display:flex;flex-direction:column;gap:.25em}
+.fc-row-tools button{border:0;background:none;width:1.9em;height:1.9em;border-radius:.35em;display:grid;place-items:center;padding:0;opacity:.7}
+.fc-row-tools button:hover{opacity:1;background:rgba(0,0,0,.08)}
+.fc-row-tools svg{width:1em;height:1em}
+.fc-row-tools .dot{border-width:2px}
+.fc-add{display:flex;align-items:center;justify-content:center;gap:.35em;border:2px dashed rgba(0,0,0,.25);background:none;border-radius:.5em;padding:.45em;font-weight:700;font-size:.62em}
+.fc-add:hover{background:rgba(255,255,255,.4)}
+.fc-add svg{width:1em;height:1em}
+.fc-score{font-size:.62em;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:.5em}
+.fc-grid{flex:1 1 auto;display:grid;grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));gap:.35em;align-content:start;font-size:.6em}
+.fc-tile{border:2px solid transparent;border-radius:.5em;background:#fff;padding:.5em;min-height:3.6em;font-weight:700;line-height:1.2;overflow-wrap:anywhere;color:#1D1A14;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.fc-tile.back{font-weight:400}
+.fc-tile.sel{border-color:#1D1A14;background:#FFF4C7}
+.fc-tile.wrong{border-color:#B42318;background:#FDE7E3}
+.fc-tile.got{visibility:hidden}
+.fc-q{font-size:1.3em;font-weight:700;text-align:center;padding:.3em}
+.fc-opts{display:flex;flex-direction:column;gap:.35em;font-size:.62em}
+.fc-opt{border:2px solid rgba(0,0,0,.15);background:#fff;border-radius:.55em;padding:.55em .8em;text-align:left;line-height:1.3;color:#1D1A14}
+.fc-opt:hover{border-color:rgba(0,0,0,.4)}
+.fc-opt.right{border-color:#1F7A50;background:#E3F4EA}
+.fc-opt.no{border-color:#B42318;background:#FDE7E3}
+.fc-opt:disabled{cursor:default}
+.fc-done{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5em;text-align:center}
+.fc-done b{font-size:1.3em}
+body.present .fc-only-edit,.pip .fc-only-edit{display:none !important}
+
+/* ---------- Dictionary note ---------- */
+.kind-dict .note-body{display:flex;flex-direction:column;gap:.45em}
+.dict-form{display:flex;gap:.3em;font-size:.7em}
+.dict-in{flex:1 1 auto;min-width:0;font:inherit;padding:.45em .7em;border:2px solid rgba(0,0,0,.25);border-radius:.55em;background:#fff;color:#1D1A14}
+.dict-in:focus{outline:none;border-color:#1D1A14}
+.dict-go{border:0;border-radius:.55em;background:#1D1A14;color:#fff;font-weight:700;padding:0 .9em}
+.dict-res{display:flex;flex-direction:column;gap:.45em;overflow-wrap:anywhere}
+.dict-head{display:flex;align-items:baseline;gap:.45em;flex-wrap:wrap}
+.dict-word{font-size:1.4em;font-weight:700;line-height:1.1}
+.dict-ph{font-size:.7em;opacity:.7}
+.dict-say{margin-left:auto;border:0;background:rgba(255,255,255,.7);width:2em;height:2em;border-radius:50%;display:grid;place-items:center;padding:0;align-self:center}
+.dict-say svg{width:1em;height:1em}
+.dict-pos{font-size:.55em;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-top:.2em}
+.dict-defs{margin:0;padding-left:1.2em;font-size:.8em;line-height:1.35}
+.dict-defs li{margin:.15em 0}
+.dict-defs .ex{display:block;font-style:italic;opacity:.75;font-size:.92em}
+.dict-lbl{font-size:.55em;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.dict-chips{display:flex;flex-wrap:wrap;gap:.3em;font-size:.65em}
+.dict-chips button{border:0;border-radius:999px;padding:.3em .8em;background:rgba(255,255,255,.75);color:#1D1A14}
+.dict-chips button:hover{background:#fff}
+.dict-chips.ant button{background:rgba(180,35,24,.12)}
+.dict-msg{font-size:.7em;opacity:.8;padding:.3em 0}
+.dict-foot{display:flex;justify-content:flex-end;font-size:.62em;margin-top:auto;padding-top:.2em}
+.pip .dict-form{display:none}
 </style>
 </head>
 <body>
 <header class="bar" id="bar">
   <span class="brand" aria-label="Floatle"><span class="c1">F</span><span class="c2">l</span><span class="c3">o</span><span class="c1">a</span><span class="c2">t</span><span class="c3">l</span><span class="c1">e</span></span>
   <div class="present-title" id="presentTitle"></div>
-  <nav class="tabs" id="tabs" role="tablist" aria-label="Boards"></nav>
+  <div class="tabs-wrap" id="tabsWrap">
+    <button class="tab-arrow left" id="tabsLeft" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span class="more" aria-hidden="true"></span></button>
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Boards"></nav>
+    <button class="tab-arrow right" id="tabsRight" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span class="more" aria-hidden="true"></span></button>
+  </div>
   <span class="date" id="date"></span>
   <div class="bar-tools" id="barTools">
   <div class="menu-wrap edit-only add-wrap">
@@ -640,6 +787,19 @@ body.present .img-drop .btn,body.present .img-drop .img-keys,body.present .img-d
     <div id="repList"></div>
   </div>
 </div>
+<div class="trash-wrap" id="schedWrap" hidden>
+  <div class="trash-panel sched-panel" role="dialog" aria-modal="true" aria-labelledby="schedTitle">
+    <div class="trash-head"><h2 id="schedTitle">Schedule boards</h2><button class="btn" id="schedClose">Done</button></div>
+    <p class="trash-sub">Give each class board a start time. When the bell time comes, Floatle switches to that board on its own, in Present mode and the Float window too. It works while Floatle is open in a browser tab.</p>
+    <div id="schedBody"></div>
+  </div>
+</div>
+<div class="upnext" id="upNext" role="status" aria-live="polite" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+  <div class="upnext-txt"><small id="upNextWhen"></small><b id="upNextName"></b></div>
+  <button type="button" class="go" id="upNextGo">Switch now</button>
+  <button type="button" id="upNextStay">Stay here</button>
+</div>
 <input type="file" id="importFile" accept=".json,application/json" hidden>
 <input type="file" id="imgFile" accept="image/*" hidden>
 <div class="img-view" id="imgView" role="dialog" aria-modal="true" aria-labelledby="imgViewTitle" hidden>
@@ -668,8 +828,25 @@ const TYPES = {
   list:{ label:"Checklist", kind:"list", color:"mint", w:28, h:32, items:[""] },
   timed:{ label:"Timed", kind:"timed", color:"lilac", w:32, h:50, tasks:[["",10]] },
   image:{ label:"Image or slide", title:"Image", kind:"image", color:"paper", w:44, h:46 },
+  flashcards:{ label:"Flashcards", kind:"cards", color:"sky", w:40, h:54 },
+  dictionary:{ label:"Dictionary", kind:"dict", color:"paper", w:30, h:58 },
   note:{ label:"Blank note", kind:"text", color:"paper", w:26, h:22, text:"" }
 };
+/* "New" labels in the Add note menu. Each one goes away on its own: on the date below, or as soon
+   as this teacher adds one of that kind, whichever comes first. To label a future note type, add
+   it here with a date about a month after it ships. */
+const NEW_UNTIL = { timed:"2026-11-01", image:"2026-11-01", flashcards:"2026-11-15", dictionary:"2026-11-15" };
+const TRIED_KEY = "floatle.triedTypes";
+function triedTypes(){ try { return JSON.parse(localStorage.getItem(TRIED_KEY)) || []; } catch(e){ return []; } }
+function markTried(type){
+  if (!NEW_UNTIL[type]) return;
+  const t = triedTypes(); if (t.includes(type)) return;
+  t.push(type); try { localStorage.setItem(TRIED_KEY, JSON.stringify(t)); } catch(e){}
+}
+function isNew(type){
+  const until = NEW_UNTIL[type];
+  return !!until && Date.now() < new Date(until + "T23:59:59").getTime() && !triedTypes().includes(type);
+}
 const PH = { objective:"What you want to get done today", homework:"What's due and when", reminder:"Something you don't want to forget", note:"Type here" };
 
 function makeNote(type, pos){
@@ -684,6 +861,8 @@ function makeNote(type, pos){
     n.tp = { open:false, view:"visual", numbers:true, anchor:"clock", sound:true };
   }
   else if (t.kind === "image") n.src = "";   // a link to the stored image (or, until it uploads, the image itself)
+  else if (t.kind === "cards"){ n.cards = [{ id:uid(), f:"", b:"", ex:"", color:"" }]; n.fx = { i:0, flip:false, mode:"edit" }; }
+  else if (t.kind === "dict"){ n.word = ""; n.dict = null; }
   else n.text = t.text;
   return n;
 }
@@ -757,10 +936,12 @@ function saveLocal(){
    boards looked, so any change (typing, deleting, moving, reordering) can be undone.
    Bursts of typing are grouped so one undo removes one pause-to-pause chunk. */
 const HISTORY_MAX = 100;
+const NO_UNDO = new Set(["updatedAt", "z", "active", "fx", "pipScale"]);
 let undoStack = [], redoStack = [], lastSnap = null, lastKind = "", lastEditAt = 0;
 function snap(){
-  // leave out things that shouldn't count as an edit: save time, stacking order, which tab is open
-  return JSON.stringify(state, (k, v) => (k === "updatedAt" || k === "z" || k === "active") ? undefined : v);
+  // leave out things that shouldn't count as an edit: save time, stacking order, which tab is open,
+  // which flashcard is showing, and the Float window's text size
+  return JSON.stringify(state, (k, v) => NO_UNDO.has(k) ? undefined : v);
 }
 function recordHistory(kind){
   const now = snap();
@@ -801,8 +982,12 @@ function applySnapshot(json, pushTo){
   pushTo.push(lastSnap);
   const f = focusInfo();
   const cur = state, next = JSON.parse(json);
-  const zs = {}; cur.boards.forEach(b => b.notes.forEach(n => { zs[n.id] = n.z; }));
-  next.boards.forEach(b => b.notes.forEach(n => { n.z = zs[n.id] ?? ++zTop; }));
+  const zs = {}, fxs = {}, scales = {};
+  cur.boards.forEach(b => { scales[b.id] = b.pipScale; b.notes.forEach(n => { zs[n.id] = n.z; fxs[n.id] = n.fx; }); });
+  next.boards.forEach(b => {
+    if (scales[b.id] != null) b.pipScale = scales[b.id];
+    b.notes.forEach(n => { n.z = zs[n.id] ?? ++zTop; if (fxs[n.id]) n.fx = fxs[n.id]; });
+  });
   next.active = cur.active;
   setState(next);
   lastSnap = json; lastKind = "";
@@ -857,6 +1042,7 @@ async function onSignedIn(user){
     state.updatedAt = Date.now(); pushRemote();
   }
   saveLocal(); render(); renderPip(); resetHistory();
+  schedCheck(true);   // signing in on a classroom computer opens the board scheduled for right now
   syncShares();
   loadReports();
   uploadPendingImages();
@@ -864,7 +1050,13 @@ async function onSignedIn(user){
 async function pullRemote(){
   if (!sb || !userId) return;
   const { remote } = await fetchRemote();
-  if (remote && (remote.updated_ms||0) > (state.updatedAt||0)){ setState(remote.data); saveLocal(); render(); renderPip(); resetHistory(); }
+  if (remote && (remote.updated_ms||0) > (state.updatedAt||0)){
+    // keep the board this screen is showing: another device's open tab shouldn't switch this classroom's board
+    const keep = state.active;
+    setState(remote.data);
+    if (state.boards.some(b => b.id === keep)) state.active = keep;
+    saveLocal(); render(); renderPip(); resetHistory();
+  }
 }
 async function signOut(){
   // shared classroom computers: remove this teacher's copy from the browser
@@ -952,7 +1144,14 @@ const ICON = {
   x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   image:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-9 9"/></svg>',
-  enlarge:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>'
+  enlarge:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg>',
+  cards:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="13" height="15" rx="2"/><path d="M4 7v12a2 2 0 0 0 2 2h10"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 8h7"/></svg>',
+  shuffle:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>',
+  left:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  right:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
+  speaker:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg>',
+  pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>'
 };
 // full address so the koi also shows inside the floating (picture-in-picture) window
 const KOI_TAG = new URL("assets/koi-mini.png", location.href).href;
@@ -964,6 +1163,10 @@ const firstLine = n => n.kind === "list"
   ? ((n.tasks || [])[n.cur || 0]?.t || (n.tasks || []).find(x => x.t.trim())?.t || "")
   : n.kind === "image"
   ? (n.src ? "Image" : "No image yet")
+  : n.kind === "cards"
+  ? (() => { const c = (n.cards || []).filter(x => (x.f || "").trim()); return c.length ? c.length + " card" + (c.length === 1 ? "" : "s") + " · " + c[0].f : "No cards yet"; })()
+  : n.kind === "dict"
+  ? (n.dict ? n.dict.w + " · " + (n.dict.m[0]?.defs[0]?.d || "") : "Look up a word")
   : (n.text || "").split("\n").find(l => l.trim()) || "";
 
 /* ---------- Timed notes: tasks with minutes + a linked timer ----------
@@ -1233,6 +1436,303 @@ function tickTimed(){
 }
 setInterval(tickTimed, 250);
 
+/* ---------- Flashcards notes ----------
+   A Flashcards note keeps its cards in n.cards: { id, f (term or question), b (definition or
+   answer), ex (example), color }. Which card is showing, whether it's flipped, the shuffled
+   order and the mode live in n.fx, which syncs but isn't part of undo. Match and Quiz rounds
+   live only in this page (GAME), so a game starts fresh after a reload. */
+const GAME = {};
+function fxOf(n){ return n.fx || (n.fx = { i:0, flip:false, mode:"study" }); }
+function newCard(){ return { id:uid(), f:"", b:"", ex:"", color:"" }; }
+function fcReady(n){ return (n.cards || []).filter(c => (c.f || "").trim() && (c.b || "").trim()); }
+function shuffled(a){ const o = a.slice(); for (let k = o.length - 1; k > 0; k--){ const j = Math.floor(Math.random() * (k + 1)); [o[k], o[j]] = [o[j], o[k]]; } return o; }
+function cardColor(c){ return c && c.color && COLORS[c.color] ? COLORS[c.color] : "#FFFFFF"; }
+// the deck in study order: the shuffled order if there is one, else as written
+function fcOrder(n){
+  const fx = fxOf(n), cards = (n.cards || []).filter(c => (c.f || "").trim() || (c.b || "").trim());
+  if (!Array.isArray(fx.order)) return cards;
+  const byId = Object.fromEntries(cards.map(c => [c.id, c]));
+  const out = fx.order.map(id => byId[id]).filter(Boolean);
+  cards.forEach(c => { if (!fx.order.includes(c.id)) out.push(c); });
+  return out;
+}
+function cardsBodyHTML(n, ed){
+  const fx = fxOf(n);
+  let mode = fx.mode || "study";
+  if (mode === "edit" && ed === "false") mode = "study";   // Present mode, the Float window and subs only study and play
+  const tab = (m, l) => `<button data-act="fcmode" data-v="${m}" aria-pressed="${mode === m}">${l}</button>`;
+  const top = `<div class="fc-top">${mode === "edit" ? "<b>Edit cards</b>"
+      : `<div class="fc-seg" role="group" aria-label="Flashcard mode">${tab("study", "Study")}${tab("match", "Match")}${tab("quiz", "Quiz")}</div>`}
+    <button class="fc-pill fc-edit-btn fc-only-edit" data-act="fcmode" data-v="${mode === "edit" ? "study" : "edit"}">${mode === "edit" ? ICON.check + "Done" : ICON.pencil + "Edit cards"}</button></div>`;
+  if (mode === "edit") return top + fcEditHTML(n, ed);
+  if (mode === "match") return top + fcMatchHTML(n);
+  if (mode === "quiz") return top + fcQuizHTML(n);
+  return top + fcStudyHTML(n);
+}
+function fcStudyHTML(n){
+  const fx = fxOf(n), deck = fcOrder(n);
+  if (!deck.length) return `<div class="fc-empty">No cards yet. Choose Edit cards to add some.</div>`;
+  const i = clamp(fx.i || 0, 0, deck.length - 1), c = deck[i], back = !!fx.flip;
+  return `<button class="fc-card" data-act="fcflip" style="--card:${back ? "#FFFFFF" : cardColor(c)}" aria-label="${back ? "Showing the answer. Click to show the term." : "Showing the term. Click to show the answer."}">
+      <span class="fc-side">${back ? "Answer" : "Term"}</span>
+      ${back ? `<span class="fc-back">${esc(c.b) || "<i>No answer yet</i>"}</span>${c.ex ? `<span class="fc-ex">${esc(c.ex)}</span>` : ""}`
+             : `<span class="fc-front">${esc(c.f) || "<i>No term yet</i>"}</span>`}
+      <span class="fc-hint">Click to flip</span>
+    </button>
+    <div class="fc-nav">
+      <span><button class="fc-pill" data-act="fcshuffle">${ICON.shuffle}Shuffle</button>${Array.isArray(fx.order) ? ` <button class="fc-pill" data-act="fcorder">In order</button>` : ""}</span>
+      <div class="fc-arrows">
+        <button class="fc-round" data-act="fcprev" aria-label="Previous card" ${deck.length < 2 ? "disabled" : ""}>${ICON.left}</button>
+        <span class="fc-pos">${i + 1} / ${deck.length}</span>
+        <button class="fc-round" data-act="fcnext" aria-label="Next card" ${deck.length < 2 ? "disabled" : ""}>${ICON.right}</button>
+      </div>
+    </div>`;
+}
+function fcEditHTML(n, ed){
+  const rows = (n.cards || []).map((c, k) => `<li class="fc-row" data-card="${c.id}">
+      <span class="fc-num">${k + 1}</span>
+      <div class="fc-field f" contenteditable="${ed}" data-fcf="f" data-ph="Term or question">${esc(c.f)}</div>
+      <div><div class="fc-field" contenteditable="${ed}" data-fcf="b" data-ph="Definition or answer">${esc(c.b)}</div>
+        <div class="fc-field ex" contenteditable="${ed}" data-fcf="ex" data-ph="Example (optional)">${esc(c.ex)}</div></div>
+      <div class="fc-row-tools">
+        <button data-act="fccolor" title="Card color" aria-label="Change card color">${c.color ? `<span class="swatch" style="background:${cardColor(c)}"></span>` : '<span class="dot"></span>'}</button>
+        <button data-act="fcdel" title="Delete card" aria-label="Delete card ${k + 1}">${ICON.trash}</button>
+      </div></li>`).join("");
+  return `<ol class="fc-list">${rows}</ol><button class="fc-add" data-act="fcadd">${ICON.plus}Add a card</button>`;
+}
+function fcNewGame(n, type){
+  const ready = shuffled(fcReady(n));
+  if (type === "match"){
+    const pick = ready.slice(0, 6);
+    const tiles = shuffled(pick.flatMap(c => [{ k:c.id + ":f", cid:c.id, side:"f", text:c.f }, { k:c.id + ":b", cid:c.id, side:"b", text:c.b }]));
+    return (GAME[n.id] = { type, tiles, sel:null, got:[], wrong:null, tries:0, pairs:pick.length });
+  }
+  return (GAME[n.id] = { type:"quiz", qs:ready.slice(0, 10).map(c => c.id), qi:0, opts:null, picked:null, score:0 });
+}
+function fcGame(n, type){ const g = GAME[n.id]; return g && g.type === type ? g : fcNewGame(n, type); }
+function fcMatchHTML(n){
+  if (fcReady(n).length < 2) return `<div class="fc-empty">Add at least 2 cards with a term and an answer to play Match.</div>`;
+  const g = fcGame(n, "match");
+  if (g.got.length === g.pairs) return `<div class="fc-done"><b>All matched!</b><span>${g.pairs} pairs in ${g.tries} tries.</span><button class="fc-pill" data-act="fcnew">${ICON.shuffle}Play again</button></div>`;
+  return `<div class="fc-score"><span>Matched ${g.got.length} of ${g.pairs}</span><button class="fc-pill" data-act="fcnew">${ICON.shuffle}New game</button></div>
+    <div class="fc-grid" style="--cols:${g.tiles.length > 8 ? 4 : 3}">${g.tiles.map(t => {
+      const got = g.got.includes(t.cid);
+      const cls = got ? " got" : g.wrong && g.wrong.includes(t.k) ? " wrong" : g.sel === t.k ? " sel" : "";
+      return `<button class="fc-tile${t.side === "b" ? " back" : ""}${cls}" data-act="fctile" data-k="${esc(t.k)}" aria-pressed="${g.sel === t.k}"${got ? ' tabindex="-1" aria-hidden="true"' : ""}>${esc(t.text)}</button>`;
+    }).join("")}</div>`;
+}
+function fcQuizHTML(n){
+  const ready = fcReady(n);
+  if (ready.length < 2) return `<div class="fc-empty">Add at least 2 cards with a term and an answer to take a quiz.</div>`;
+  const g = fcGame(n, "quiz");
+  const byId = Object.fromEntries((n.cards || []).map(c => [c.id, c]));
+  g.qs = g.qs.filter(id => byId[id]);                       // a card was deleted mid-quiz
+  if (g.qi >= g.qs.length){
+    const all = g.score === g.qs.length;
+    return `<div class="fc-done"><b>${g.score} of ${g.qs.length} correct</b><span>${all ? "Perfect score!" : "Study the ones you missed, then try again."}</span><button class="fc-pill" data-act="fcnew">${ICON.shuffle}Try again</button></div>`;
+  }
+  const c = byId[g.qs[g.qi]];
+  if (!g.opts) g.opts = shuffled([c, ...shuffled(ready.filter(x => x.id !== c.id)).slice(0, 3)]).map(x => x.id);
+  const done = g.picked != null;
+  return `<div class="fc-score"><span>Question ${g.qi + 1} of ${g.qs.length}</span><span>Score ${g.score}</span></div>
+    <div class="fc-card" style="--card:${cardColor(c)}"><span class="fc-side">Which one matches?</span><span class="fc-q">${esc(c.f)}</span></div>
+    <div class="fc-opts">${g.opts.map(id => byId[id]).filter(Boolean).map(o =>
+      `<button class="fc-opt${done && o.id === c.id ? " right" : done && o.id === g.picked ? " no" : ""}" data-act="fcpick" data-cid="${o.id}" ${done ? "disabled" : ""}>${esc(o.b)}</button>`).join("")}</div>
+    ${done ? `<div class="fc-nav"><b>${g.picked === c.id ? "Correct!" : "Not quite. The right answer is marked in green."}</b><button class="fc-pill" data-act="fcq">${g.qi + 1 < g.qs.length ? "Next question" : "See score"}</button></div>` : ""}`;
+}
+function fcRedraw(n){
+  if (boardEl.querySelector(`.note[data-id="${n.id}"]`)) renderNote(n);
+  renderPip();
+}
+function cardsAct(n, act, btn, inPip){
+  const fx = fxOf(n), deck = fcOrder(n), len = deck.length;
+  const card = () => { const li = btn.closest("[data-card]"); return li ? (n.cards || []).find(c => c.id === li.dataset.card) : null; };
+  let game = false, focusSel = `[data-act="${act}"]`, focusNew = null;
+  if (act === "fcflip") fx.flip = !fx.flip;
+  else if (act === "fcnext" || act === "fcprev"){ if (!len) return; fx.i = ((fx.i || 0) + (act === "fcnext" ? 1 : -1) + len) % len; fx.flip = false; }
+  else if (act === "fcshuffle"){ fx.order = shuffled(deck.map(c => c.id)); fx.i = 0; fx.flip = false; toast("Cards shuffled."); }
+  else if (act === "fcorder"){ delete fx.order; fx.i = 0; fx.flip = false; focusSel = '[data-act="fcshuffle"]'; }
+  else if (act === "fcmode"){
+    const v = btn.dataset.v;
+    if (fx.mode === "edit" && v !== "edit") n.cards = (n.cards || []).filter(c => (c.f || "").trim() || (c.b || "").trim() || (c.ex || "").trim());
+    if (v === "edit" && !(n.cards || []).length) n.cards = [newCard()];
+    fx.mode = v; fx.flip = false;
+    if (v === "match" || v === "quiz") fcNewGame(n, v);
+    if (v === "edit"){ focusSel = null; focusNew = "first"; } else focusSel = `[data-act="fcmode"][data-v="${v}"]`;
+  }
+  else if (act === "fcadd"){ const c = newCard(); (n.cards || (n.cards = [])).push(c); focusNew = c.id; }
+  else if (act === "fcdel"){ const c = card(); if (!c) return; n.cards = n.cards.filter(x => x !== c); focusSel = null; }
+  else if (act === "fccolor"){
+    const c = card(); if (!c) return;
+    const ks = ["", ...COLOR_KEYS]; c.color = ks[(ks.indexOf(c.color || "") + 1) % ks.length];
+    focusSel = `[data-card="${c.id}"] [data-act="fccolor"]`;
+  }
+  else if (act === "fcnew"){ fcNewGame(n, (GAME[n.id] && GAME[n.id].type) || fx.mode); game = true; focusSel = '[data-act="fcnew"], [data-act="fctile"], [data-act="fcpick"]'; }
+  else if (act === "fctile"){
+    const g = GAME[n.id]; if (!g || g.type !== "match") return;
+    const k = btn.dataset.k, t = g.tiles.find(x => x.k === k);
+    if (!t || g.got.includes(t.cid)) return;
+    g.wrong = null;
+    if (!g.sel) g.sel = k;
+    else if (g.sel === k) g.sel = null;
+    else {
+      const s = g.tiles.find(x => x.k === g.sel); g.tries++; g.sel = null;
+      if (s.cid === t.cid && s.side !== t.side) g.got.push(t.cid);
+      else { g.wrong = [s.k, t.k]; setTimeout(() => { if (GAME[n.id] === g && g.wrong){ g.wrong = null; fcRedraw(n); } }, 900); }
+    }
+    game = true; focusSel = `[data-act="fctile"][data-k="${CSS.escape(k)}"]`;
+  }
+  else if (act === "fcpick"){
+    const g = GAME[n.id]; if (!g || g.type !== "quiz" || g.picked != null) return;
+    g.picked = btn.dataset.cid; if (g.picked === g.qs[g.qi]) g.score++;
+    game = true; focusSel = '[data-act="fcq"]';
+  }
+  else if (act === "fcq"){ const g = GAME[n.id]; if (!g) return; g.qi++; g.opts = null; g.picked = null; game = true; focusSel = '[data-act="fcpick"], [data-act="fcnew"]'; }
+  else return;
+  if (game) fcRedraw(n); else { save(); fcRedraw(n); }
+  if (focusNew){
+    const el = boardEl.querySelector(`.note[data-id="${n.id}"] ` + (focusNew === "first" ? "[data-fcf]" : `[data-card="${focusNew}"] [data-fcf="f"]`));
+    if (el){ el.focus(); placeCaretEnd(el); }
+  } else if (focusSel){
+    const doc = inPip && pipWin ? pipWin.document : document;
+    const el = doc.querySelector(`.note[data-id="${n.id}"] :is(${focusSel})`);
+    if (el && !el.disabled) el.focus({ preventScroll:true });
+  }
+}
+
+/* ---------- Dictionary notes ----------
+   Main source: Datamuse (api.datamuse.com). Free, no key, works straight from the browser,
+   and very reliable. It gives definitions (from Wiktionary and WordNet), synonyms, antonyms,
+   and spelling suggestions.
+   Extra, when it's up: the Free Dictionary API (dictionaryapi.dev) adds example sentences and
+   a pronunciation recording. It's a volunteer project that goes down now and then, so it gets
+   a few seconds and the note works fine without it.
+   The last result is saved in the note (n.dict), so it shows in Present, the Float window and
+   a sub's shared view without looking it up again. */
+const DICT_URL = "https://api.dictionaryapi.dev/api/v2/entries/en/";
+const DATAMUSE = "https://api.datamuse.com/";
+const DATAMUSE_URL = DATAMUSE + "words?max=10&";
+const POS_NAME = { n:"noun", v:"verb", adj:"adjective", adv:"adverb", prep:"preposition", conj:"conjunction", pron:"pronoun", interj:"interjection" };
+const DICT_ACTS = new Set(["dlook", "dword", "dsay", "dcards"]);
+const dictBusy = new Set(), dictErr = {};
+function dictBodyHTML(n, forPip){
+  const d = n.dict, busy = dictBusy.has(n.id), err = dictErr[n.id];
+  const form = forPip ? "" : `<div class="dict-form">
+      <input class="dict-in" type="search" value="${esc(n.word || "")}" placeholder="Look up a word" aria-label="Word to look up" autocomplete="off" enterkeyhint="search">
+      <button class="dict-go" data-act="dlook">${busy ? "Looking…" : "Look up"}</button></div>`;
+  let res;
+  if (busy && !d) res = `<div class="dict-msg">Looking it up…</div>`;
+  else if (err) res = `<div class="dict-msg">${esc(err.msg)}</div>${err.sug && err.sug.length ? `<div><div class="dict-lbl">Did you mean</div><div class="dict-chips">${err.sug.map(w =>
+      `<button data-act="dword" data-w="${esc(w)}">${esc(w)}</button>`).join("")}</div></div>` : ""}`;
+  else if (!d) res = `<div class="dict-msg">Type a word and press Enter to see what it means, with examples, synonyms and antonyms.</div>`;
+  else {
+    const chips = (list, cls) => `<div class="dict-chips${cls}">${list.map(w => `<button data-act="dword" data-w="${esc(w)}" title="Look up ${esc(w)}">${esc(w)}</button>`).join("")}</div>`;
+    res = `<div class="dict-res">
+      <div class="dict-head"><span class="dict-word">${esc(d.w)}</span>${d.ph ? `<span class="dict-ph">${esc(d.ph)}</span>` : ""}
+        ${d.audio ? `<button class="dict-say" data-act="dsay" title="Hear it" aria-label="Hear how to say ${esc(d.w)}">${ICON.speaker}</button>` : ""}</div>
+      ${d.m.map(m => `<div><div class="dict-pos">${esc(m.pos)}</div><ol class="dict-defs">${m.defs.map(x =>
+        `<li>${esc(x.d)}${x.ex ? `<span class="ex">“${esc(x.ex)}”</span>` : ""}</li>`).join("")}</ol></div>`).join("")}
+      ${d.syn.length ? `<div><div class="dict-lbl">Synonyms</div>${chips(d.syn, "")}</div>` : ""}
+      ${d.ant.length ? `<div><div class="dict-lbl">Antonyms</div>${chips(d.ant, " ant")}</div>` : ""}
+    </div>
+    ${forPip ? "" : `<div class="dict-foot fc-only-edit"><button class="fc-pill" data-act="dcards">${ICON.cards}Add to flashcards</button></div>`}`;
+  }
+  return form + res;
+}
+function shapeDict(word, entries, syn, ant){
+  const e0 = entries[0] || {}, phs = entries.flatMap(e => e.phonetics || []);
+  const byPos = {}, S = new Set(), A = new Set();
+  entries.forEach(e => (e.meanings || []).forEach(m => {
+    const pos = m.partOfSpeech || "", g = byPos[pos] || (byPos[pos] = { pos, defs:[] });
+    (m.definitions || []).forEach(d => {
+      if (g.defs.length < 3 && d.definition) g.defs.push({ d:d.definition, ex:d.example || "" });
+      (d.synonyms || []).forEach(s => S.add(s)); (d.antonyms || []).forEach(s => A.add(s));
+    });
+    (m.synonyms || []).forEach(s => S.add(s)); (m.antonyms || []).forEach(s => A.add(s));
+  }));
+  syn.forEach(x => x && x.word && S.add(x.word)); ant.forEach(x => x && x.word && A.add(x.word));
+  const clean = set => [...set].filter(w => w && w.toLowerCase() !== word).slice(0, 8);
+  return { w:e0.word || word, ph:e0.phonetic || (phs.find(p => p.text) || {}).text || "",
+    audio:(phs.find(p => p.audio) || {}).audio || "", m:Object.values(byPos).filter(g => g.defs.length).slice(0, 3),
+    syn:clean(S), ant:clean(A) };
+}
+// Datamuse definitions look like "adj\tReturning quickly to normal…"; group them by part of speech
+function shapeDatamuse(word, hit, syn, ant){
+  const byPos = {};
+  (hit.defs || []).forEach(s => {
+    const tab = s.indexOf("\t"), tag = tab > 0 ? s.slice(0, tab) : "", d = (tab > 0 ? s.slice(tab + 1) : s).trim();
+    if (!d) return;
+    const pos = POS_NAME[tag] || "", g = byPos[pos] || (byPos[pos] = { pos, defs:[] });
+    if (g.defs.length < 3) g.defs.push({ d, ex:"" });
+  });
+  const clean = list => [...new Set(list.map(x => x && x.word).filter(w => w && w.toLowerCase() !== word))].slice(0, 8);
+  return { w:hit.word || word, ph:"", audio:"", m:Object.values(byPos).slice(0, 3), syn:clean(syn), ant:clean(ant) };
+}
+async function dictLookup(n, raw){
+  const word = String(raw || "").trim().toLowerCase().replace(/[^\p{L}'\- ]/gu, "").replace(/\s+/g, " ").slice(0, 40);
+  if (!word){ toast("Type a word to look up."); return; }
+  if (dictBusy.has(n.id)) return;
+  dictBusy.add(n.id); delete dictErr[n.id]; n.word = word; fcRedraw(n);
+  // each request gives up after a few seconds, so one slow service can't freeze the note
+  const get = async (url, ms) => {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms || 6000);
+    try { const r = await fetch(url, { signal:ctl.signal }); if (r.status === 404) return null; if (!r.ok) throw new Error("HTTP " + r.status); return await r.json(); }
+    finally { clearTimeout(t); }
+  };
+  const q = encodeURIComponent(word);
+  const [dm, syn, ant, fd] = await Promise.allSettled([
+    get(DATAMUSE + "words?sp=" + q + "&md=d&max=1"),
+    get(DATAMUSE_URL + "rel_syn=" + q),
+    get(DATAMUSE_URL + "rel_ant=" + q),
+    get(DICT_URL + q, 4000)
+  ]);
+  const val = r => r.status === "fulfilled" ? r.value : null;
+  const entries = val(fd), hit = (val(dm) || []).find(x => x && (x.word || "").toLowerCase() === word);
+  const synL = val(syn) || [], antL = val(ant) || [];
+  if (Array.isArray(entries) && entries.length){
+    // the Free Dictionary API answered: it has examples and audio, and Datamuse fills in more synonyms
+    n.dict = shapeDict(word, entries, synL, antL);
+    if (!n.dict.m.length && hit) n.dict.m = shapeDatamuse(word, hit, [], []).m;
+    save();
+  } else if (hit && (hit.defs || []).length){
+    n.dict = shapeDatamuse(word, hit, synL, antL); save();
+  } else if (dm.status === "rejected" && fd.status === "rejected"){
+    dictErr[n.id] = { msg:"Can't reach the dictionary right now. Check the internet connection. If it keeps happening on the school network, ask your tech team to allow api.datamuse.com." };
+  } else {
+    // not a word we know: offer close spellings ("recieve" → "receive")
+    const [sl, sg] = await Promise.allSettled([get(DATAMUSE + "words?sl=" + q + "&max=6"), get(DATAMUSE + "sug?s=" + q + "&max=6")]);
+    const sug = [...new Set([...(val(sl) || []), ...(val(sg) || [])].map(x => x && x.word).filter(w => w && w !== word && !/\s/.test(w)))].slice(0, 6);
+    dictErr[n.id] = { msg:`No definition found for “${word}”. Check the spelling, or try another form of the word.`, sug };
+  }
+  dictBusy.delete(n.id);
+  fcRedraw(n);
+  const inp = boardEl.querySelector(`.note[data-id="${n.id}"] .dict-in`);
+  if (inp && document.activeElement === document.body) inp.focus({ preventScroll:true });
+}
+function dictToCards(n){
+  const d = n.dict; if (!d) return;
+  const b = board();
+  let deck = b.notes.filter(x => x.kind === "cards").sort((a, c) => (c.z || 0) - (a.z || 0))[0];
+  if (!deck){
+    deck = makeNote("flashcards", { x: clamp((n.x || 0) + (n.w || 30) + 2, 0, 58), y: n.y || 6 });
+    deck.title = "Vocabulary"; deck.cards = []; deck.fx = { i:0, flip:false, mode:"study" };
+    b.notes.push(deck);
+  }
+  if (deck.cards.some(c => (c.f || "").trim().toLowerCase() === d.w.toLowerCase())){ toast(`“${d.w}” is already in ${deck.title}.`); return; }
+  const def = d.m[0] && d.m[0].defs[0];
+  const card = { id:uid(), f:d.w, b:def ? def.d : "", ex:def && def.ex ? def.ex : "", color:"" };
+  const blank = deck.cards.findIndex(c => !(c.f || "").trim() && !(c.b || "").trim());   // fill an empty starter card first
+  if (blank >= 0) deck.cards.splice(blank, 1, card); else deck.cards.push(card);
+  save(); renderNote(deck);
+  toast(`Added “${d.w}” to ${deck.title}.`);
+}
+function dictAct(n, act, btn, noteNode){
+  if (act === "dlook"){ const inp = noteNode.querySelector(".dict-in"); dictLookup(n, inp ? inp.value : n.word); }
+  else if (act === "dword") dictLookup(n, btn.dataset.w);
+  else if (act === "dsay"){ try { const a = new Audio(n.dict.audio); const p = a.play(); if (p && p.catch) p.catch(() => toast("Couldn't play the sound.")); } catch(e){} }
+  else if (act === "dcards") dictToCards(n);
+}
+
 /* ---------- rendering ---------- */
 function noteHTML(n, forPip){
   const ed = forPip ? "false" : editableAttr();
@@ -1240,6 +1740,8 @@ function noteHTML(n, forPip){
     ? `<ol class="list">${n.items.map(it => `<li class="${it.done?"done":""}" data-item="${it.id}"><button class="check" data-act="check" aria-label="${it.done?"Mark not done":"Mark done"}" aria-pressed="${it.done}">${ICON.check}</button><span class="item-text" contenteditable="${ed}">${esc(it.t)}</span></li>`).join("")}</ol>`
     : n.kind === "timed" ? timedBodyHTML(n, ed)
     : n.kind === "image" ? imageBodyHTML(n, forPip)
+    : n.kind === "cards" ? cardsBodyHTML(n, ed)
+    : n.kind === "dict" ? dictBodyHTML(n, forPip)
     : `<div class="note-text" contenteditable="${ed}" data-ph="${esc(PH[n.type]||"Type here")}">${esc(n.text)}</div>`;
   const img = n.kind === "image";
   return `<header class="note-head">${ICON.grip}<img class="koi-tag" src="${KOI_TAG}" alt="" aria-hidden="true" draggable="false">
@@ -1286,8 +1788,49 @@ function renderTabs(){
     const l = at.offsetLeft - tabsEl.offsetLeft, r = l + at.offsetWidth;
     if (l < tabsEl.scrollLeft) tabsEl.scrollLeft = Math.max(0, l - 12);
     else if (r > tabsEl.scrollLeft + tabsEl.clientWidth) tabsEl.scrollLeft = r - tabsEl.clientWidth + 12;
+    updateTabArrows();
   });
 }
+
+/* More boards than fit in the bar: show an arrow (with how many boards are hidden) and a fade
+   on each side that has more, and let the mouse wheel scroll the row sideways. */
+let dateW = 0;
+function updateTabArrows(){
+  // the date gives up its spot when there are more boards than fit (Present mode and the Float window still show it)
+  const dEl = $("date"), tight = document.body.classList.contains("tabs-tight");
+  if (!tight && dEl.offsetWidth) dateW = dEl.offsetWidth + 8;
+  const last = tabsEl.lastElementChild;
+  const contentW = last ? last.offsetLeft - tabsEl.offsetLeft + last.offsetWidth : 0;   // how wide the tabs really are
+  if (!tight && contentW > tabsEl.clientWidth + 2) document.body.classList.add("tabs-tight");
+  else if (tight && contentW <= tabsEl.clientWidth - dateW) document.body.classList.remove("tabs-tight");
+  const tabs = [...tabsEl.querySelectorAll("[data-board]")], vl = tabsEl.scrollLeft, vr = vl + tabsEl.clientWidth;
+  // a board counts as hidden when less than half of it is showing
+  const hiddenL = tabs.filter(t => t.offsetLeft - tabsEl.offsetLeft + t.offsetWidth / 2 < vl).length;
+  const hiddenR = tabs.filter(t => t.offsetLeft - tabsEl.offsetLeft + t.offsetWidth / 2 > vr).length;
+  const canL = vl > 2, canR = vr < tabsEl.scrollWidth - 2;
+  $("tabsWrap").classList.toggle("can-left", canL);
+  $("tabsWrap").classList.toggle("can-right", canR);
+  [["tabsLeft", canL, hiddenL, "left"], ["tabsRight", canR, hiddenR, "right"]].forEach(([id, on, count, side]) => {
+    const b = $(id); b.hidden = !on;
+    const what = count ? count + " more board" + (count === 1 ? "" : "s") : "more boards";
+    b.title = `Show ${what} on the ${side}`; b.setAttribute("aria-label", b.title);
+    const m = b.querySelector(".more"); m.textContent = count || ""; m.hidden = !count;
+  });
+}
+function scrollTabs(dir){ tabsEl.scrollBy({ left: dir * Math.max(120, tabsEl.clientWidth * 0.7), behavior:"smooth" }); }
+$("tabsLeft").addEventListener("click", () => scrollTabs(-1));
+$("tabsRight").addEventListener("click", () => scrollTabs(1));
+tabsEl.addEventListener("scroll", updateTabArrows, { passive:true });
+tabsEl.addEventListener("wheel", e => {
+  if (tabsEl.scrollWidth <= tabsEl.clientWidth + 2) return;
+  const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+  if (!d) return;
+  e.preventDefault();
+  tabsEl.style.scrollBehavior = "auto";            // follow the wheel directly, no lag
+  tabsEl.scrollLeft += d * (e.deltaMode === 1 ? 30 : 1);
+  tabsEl.style.scrollBehavior = "";
+}, { passive:false });
+new ResizeObserver(updateTabArrows).observe(tabsEl);
 function renderBoard(){
   const b = board();
   boardEl.className = "board bg-" + (BGS[b.bg] ? b.bg : "slate");
@@ -1303,8 +1846,9 @@ function renderBoard(){
 }
 function renderAddMenu(){
   $("addMenu").innerHTML = Object.entries(TYPES).map(([k,t]) => {
-    const mark = t.kind === "image" ? `<span class="ico">${ICON.image}</span>` : `<span class="swatch" style="background:${COLORS[t.color]}"></span>`;
-    const main = `<button class="item" role="menuitem" data-type="${k}">${mark}${t.label}${k === "timed" || k === "image" ? '<span class="new-pill">New</span>' : ""}</button>`;
+    const ico = { image:ICON.image, cards:ICON.cards, dict:ICON.book }[t.kind];
+    const mark = ico ? `<span class="ico">${ico}</span>` : `<span class="swatch" style="background:${COLORS[t.color]}"></span>`;
+    const main = `<button class="item" role="menuitem" data-type="${k}">${mark}${t.label}${isNew(k) ? '<span class="new-pill">New</span>' : ""}</button>`;
     if (k !== "timed") return main;
     // the clock button adds a Timed note and opens its timer beside it
     return `<div class="item-row">${main}<button class="item-clock" role="menuitem" data-type="timed" data-timer="1" title="Add a Timed note with its timer" aria-label="Add a Timed note with its timer">${ICON.clock}</button></div>`;
@@ -1320,6 +1864,7 @@ function renderSettings(){
     <hr>
     <button class="item" data-set="share">Share with a sub (link + QR code)${b.shareCode ? " &bull; on" : ""}</button>
     ${sb && userId ? `<button class="item" data-set="reports">Sub reports${reports.length && unreadCount() ? " (" + unreadCount() + " new)" : ""}</button>` : ""}
+    <button class="item" data-set="sched">Schedule boards by class period${b.sched && b.sched.on ? " &bull; " + fmtTime(b.sched.t) : ""}</button>
     <button class="item" data-set="dup">Duplicate this board</button>
     <button class="item" data-set="expand">Expand all notes</button>
     <button class="item" data-set="collapse">Minimize all notes</button>
@@ -1391,6 +1936,7 @@ document.addEventListener("keydown", e => {
     if (!$("shareWrap").hidden){ closeShare(); return; }
     if (!$("leaveWrap").hidden){ closeLeave(); return; }
     if (!$("repWrap").hidden){ closeReports(); return; }
+    if (!$("schedWrap").hidden){ closeSched(); return; }
     if (document.querySelector(".menu.open")){ closeMenus(); return; }
     if (presenting && !viewing) setPresent(false);
   }
@@ -1401,6 +1947,8 @@ $("addMenu").addEventListener("click", e => {
   const b = board();
   const k = b.notes.length % 6;
   const n = makeNote(btn.dataset.type, { x: 6 + k*5, y: 8 + k*6 });
+  markTried(btn.dataset.type);
+  renderAddMenu();   // its "New" label is gone next time the menu opens
   b.notes.push(n);
   if (b.notes.length === 1) boardEl.innerHTML = "";
   const el = renderNote(n);
@@ -1415,8 +1963,8 @@ $("addMenu").addEventListener("click", e => {
     el.querySelector(".img-drop .btn")?.focus();
     return;
   }
-  const target = boardEl.querySelector(`.note[data-id="${n.id}"] ` + (n.kind==="list" ? ".item-text" : n.kind==="timed" ? ".task-text" : ".note-text")) || el.querySelector(".note-text");
-  if (target){ target.focus(); placeCaretEnd(target); }
+  const target = boardEl.querySelector(`.note[data-id="${n.id}"] ` + (n.kind==="list" ? ".item-text" : n.kind==="timed" ? ".task-text" : n.kind==="cards" ? "[data-fcf]" : n.kind==="dict" ? ".dict-in" : ".note-text")) || el.querySelector(".note-text");
+  if (target){ target.focus(); if (target.isContentEditable) placeCaretEnd(target); }
 });
 
 let delArm = false;
@@ -1447,6 +1995,7 @@ $("setMenu").addEventListener("click", e => {
   }
   if (act === "trash"){ toggleMenu($("setBtn"), $("setMenu"), false); openTrash(); return; }
   if (act === "share"){ toggleMenu($("setBtn"), $("setMenu"), false); openShare(); return; }
+  if (act === "sched"){ toggleMenu($("setBtn"), $("setMenu"), false); openSched(); return; }
   if (act === "reports"){ toggleMenu($("setBtn"), $("setMenu"), false); openReports(); return; }
   if (act === "feedback"){ window.open(FEEDBACK_URL, "_blank", "noopener"); toggleMenu($("setBtn"), $("setMenu"), false); return; }
   if (act === "import"){ $("importFile").click(); toggleMenu($("setBtn"), $("setMenu"), false); return; }
@@ -1454,6 +2003,7 @@ $("setMenu").addEventListener("click", e => {
     const copy = JSON.parse(JSON.stringify(b));
     copy.id = uid(); copy.name = b.name + " (copy)";
     delete copy.shareCode;   // a copy gets its own code only if the teacher shares it
+    delete copy.sched;       // and its own schedule, so two boards don't claim the same class period
     const idMap = {};
     copy.notes.forEach(n => {
       const old = n.id; n.id = uid(); idMap[old] = n.id;
@@ -1531,6 +2081,8 @@ function handleNoteAction(n, e, noteNode, inPip){
   const act = btn.dataset.act;
   if (act === "pick"){ if (!presenting && !viewing && !inPip) pickImage(n.id); return; }
   if (act === "zoom"){ if (!inPip) openImageView(n); return; }
+  if (n.kind === "cards" && act.startsWith("fc")){ cardsAct(n, act, btn, inPip); return; }
+  if (n.kind === "dict" && DICT_ACTS.has(act)){ dictAct(n, act, btn, noteNode); return; }
   if (act === "min"){ n.min = !n.min; }
   else if (act === "color"){ n.color = COLOR_KEYS[(COLOR_KEYS.indexOf(n.color)+1) % COLOR_KEYS.length]; }
   else if (act === "smaller"){ n.s = Math.max(0.5, +( (n.s||1) - 0.15).toFixed(2)); }
@@ -1571,6 +2123,7 @@ function handleNoteAction(n, e, noteNode, inPip){
 
 /* text editing (no re-render, keeps the caret where it is) */
 boardEl.addEventListener("input", e => {
+  if (e.target.classList.contains("dict-in")) return;   // looked up on Enter, not saved while typing
   const noteNode = e.target.closest(".note"); if (!noteNode) return;
   const n = findNote(noteNode.dataset.id); if (!n) return;
   if (e.target.classList.contains("note-title")){ n.title = txt(e.target).replace(/\n/g," ").trim(); noteNode.setAttribute("aria-label", n.title||"Note"); }
@@ -1584,6 +2137,10 @@ boardEl.addEventListener("input", e => {
     const x = (n.tasks || []).find(i => i.id === e.target.closest("[data-task]").dataset.task);
     if (x) x.t = txt(e.target).replace(/\n/g," ");
     if (!x?.t) e.target.innerHTML = "";
+  }
+  else if (e.target.dataset && e.target.dataset.fcf){
+    const f = e.target.dataset.fcf, c = (n.cards || []).find(x => x.id === e.target.closest("[data-card]").dataset.card);
+    if (c){ c[f] = txt(e.target).replace(/\n$/, ""); if (!c[f].trim()) e.target.innerHTML = ""; }
   }
   noteNode.querySelector(".preview").textContent = firstLine(n);
   save("typing");
@@ -1606,6 +2163,26 @@ boardEl.addEventListener("keydown", e => {
     const el = renderNote(n).querySelector(`[data-item="${prev.id}"] .item-text`);
     el.focus(); placeCaretEnd(el);
   }
+});
+/* Flashcards: Enter in a term jumps to its answer; Enter in an answer or example starts the next card.
+   Dictionary: Enter looks the word up. */
+boardEl.addEventListener("keydown", e => {
+  const t = e.target;
+  if (t.classList?.contains("dict-in") && e.key === "Enter"){
+    e.preventDefault();
+    const n = findNote(t.closest(".note").dataset.id); if (n) dictLookup(n, t.value);
+    return;
+  }
+  if (!(t.dataset && t.dataset.fcf) || e.key !== "Enter" || e.shiftKey) return;
+  e.preventDefault();
+  const li = t.closest("[data-card]");
+  if (t.dataset.fcf === "f"){ li.querySelector('[data-fcf="b"]').focus(); return; }
+  const n = findNote(t.closest(".note").dataset.id); if (!n) return;
+  const idx = n.cards.findIndex(c => c.id === li.dataset.card);
+  let next = n.cards[idx + 1];
+  if (!next){ next = newCard(); n.cards.push(next); save(); renderNote(n); }
+  const el = boardEl.querySelector(`.note[data-id="${n.id}"] [data-card="${next.id}"] [data-fcf="f"]`);
+  if (el){ el.focus(); placeCaretEnd(el); }
 });
 /* Timed note: Enter adds the next task, Backspace on an empty upcoming task removes it */
 boardEl.addEventListener("keydown", e => {
@@ -1835,7 +2412,7 @@ let imgTarget = null;                      // an empty Image note the next paste
 let pickTarget = null;                     // the note "Choose an image" was clicked in
 
 function modalOpen(){
-  return !$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden || !$("leaveWrap").hidden || !$("repWrap").hidden || !$("imgView").hidden;
+  return !$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden || !$("leaveWrap").hidden || !$("repWrap").hidden || !$("imgView").hidden || !$("schedWrap").hidden;
 }
 function imageBodyHTML(n, forPip){
   const tapZoom = !forPip && (presenting || viewing);
@@ -2098,11 +2675,36 @@ $("pipBtn").addEventListener("click", async () => {
   const link = d.createElement("link"); link.rel = "stylesheet"; link.href = $("font-link").href; d.head.appendChild(link);
   const st = d.createElement("style"); st.textContent = $("app-css").textContent; d.head.appendChild(st);
   d.title = "Floatle";
-  d.body.innerHTML = '<div class="pip" id="pip"></div>';
+  d.body.innerHTML = `<div class="pip" id="pip"></div>
+    <div class="pip-bar" id="pipBar" role="toolbar" aria-label="Float window controls">
+      <button data-pact="smaller" title="Smaller text (Ctrl −)" aria-label="Smaller text">A&minus;</button>
+      <span class="pip-pct" id="pipPct" aria-live="polite"></span>
+      <button data-pact="bigger" title="Bigger text (Ctrl +)" aria-label="Bigger text" style="font-size:1.2rem">A+</button>
+      <span class="pip-sep" aria-hidden="true"></span>
+      <button data-pact="undo" id="pipUndo" title="Undo (Ctrl+Z)" aria-label="Undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+      <button data-pact="close" class="pip-close" title="Close the Float window" aria-label="Close the Float window">${ICON.x}</button>
+    </div>`;
   d.addEventListener("keydown", onUndoKey);
+  d.addEventListener("keydown", e => {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+    if (e.key === "=" || e.key === "+"){ e.preventDefault(); setPipScale(1); }
+    else if (e.key === "-" || e.key === "_"){ e.preventDefault(); setPipScale(-1); }
+    else if (e.key === "0"){ e.preventDefault(); setPipScale(0); }
+  });
+  // the controls fade away so the notes fill the window; moving the mouse, tapping or typing brings them back
+  ["pointermove", "pointerdown", "keydown", "focusin", "wheel"].forEach(t => d.addEventListener(t, pipWake, { passive:true }));
+  d.documentElement.addEventListener("mouseleave", () => { clearTimeout(pipIdleTimer); pipIdleTimer = setTimeout(pipSleep, 500); });
   d.body.addEventListener("click", e => {
     if (pipSuppressClick){ pipSuppressClick = false; e.preventDefault(); e.stopPropagation(); return; }
-    if (e.target.closest("[data-pact=undo]")){ undo(); return; }
+    const pa = e.target.closest("[data-pact]");
+    if (pa){
+      const a = pa.dataset.pact;
+      if (a === "undo") undo();
+      else if (a === "smaller") setPipScale(-1);
+      else if (a === "bigger") setPipScale(1);
+      else if (a === "close") pipWin.close();
+      return;
+    }
     const tpn = e.target.closest(".tpanel"); if (tpn){ panelClick(e, tpn, true); return; }
     const noteNode = e.target.closest(".note"); if (!noteNode) return;
     const n = findNote(noteNode.dataset.id); if (!n) return;
@@ -2113,9 +2715,34 @@ $("pipBtn").addEventListener("click", async () => {
   d.body.addEventListener("pointermove", pipPointerMove);
   d.body.addEventListener("pointerup", pipPointerUp);
   d.body.addEventListener("pointercancel", pipPointerUp);
-  pipWin.addEventListener("pagehide", () => { pipWin = null; pipDrag = null; pipRenderPending = false; });
+  pipWin.addEventListener("pagehide", () => { clearTimeout(pipIdleTimer); pipWin = null; pipDrag = null; pipRenderPending = false; });
   renderPip();
+  pipWake();
 });
+
+/* Float window text size: per board, from 80% to 220% */
+const PIP_MIN = 0.8, PIP_MAX = 2.2;
+let pipIdleTimer = null;
+function pipScaleOf(b){ return clamp(+b.pipScale || 1, PIP_MIN, PIP_MAX); }
+function setPipScale(dir){
+  const b = board(), s = dir === 0 ? 1 : +(pipScaleOf(b) + dir * 0.1).toFixed(2);
+  const next = clamp(s, PIP_MIN, PIP_MAX);
+  if (next === pipScaleOf(b) && dir !== 0) return;
+  b.pipScale = next;
+  save();
+}
+function pipWake(){
+  if (!pipWin || pipWin.closed) return;
+  pipWin.document.body.classList.remove("pip-idle");
+  clearTimeout(pipIdleTimer); pipIdleTimer = setTimeout(pipSleep, 2500);
+}
+function pipSleep(){
+  if (!pipWin || pipWin.closed) return;
+  const d = pipWin.document, bar = d.getElementById("pipBar");
+  // stay up while the mouse is on the controls, or a keyboard user is tabbing through them
+  if (bar && (bar.matches(":hover") || bar.querySelector(":focus-visible"))){ pipIdleTimer = setTimeout(pipSleep, 1500); return; }
+  d.body.classList.add("pip-idle");
+}
 
 // Order of notes in the floating window. Uses the order the teacher dragged;
 // notes that were never dragged fall back to their position on the board (top to bottom).
@@ -2131,12 +2758,17 @@ function renderPip(){
   const root = pipWin.document.getElementById("pip"); if (!root) return;
   const scroll = root.scrollTop;
   const b = board();
-  root.innerHTML = `<div class="pip-top"><b></b><span></span><button class="pip-undo" data-pact="undo" title="Undo (Ctrl+Z)" ${undoStack.length ? "" : "disabled"}>&#8630; Undo</button></div>`;
-  root.querySelector("b").textContent = b.name;
-  root.querySelector("span").textContent = $("date").textContent;
+  const pd = pipWin.document, scale = pipScaleOf(b);
+  root.innerHTML = "";
+  root.style.setProperty("--ps", scale);
+  const pct = pd.getElementById("pipPct"); if (pct) pct.textContent = Math.round(scale * 100) + "%";
+  const ub = pd.getElementById("pipUndo"); if (ub) ub.disabled = !undoStack.length;
+  pd.querySelector('[data-pact="smaller"]')?.toggleAttribute("disabled", scale <= PIP_MIN);
+  pd.querySelector('[data-pact="bigger"]')?.toggleAttribute("disabled", scale >= PIP_MAX);
+  if (!b.notes.length) root.innerHTML = `<div class="empty" style="position:static;padding:2rem 1rem">This board is empty.</div>`;
   pipSortedNotes(b).forEach(n => {
     const el = noteEl(n, true);
-    el.style.cssText = `--paper:${COLORS[n.color]};--s:1`;
+    el.style.cssText = `--paper:${COLORS[n.color] || COLORS.lemon}`;
     el.querySelector(".note-head").title = "Drag to reorder. Click to minimize or expand.";
     // a Timed note with its timer open floats its Visual / Countdown timer too, pinned at the top
     if (n.kind === "timed" && n.tp && n.tp.open){
@@ -2697,8 +3329,163 @@ $("importFile").addEventListener("change", async e => {
   } catch(err){ toast("That file isn't a Floatle backup. Choose a file made with Export."); }
 });
 
+/* ---------- scheduled boards: switch to each class's board at its start time ----------
+   A board's schedule is saved with the board (b.sched = { on, t:"11:31", days:[1..5] }, 0 = Sunday),
+   so it syncs to every device. Whether THIS computer switches on its own is a device setting
+   (a teacher planning at home doesn't want boards jumping around). Switching only happens at
+   each start time: a teacher who picks another board by hand keeps it until the next one.
+   If the teacher is typing or has a dialog open, the switch waits and the "Up next" chip offers it. */
+const DAY_ABBR = ["S", "M", "T", "W", "T", "F", "S"];
+const DAY_NAME = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const SCHED_PREF_KEY = "floatle.sched.prefs";
+const schedDone = new Set();   // start times already handled today (switched, or the teacher chose to stay)
+let schedPending = null, schedShown = null;
+function toMin(t){ const m = /^(\d{1,2}):(\d{2})/.exec(t || ""); return m ? (+m[1]) * 60 + (+m[2]) : null; }
+function fmtTime(t){
+  const m = toMin(t); if (m == null) return "";
+  let h = Math.floor(m / 60) % 12; if (!h) h = 12;
+  return h + ":" + String(m % 60).padStart(2, "0") + (m >= 720 ? " PM" : " AM");
+}
+function schedPrefs(){
+  let p = {}; try { p = JSON.parse(localStorage.getItem(SCHED_PREF_KEY)) || {}; } catch(e){}
+  return { auto: p.auto !== false, upNext: p.upNext !== false, chime: !!p.chime };
+}
+function setSchedPref(k, v){ const p = schedPrefs(); p[k] = v; lsSet(SCHED_PREF_KEY, JSON.stringify(p)); }
+function todaySlots(d){
+  const day = d.getDay(), stamp = d.toDateString();
+  return state.boards.filter(b => b.sched && b.sched.on && toMin(b.sched.t) != null && (b.sched.days || []).includes(day))
+    .map(b => ({ bid:b.id, min:toMin(b.sched.t), key:stamp + "|" + b.id + "|" + b.sched.t }))
+    .sort((a, c) => a.min - c.min);
+}
+function slotNow(){
+  const d = new Date(), m = d.getHours() * 60 + d.getMinutes();
+  let cur = null, next = null;
+  for (const s of todaySlots(d)){ if (s.min <= m) cur = s; else { next = s; break; } }
+  return { cur, next, m, secs:d.getSeconds() };
+}
+const slotBoard = s => s && state.boards.find(b => b.id === s.bid);
+function schedBusy(){
+  const a = document.activeElement;
+  return !!(drag || pdrag || (pipDrag && pipDrag.active) || modalOpen() || document.querySelector(".menu.open")
+    || (a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))));
+}
+function schedSwitch(s, how){
+  schedDone.add(s.key);
+  if (schedPending && schedPending.key === s.key) schedPending = null;
+  const b = slotBoard(s), prev = state.active;
+  if (!b || b.id === state.active){ schedUI(); return; }
+  state.active = b.id;
+  closeMenus();
+  render(); save();
+  boardEl.classList.remove("sched-fade"); void boardEl.offsetWidth; boardEl.classList.add("sched-fade");
+  if (how !== "quiet"){
+    if (schedPrefs().chime) chime();
+    toast(`Switched to ${b.name}${how === "auto" ? " (scheduled for " + fmtTime(b.sched.t) + ")" : ""}.`, () => {
+      if (state.boards.some(x => x.id === prev)){ state.active = prev; render(); save(); }
+    }, "Go back");
+  }
+  schedUI();
+}
+function schedCheck(force){
+  if (viewing || !state) return;
+  const { cur } = slotNow();
+  if (schedPrefs().auto && cur && (force || !schedDone.has(cur.key))){
+    if (force) schedSwitch(cur, "quiet");
+    else if (schedBusy()) schedPending = cur;
+    else schedSwitch(cur, "auto");
+  }
+  if (schedPending && schedDone.has(schedPending.key)) schedPending = null;
+  schedUI();
+}
+// the "Up next" chip: two minutes before a switch, and when a switch is waiting for the teacher to finish typing
+function schedUI(){
+  const el = $("upNext");
+  const p = schedPrefs();
+  schedShown = null;
+  if (!viewing && p.auto){
+    const { next, m, secs } = slotNow();
+    let when = "";
+    if (schedPending && slotBoard(schedPending) && schedPending.bid !== state.active){ schedShown = schedPending; when = "It's time for"; }
+    else if (p.upNext && next && next.bid !== state.active && !schedDone.has(next.key) && slotBoard(next)){
+      const left = (next.min - m) * 60 - secs;
+      if (left <= 120){ schedShown = next; when = "Up next in " + fmtMs(left * 1000); }
+    }
+    if (schedShown){
+      $("upNextWhen").textContent = when;
+      $("upNextName").textContent = slotBoard(schedShown).name;
+    }
+  }
+  el.hidden = !schedShown;
+}
+$("upNextGo").addEventListener("click", () => {
+  if (!schedShown) return;
+  const { cur } = slotNow();
+  if (cur) schedDone.add(cur.key);   // switching early: don't jump back to the current period's board
+  schedSwitch(schedShown, "now");
+});
+$("upNextStay").addEventListener("click", () => {
+  if (!schedShown) return;
+  schedDone.add(schedShown.key);
+  if (schedPending && schedPending.key === schedShown.key) schedPending = null;
+  schedUI();
+  toast("Staying on " + board().name + ".");
+});
+// a chime needs one click or tap on the page first (browser rule), so get the sound ready then
+document.addEventListener("pointerdown", () => { if (schedPrefs().chime) unlockAudio(); }, true);
+
+function renderSched(){
+  const p = schedPrefs();
+  const rows = state.boards.map(b => {
+    const s = b.sched || {}, on = !!s.on, days = s.days || [1, 2, 3, 4, 5], t = s.t || "08:00";
+    const clash = on && state.boards.find(o => o !== b && o.sched && o.sched.on && o.sched.t === t && (o.sched.days || []).some(d => days.includes(d)));
+    return `<div class="sched-row${on ? "" : " off"}" data-sb="${b.id}">
+      <label class="sched-name"><input type="checkbox" data-f="on" ${on ? "checked" : ""}><span class="swatch" style="background:${BG_SWATCH[b.bg] || BG_SWATCH.slate}"></span><span>${esc(b.name)}</span></label>
+      <div class="sched-when">
+        <input type="time" data-f="t" value="${esc(t)}" aria-label="Start time for ${esc(b.name)}" ${on ? "" : "disabled"}>
+        <div class="days" role="group" aria-label="Days for ${esc(b.name)}">${DAY_ABBR.map((a, d) =>
+          `<button type="button" data-f="day" data-v="${d}" aria-pressed="${days.includes(d)}" aria-label="${DAY_NAME[d]}" title="${DAY_NAME[d]}" ${on ? "" : "disabled"}>${a}</button>`).join("")}</div>
+      </div>
+      ${clash ? `<div class="sched-warn">Same start time as ${esc(clash.name)} on some days. Give each class its own time.</div>` : ""}
+    </div>`;
+  }).join("");
+  $("schedBody").innerHTML = rows + `<div class="sched-prefs">
+      <label><input type="checkbox" data-p="auto" ${p.auto ? "checked" : ""}>Switch boards automatically on this computer</label>
+      <label><input type="checkbox" data-p="upNext" ${p.upNext ? "checked" : ""}>Show &ldquo;Up next&rdquo; 2 minutes before a switch</label>
+      <label><input type="checkbox" data-p="chime" ${p.chime ? "checked" : ""}>Play a soft chime when the board switches</label>
+    </div>`;
+}
+function openSched(){ renderSched(); $("schedWrap").hidden = false; setTimeout(() => $("schedClose").focus(), 30); }
+function closeSched(){ $("schedWrap").hidden = true; renderSettings(); schedCheck(); }
+function schedOf(b){ return b.sched || (b.sched = { on:false, t:"08:00", days:[1, 2, 3, 4, 5] }); }
+function rerenderSched(focusSel){ renderSched(); const el = focusSel && $("schedBody").querySelector(focusSel); if (el) el.focus(); }
+$("schedClose").addEventListener("click", closeSched);
+$("schedWrap").addEventListener("click", e => {
+  if (e.target === $("schedWrap")){ closeSched(); return; }
+  const day = e.target.closest('[data-f="day"]'); if (!day) return;
+  const row = day.closest("[data-sb]"), b = state.boards.find(x => x.id === row.dataset.sb); if (!b) return;
+  const s = schedOf(b), d = +day.dataset.v;
+  s.days = (s.days || []).includes(d) ? s.days.filter(x => x !== d) : [...(s.days || []), d].sort();
+  save(); rerenderSched(`[data-sb="${b.id}"] [data-f="day"][data-v="${d}"]`);
+});
+$("schedBody").addEventListener("change", e => {
+  const pref = e.target.dataset.p;
+  if (pref){
+    setSchedPref(pref, e.target.checked);
+    if (pref === "chime" && e.target.checked){ unlockAudio(); chime(); }   // a preview, so the teacher knows the sound
+    schedUI(); return;
+  }
+  const row = e.target.closest("[data-sb]"), b = row && state.boards.find(x => x.id === row.dataset.sb); if (!b) return;
+  const s = schedOf(b), f = e.target.dataset.f;
+  if (f === "on"){ s.on = e.target.checked; save(); rerenderSched(`[data-sb="${b.id}"] [data-f="on"]`); }
+  else if (f === "t" && e.target.value){ s.t = e.target.value; save(); }   // no redraw, so typing the time isn't interrupted
+});
+
 render();
 resetHistory();
+if (!viewing){
+  schedCheck(true);                   // opening Floatle shows the board scheduled for right now
+  setInterval(() => schedCheck(), 1000);
+}
 if (viewing){
   document.body.classList.add("viewing");
   viewMsg = "<div>Loading the class board…</div>";
