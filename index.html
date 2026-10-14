@@ -681,6 +681,26 @@ body.present .fc-only-edit,.pip .fc-only-edit{display:none !important}
 .dict-msg{font-size:.7em;opacity:.8;padding:.3em 0}
 .dict-foot{display:flex;justify-content:flex-end;font-size:.62em;margin-top:auto;padding-top:.2em}
 .pip .dict-form{display:none}
+
+/* ---------- Document notes (a handout or worksheet subs can view, print and download) ---------- */
+.kind-doc .note-body{display:flex;flex-direction:column}
+.doc{flex:1 1 auto;display:flex;flex-direction:column;gap:.55em;font-size:.72em;min-height:0}
+.doc-empty{align-items:center;justify-content:center;text-align:center;border:2px dashed rgba(0,0,0,.28);border-radius:8px;padding:.6em;line-height:1.35}
+.doc-empty .doc-hint{opacity:.65;font-size:.9em}
+.doc-file{display:flex;align-items:center;gap:.65em;background:rgba(255,255,255,.7);border-radius:.6em;padding:.55em .65em;min-width:0}
+.doc-ico{flex:0 0 auto;width:2.7em;height:3.2em;border-radius:.3em .9em .3em .3em;background:#5B6874;color:#fff;display:grid;place-items:end center;padding-bottom:.4em;font-size:.75em;font-weight:700;letter-spacing:.03em;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.doc-ico.pdf{background:#C62828}.doc-ico.word{background:#1E5BB8}.doc-ico.ppt{background:#C4501B}.doc-ico.xls{background:#1E7A45}.doc-ico.img{background:#6E56CF}
+.doc-meta{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.doc-name{font-weight:700;overflow-wrap:anywhere}
+.doc-sub{font-size:.85em;opacity:.75}
+.doc.busy .doc-sub::after{content:" · Uploading…";font-weight:700}
+.doc-acts{display:flex;flex-wrap:wrap;gap:.4em}
+.doc-btn{border:0;border-radius:.55em;background:#1D1A14;color:#fff;font-weight:700;padding:.5em .9em;display:inline-flex;align-items:center;gap:.4em}
+.doc-btn.alt{background:rgba(255,255,255,.85);color:#1D1A14;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.doc-btn:disabled{opacity:.45;cursor:default}
+.doc-btn svg{width:1.05em;height:1.05em}
+.doc-link{border:0;background:none;padding:0;text-decoration:underline;font-size:.9em;opacity:.8;align-self:flex-start;color:inherit}
+.doc-link:hover{opacity:1}
 </style>
 </head>
 <body>
@@ -841,6 +861,7 @@ body.present .fc-only-edit,.pip .fc-only-edit{display:none !important}
 </div>
 <input type="file" id="importFile" accept=".json,application/json" hidden>
 <input type="file" id="imgFile" accept="image/*" hidden>
+<input type="file" id="docFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.gif,.webp" hidden>
 <div class="img-view" id="imgView" role="dialog" aria-modal="true" aria-labelledby="imgViewTitle" hidden>
   <div class="img-view-top"><b id="imgViewTitle"></b><button class="btn" id="imgViewClose">Close</button></div>
   <img id="imgViewImg" alt="">
@@ -869,12 +890,13 @@ const TYPES = {
   image:{ label:"Image or slide", title:"Image", kind:"image", color:"paper", w:44, h:46 },
   flashcards:{ label:"Flashcards", kind:"cards", color:"sky", w:40, h:54 },
   dictionary:{ label:"Dictionary", kind:"dict", color:"paper", w:30, h:58 },
+  document:{ label:"Document", kind:"doc", color:"paper", w:30, h:34 },
   note:{ label:"Blank note", kind:"text", color:"paper", w:26, h:22, text:"" }
 };
 /* "New" labels in the Add note menu. Each one goes away on its own: on the date below, or as soon
    as this teacher adds one of that kind, whichever comes first. To label a future note type, add
    it here with a date about a month after it ships. */
-const NEW_UNTIL = { timed:"2026-11-01", image:"2026-11-01", flashcards:"2026-11-15", dictionary:"2026-11-15" };
+const NEW_UNTIL = { timed:"2026-11-01", image:"2026-11-01", flashcards:"2026-11-15", dictionary:"2026-11-15", document:"2026-11-15" };
 const TRIED_KEY = "floatle.triedTypes";
 function triedTypes(){ try { return JSON.parse(localStorage.getItem(TRIED_KEY)) || []; } catch(e){ return []; } }
 function markTried(type){
@@ -902,6 +924,7 @@ function makeNote(type, pos){
   else if (t.kind === "image") n.src = "";   // a link to the stored image (or, until it uploads, the image itself)
   else if (t.kind === "cards"){ n.cards = [{ id:uid(), f:"", b:"", ex:"", color:"" }]; n.fx = { i:0, flip:false, mode:"edit" }; }
   else if (t.kind === "dict"){ n.word = ""; n.dict = null; }
+  else if (t.kind === "doc") n.doc = null;   // { path, name, ext, size } once a file is attached
   else n.text = t.text;
   return n;
 }
@@ -1084,6 +1107,7 @@ async function onSignedIn(user){
   schedCheck(true);   // signing in on a classroom computer opens the board scheduled for right now
   syncShares();
   loadReports();
+  loadPlan();         // Pro raises the document limits
   uploadPendingImages();
 }
 async function pullRemote(){
@@ -1101,7 +1125,7 @@ async function signOut(){
   // shared classroom computers: remove this teacher's copy from the browser
   try { localStorage.removeItem(cacheKey()); } catch(e){}
   clearTimeout(remoteTimer);
-  userId = null; userEmail = "";
+  userId = null; userEmail = ""; proUntil = 0;
   reports = []; repExpanded = {}; repToasted = false; repPurged = false; updateRepBadge();
   try { await sb.auth.signOut(); } catch(e){}
   setState(readCache(LOCAL_KEY) || seed());
@@ -1190,7 +1214,10 @@ const ICON = {
   left:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
   right:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
   speaker:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg>',
-  pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>'
+  pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
+  file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>',
+  print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>',
+  download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>'
 };
 // full address so the koi also shows inside the floating (picture-in-picture) window
 const KOI_TAG = new URL("assets/koi-mini.png", location.href).href;
@@ -1206,6 +1233,8 @@ const firstLine = n => n.kind === "list"
   ? (() => { const c = (n.cards || []).filter(x => (x.f || "").trim()); return c.length ? c.length + " card" + (c.length === 1 ? "" : "s") + " · " + c[0].f : "No cards yet"; })()
   : n.kind === "dict"
   ? (n.dict ? n.dict.w + " · " + (n.dict.m[0]?.defs[0]?.d || "") : "Look up a word")
+  : n.kind === "doc"
+  ? (n.doc && n.doc.name ? n.doc.name : "No file yet")
   : (n.text || "").split("\n").find(l => l.trim()) || "";
 
 /* ---------- Timed notes: tasks with minutes + a linked timer ----------
@@ -1772,6 +1801,155 @@ function dictAct(n, act, btn, noteNode){
   else if (act === "dcards") dictToCards(n);
 }
 
+/* ---------- Document notes: a handout or worksheet anyone the board is shared with can open ----------
+   A Document note holds one file: PDF, Word, PowerPoint, Excel, text or a picture. Anyone who can
+   see the board (the teacher, or a sub on the shared link) can view, print and download it.
+   Where the file lives: the private Supabase Storage bucket "note-docs" (set up by
+   floatle-pro-and-docs.sql). The note keeps only n.doc = { path, name, ext, size }. Each time
+   someone opens the file, Floatle asks for a link that works for one hour. Teachers can always
+   open their own files; anyone else only while the file is on a board that is shared right now.
+   Documents need an account: files are too big to keep in the browser.
+   Free: 3 documents per board, up to 10 MB each. Pro: unlimited, up to 25 MB each.
+   Who has Pro comes from the "plans" table (pro_until). */
+const DOC_BUCKET = "note-docs";
+const MB = 1048576, FREE_DOCS_PER_BOARD = 3, FREE_DOC_MB = 10, PRO_DOC_MB = 25;
+const DOC_MIME = {
+  pdf:"application/pdf", txt:"text/plain",
+  doc:"application/msword", docx:"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ppt:"application/vnd.ms-powerpoint", pptx:"application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  xls:"application/vnd.ms-excel", xlsx:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  png:"image/png", jpg:"image/jpeg", jpeg:"image/jpeg", gif:"image/gif", webp:"image/webp"
+};
+const DOC_KIND = { pdf:["PDF","pdf"], doc:["Word","word"], docx:["Word","word"], ppt:["PowerPoint","ppt"], pptx:["PowerPoint","ppt"],
+  xls:["Excel","xls"], xlsx:["Excel","xls"], txt:["Text",""], png:["Picture","img"], jpg:["Picture","img"], jpeg:["Picture","img"], gif:["Picture","img"], webp:["Picture","img"] };
+// Word, PowerPoint and Excel open in Microsoft's free online viewer (it has its own Print button);
+// everything else opens right in the browser, where the browser's Print works
+const DOC_OFFICE = new Set(["doc", "docx", "ppt", "pptx", "xls", "xlsx"]);
+const DOC_ACTS = new Set(["docpick", "docopen", "docget"]);
+const docUp = {};              // files uploading right now, by note id: { name, ext, size }
+let docTarget = null;          // the note "Choose a file" was clicked in
+let proUntil = 0;
+const isPro = () => proUntil > Date.now();
+async function loadPlan(){
+  if (!sb || !userId) return;
+  const id = userId;
+  try {
+    const { data, error } = await sb.from("plans").select("pro_until").eq("user_id", id).maybeSingle();
+    if (error || userId !== id) return;
+    proUntil = data && data.pro_until ? new Date(data.pro_until).getTime() : 0;
+  } catch(e){}
+}
+const docMaxMB = () => isPro() ? PRO_DOC_MB : FREE_DOC_MB;
+const canAddDoc = b => isPro() || b.notes.filter(n => n.kind === "doc").length < FREE_DOCS_PER_BOARD;
+const docExt = name => { const m = /\.([a-z0-9]+)$/i.exec(name || ""); const x = m ? m[1].toLowerCase() : ""; return DOC_MIME[x] ? x : ""; };
+const fmtSize = b => b < MB ? Math.max(1, Math.round(b / 1024)) + " KB" : (b / MB).toFixed(1).replace(/\.0$/, "") + " MB";
+function docLimitToast(){ toast(`Free boards hold ${FREE_DOCS_PER_BOARD} documents each. Floatle Pro lets you attach as many as you need.`); }
+function docSignInToast(){
+  toast("Documents need a free account, so subs can open them from any device.", () => {
+    try { localStorage.removeItem("swbats.skipLogin"); } catch(e){}
+    showAuth("signin");
+  }, "Sign in");
+}
+
+function docBodyHTML(n, forPip){
+  const up = docUp[n.id], d = up || n.doc, editing = !forPip && !presenting && !viewing;
+  if (!d || !d.name){
+    return editing
+      ? `<div class="doc doc-empty"><b>Attach a handout or worksheet</b>
+          <button class="doc-btn" data-act="docpick">${ICON.file}Choose a file</button>
+          <span class="doc-hint">PDF, Word, PowerPoint, Excel, text or a picture, up to ${docMaxMB()} MB. You can also drag a file here.</span></div>`
+      : `<div class="doc doc-empty"><span>No file yet</span></div>`;
+  }
+  const [kind, cls] = DOC_KIND[d.ext] || ["File", ""];
+  const ready = !up && !!(n.doc && n.doc.path), off = ready ? "" : "disabled";
+  return `<div class="doc${up ? " busy" : ""}">
+      <div class="doc-file"><span class="doc-ico ${cls}" aria-hidden="true">${esc((d.ext || "file").toUpperCase())}</span>
+        <span class="doc-meta"><span class="doc-name">${esc(d.name)}</span><span class="doc-sub">${esc(kind)}${d.size ? " &middot; " + fmtSize(d.size) : ""}</span></span></div>
+      <div class="doc-acts">
+        <button class="doc-btn" data-act="docopen" title="Open it to read or print" ${off}>${ICON.print}View &amp; print</button>
+        <button class="doc-btn alt" data-act="docget" title="Save a copy" ${off}>${ICON.download}Download</button>
+      </div>
+      ${editing && !up ? `<button class="doc-link" data-act="docpick">Replace file</button>` : ""}
+    </div>`;
+}
+function pickDoc(noteId){ docTarget = noteId || null; $("docFile").click(); }
+function redrawDoc(n){
+  if (boardEl.querySelector(`.note[data-id="${n.id}"]`)) renderNote(n);
+  renderPip();
+}
+async function attachDoc(file, opts){
+  opts = opts || {};
+  if (viewing || presenting || !file) return;
+  if (!sb || !userId){ docSignInToast(); return; }
+  const ext = docExt(file.name);
+  if (!ext){ toast("Floatle can attach PDF, Word, PowerPoint, Excel, text and picture files."); return; }
+  if (file.size > docMaxMB() * MB){
+    toast(isPro() ? `That file is over ${PRO_DOC_MB} MB. Try saving a smaller copy, such as a PDF.`
+                  : `Free documents can be up to ${FREE_DOC_MB} MB. Floatle Pro takes files up to ${PRO_DOC_MB} MB.`);
+    return;
+  }
+  const b = board();
+  let n = opts.noteId ? b.notes.find(x => x.id === opts.noteId && x.kind === "doc") : null;
+  if (!n){
+    if (!canAddDoc(b)){ docLimitToast(); return; }
+    const k = b.notes.length % 6;
+    n = makeNote("document", opts.pos || { x: 6 + k * 5, y: 8 + k * 6 });
+    markTried("document"); renderAddMenu();
+    b.notes.push(n);
+    boardEl.querySelector(".empty")?.remove();
+    save();
+  }
+  if (docUp[n.id]) return;
+  docUp[n.id] = { name:file.name, ext, size:file.size };
+  redrawDoc(n);
+  const path = `${userId}/${Date.now().toString(36)}-${uid()}${uid()}.${ext}`;
+  try {
+    const { error } = await sb.storage.from(DOC_BUCKET).upload(path, file, { contentType: DOC_MIME[ext], cacheControl: "3600", upsert: false });
+    if (error) throw error;
+    delete docUp[n.id];
+    n.doc = { path, name:file.name, ext, size:file.size };
+    if (!n.title || n.title === TYPES.document.label) n.title = file.name.replace(/\.[^.]+$/, "").slice(0, 60) || TYPES.document.label;
+    save(); redrawDoc(n);
+    toast("Document attached. Anyone you share this board with can view, print and download it.");
+  } catch(e){
+    delete docUp[n.id];
+    console.warn("Floatle: document upload failed", e);
+    redrawDoc(n);
+    toast("The file didn't upload. Check your connection and try again.");
+  }
+}
+async function docAct(n, act){
+  if (act === "docpick"){ if (!presenting && !viewing) pickDoc(n.id); return; }
+  const d = n.doc; if (!d || !d.path || !sb) return;
+  // open the tab right away, while the click still counts, so pop-up blockers allow it
+  const win = act === "docopen" ? window.open("", "_blank") : null;
+  if (win){ try { win.document.title = d.name; win.document.body.textContent = "Opening " + d.name + "…"; } catch(e){} }
+  try {
+    const { data, error } = await sb.storage.from(DOC_BUCKET).createSignedUrl(d.path, 3600, act === "docget" ? { download: d.name } : undefined);
+    if (error || !data || !data.signedUrl) throw error || new Error("no link");
+    const url = data.signedUrl;
+    if (act === "docget"){
+      const a = document.createElement("a");
+      a.href = url; a.download = d.name; a.rel = "noopener";
+      document.body.appendChild(a); a.click(); a.remove();
+      toast("Downloading " + d.name + ".");
+      return;
+    }
+    const dest = DOC_OFFICE.has(d.ext) ? "https://view.officeapps.live.com/op/view.aspx?src=" + encodeURIComponent(url) : url;
+    if (win && !win.closed){ try { win.opener = null; } catch(e){} win.location.replace(dest); }
+    else if (!window.open(dest, "_blank", "noopener")) toast("Your browser blocked the new tab. Allow pop-ups for this site, or use Download.");
+  } catch(e){
+    if (win && !win.closed) win.close();
+    toast(viewing ? "This document can't be opened right now. The teacher may have turned sharing off."
+                  : "Couldn't open the document. Check your connection and try again.");
+  }
+}
+$("docFile").addEventListener("change", e => {
+  const f = e.target.files[0]; e.target.value = "";
+  const id = docTarget; docTarget = null;
+  if (f) attachDoc(f, { noteId: id });
+});
+
 /* ---------- rendering ---------- */
 function noteHTML(n, forPip){
   const ed = forPip ? "false" : editableAttr();
@@ -1781,6 +1959,7 @@ function noteHTML(n, forPip){
     : n.kind === "image" ? imageBodyHTML(n, forPip)
     : n.kind === "cards" ? cardsBodyHTML(n, ed)
     : n.kind === "dict" ? dictBodyHTML(n, forPip)
+    : n.kind === "doc" ? docBodyHTML(n, forPip)
     : `<div class="note-text rich${n.ps ? " ps" : ""}" contenteditable="${forPip ? "false" : richEditableAttr()}"${n.ls ? ` style="line-height:${+n.ls}"` : ""} data-ph="${esc(PH[n.type]||"Type here")}">${richBody(n)}</div>`;
   const img = n.kind === "image";
   return `<header class="note-head">${ICON.grip}<img class="koi-tag" src="${KOI_TAG}" alt="" aria-hidden="true" draggable="false">
@@ -1885,7 +2064,7 @@ function renderBoard(){
 }
 function renderAddMenu(){
   $("addMenu").innerHTML = Object.entries(TYPES).map(([k,t]) => {
-    const ico = { image:ICON.image, cards:ICON.cards, dict:ICON.book }[t.kind];
+    const ico = { image:ICON.image, cards:ICON.cards, dict:ICON.book, doc:ICON.file }[t.kind];
     const mark = ico ? `<span class="ico">${ico}</span>` : `<span class="swatch" style="background:${COLORS[t.color]}"></span>`;
     const main = `<button class="item" role="menuitem" data-type="${k}">${mark}${t.label}${isNew(k) ? '<span class="new-pill">New</span>' : ""}</button>`;
     if (k !== "timed") return main;
@@ -1984,6 +2163,11 @@ document.addEventListener("keydown", e => {
 $("addMenu").addEventListener("click", e => {
   const btn = e.target.closest("[data-type]"); if (!btn) return;
   const b = board();
+  if (btn.dataset.type === "document"){
+    // documents live in the teacher's account, and free boards hold a few
+    if (!sb || !userId){ toggleMenu($("addBtn"), $("addMenu"), false); docSignInToast(); return; }
+    if (!canAddDoc(b)){ toggleMenu($("addBtn"), $("addMenu"), false); docLimitToast(); return; }
+  }
   const k = b.notes.length % 6;
   const n = makeNote(btn.dataset.type, { x: 6 + k*5, y: 8 + k*6 });
   markTried(btn.dataset.type);
@@ -1994,6 +2178,11 @@ $("addMenu").addEventListener("click", e => {
   if (n.kind === "timed" && btn.dataset.timer){ openPanelState(n); renderPanel(n); renderNote(n); }
   save();
   toggleMenu($("addBtn"), $("addMenu"), false);
+  if (n.kind === "doc"){
+    el.querySelector('[data-act="docpick"]')?.focus();
+    pickDoc(n.id);   // open the file picker right away
+    return;
+  }
   if (n.kind === "image"){
     imgTarget = n.id;   // the next paste fills this note
     toast(narrow() || matchMedia("(pointer:coarse)").matches
@@ -2122,6 +2311,7 @@ function handleNoteAction(n, e, noteNode, inPip){
   if (act === "zoom"){ if (!inPip) openImageView(n); return; }
   if (n.kind === "cards" && act.startsWith("fc")){ cardsAct(n, act, btn, inPip); return; }
   if (n.kind === "dict" && DICT_ACTS.has(act)){ dictAct(n, act, btn, noteNode); return; }
+  if (n.kind === "doc" && DOC_ACTS.has(act)){ if (!(inPip && act === "docpick")) docAct(n, act); return; }
   if (act === "min"){ n.min = !n.min; }
   else if (act === "color"){ n.color = COLOR_KEYS[(COLOR_KEYS.indexOf(n.color)+1) % COLOR_KEYS.length]; }
   else if (act === "smaller"){ n.s = Math.max(0.5, +( (n.s||1) - 0.15).toFixed(2)); }
@@ -2966,7 +3156,7 @@ boardEl.addEventListener("pointerdown", e => {
   if (n && n.kind === "image" && !n.src) imgTarget = n.id;
 }, true);
 
-/* drag a picture file from the computer onto the board (or onto an empty Image note) */
+/* drag a picture or document from the computer onto the board (or onto an empty Image note or a Document note) */
 const hasFiles = e => [...(e.dataTransfer?.types || [])].includes("Files");
 let dropDepth = 0;
 boardEl.addEventListener("dragenter", e => { if (viewing || presenting || !hasFiles(e)) return; dropDepth++; boardEl.classList.add("drop-on"); });
@@ -2976,12 +3166,19 @@ boardEl.addEventListener("drop", e => {
   dropDepth = 0; boardEl.classList.remove("drop-on");
   if (viewing || presenting || !hasFiles(e)) return;
   e.preventDefault();
-  const file = clipImage(e.dataTransfer);
-  if (!file){ toast("Only picture files can go on the board."); return; }
   const nn = e.target.closest(".note"), n = nn && findNote(nn.dataset.id);
-  if (n && n.kind === "image" && !n.src){ addImage(file, { noteId: n.id }); return; }
   const r = boardEl.getBoundingClientRect();
-  addImage(file, { pos: { x: clamp((e.clientX - r.left) / r.width * 100 - 4, 0, 90), y: clamp((e.clientY - r.top) / r.height * 100 - 3, 0, 90) } });
+  const pos = { x: clamp((e.clientX - r.left) / r.width * 100 - 4, 0, 90), y: clamp((e.clientY - r.top) / r.height * 100 - 3, 0, 90) };
+  const any = (e.dataTransfer.files || [])[0];
+  if (n && n.kind === "doc" && any){ attachDoc(any, { noteId: n.id }); return; }   // dropped on a Document note: attach it there
+  const file = clipImage(e.dataTransfer);
+  if (!file){
+    if (any && docExt(any.name)){ attachDoc(any, { pos }); return; }   // a PDF, Word file, etc. becomes a Document note
+    toast("Only pictures and documents (PDF, Word, PowerPoint, Excel, text) can go on the board.");
+    return;
+  }
+  if (n && n.kind === "image" && !n.src){ addImage(file, { noteId: n.id }); return; }
+  addImage(file, { pos });
 });
 $("imgFile").addEventListener("change", e => {
   const f = e.target.files[0]; e.target.value = "";
