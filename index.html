@@ -122,8 +122,11 @@ body.tabs-tight:not(.present) .date{display:none}
 .dragging .note-head{cursor:grabbing}
 .grip{width:.8em;height:1.2em;flex:0 0 auto;opacity:.45}
 .koi-tag{height:1.75em;width:auto;margin:-.25em 0;flex:0 0 auto;opacity:.72;pointer-events:none;user-select:none;-webkit-user-drag:none;margin-right:.05em}
-.note-title{margin:0;font-size:1em;font-weight:700;line-height:1.2;flex:0 1 auto;min-width:1ch;outline:none;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.note-title[contenteditable]:not([contenteditable="false"]){cursor:text;white-space:normal;border-radius:3px}
+/* titles always stay on one line (editable titles in Chrome otherwise wrap letter by letter when a note gets narrow) */
+.note-head{min-width:0}
+.note-title{margin:0;font-size:1em;font-weight:700;line-height:1.2;flex:0 1 auto;min-width:3ch;outline:none;overflow:hidden;white-space:nowrap !important;overflow-wrap:normal !important;word-break:normal !important;text-overflow:ellipsis}
+.note-title[contenteditable]:not([contenteditable="false"]){cursor:text;border-radius:3px}
+.note-title:focus{text-overflow:clip}
 .note-title[contenteditable]:not([contenteditable="false"]):focus{background:rgba(255,255,255,.55)}
 .preview{display:none;font-weight:400;opacity:.75;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1 1 0;min-width:0}
 .is-min .preview{display:block}
@@ -687,6 +690,11 @@ body.present .fc-only-edit,.pip .fc-only-edit{display:none !important}
 .doc{flex:1 1 auto;display:flex;flex-direction:column;gap:.55em;font-size:.72em;min-height:0}
 .doc-empty{align-items:center;justify-content:center;text-align:center;border:2px dashed rgba(0,0,0,.28);border-radius:8px;padding:.6em;line-height:1.35}
 .doc-empty .doc-hint{opacity:.65;font-size:.9em}
+/* empty state: smaller heading, button and hint so it fits the note instead of overflowing it */
+.doc.doc-empty{font-size:max(13px,.45em);gap:.7em;overflow:auto}
+.doc.doc-empty b{font-size:1.15em}
+.doc.doc-empty .doc-btn{padding:.45em .85em;border-radius:.5em}
+.doc.doc-empty .doc-hint{max-width:30em}
 .doc-file{display:flex;align-items:center;gap:.65em;background:rgba(255,255,255,.7);border-radius:.6em;padding:.55em .65em;min-width:0}
 .doc-ico{flex:0 0 auto;width:2.7em;height:3.2em;border-radius:.3em .9em .3em .3em;background:#5B6874;color:#fff;display:grid;place-items:end center;padding-bottom:.4em;font-size:.75em;font-weight:700;letter-spacing:.03em;box-shadow:0 1px 2px rgba(0,0,0,.25)}
 .doc-ico.pdf{background:#C62828}.doc-ico.word{background:#1E5BB8}.doc-ico.ppt{background:#C4501B}.doc-ico.xls{background:#1E7A45}.doc-ico.img{background:#6E56CF}
@@ -1969,6 +1977,8 @@ function noteHTML(n, forPip){
       <div class="tools">
         <button class="tool t-edit" data-act="color" title="Change color" aria-label="Change color"><span class="dot"></span></button>
         ${img ? (n.src ? `<button class="tool t-edit" data-act="pick" title="Replace image" aria-label="Replace image">${ICON.image}</button>
+        <button class="tool t-edit" data-act="smaller" title="Make picture smaller" aria-label="Make picture smaller">${ICON.smaller}</button>
+        <button class="tool t-edit" data-act="bigger" title="Make picture bigger" aria-label="Make picture bigger">${ICON.bigger}</button>
         <button class="tool" data-act="zoom" title="Show full screen" aria-label="Show image full screen">${ICON.enlarge}</button>` : "")
         : `<button class="tool t-edit" data-act="smaller" title="Smaller text" aria-label="Smaller text">${ICON.smaller}</button>
         <button class="tool t-edit" data-act="bigger" title="Bigger text" aria-label="Bigger text">${ICON.bigger}</button>`}
@@ -2314,6 +2324,16 @@ function handleNoteAction(n, e, noteNode, inPip){
   if (n.kind === "doc" && DOC_ACTS.has(act)){ if (!(inPip && act === "docpick")) docAct(n, act); return; }
   if (act === "min"){ n.min = !n.min; }
   else if (act === "color"){ n.color = COLOR_KEYS[(COLOR_KEYS.indexOf(n.color)+1) % COLOR_KEYS.length]; }
+  else if ((act === "smaller" || act === "bigger") && n.kind === "image"){
+    // image notes: A− / A+ shrink or grow the whole note (picture keeps its shape), anchored at the top-left
+    if (inPip) return;
+    const w = +n.w || 30, h = +n.h || 30;
+    let f = act === "bigger" ? 1.12 : 1 / 1.12;
+    if (f > 1) f = Math.min(f, (100 - (+n.x || 0)) / w, (100 - (+n.y || 0)) / h);
+    else f = Math.max(f, 8 / w, 8 / h);
+    if (Math.abs(f - 1) < 0.005){ toast(act === "bigger" ? "That's as big as it fits here. Drag it up or left to make room." : "That's as small as it goes."); return; }
+    n.w = +(w * f).toFixed(2); n.h = +(h * f).toFixed(2);
+  }
   else if (act === "smaller"){ n.s = Math.max(0.5, +( (n.s||1) - 0.15).toFixed(2)); }
   else if (act === "bigger"){ n.s = Math.min(3, +((n.s||1) + 0.15).toFixed(2)); }
   else if (act === "check"){
