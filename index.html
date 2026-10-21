@@ -3549,6 +3549,7 @@ async function renderShare(){
         <div><div class="share-label">Short link</div><a class="share-link" href="${shareURL(code)}" target="_blank" rel="noopener">${esc(shortLink(code))}</a></div>
         <div class="share-acts">
           <button class="btn primary" data-sh="copyplan">Copy for sub plans</button>
+          <button class="btn" data-sh="guide" title="A one-page guide for the sub, with this board's code and QR code filled in">Printable sub guide</button>
           <button class="btn" data-sh="download">Download QR card</button>
           <button class="btn" data-sh="copylink">Copy link</button>
         </div>
@@ -3569,6 +3570,110 @@ async function renderShare(){
     const img = $("shareQR");
     if (img){ const p = document.createElement("p"); p.className = "share-help"; p.textContent = "The QR code couldn't load right now. The link and code still work."; img.replaceWith(p); }
   }
+}
+/* Printable sub guide: a one-page, step-by-step sheet for the sub with this board's name, code and
+   QR code already filled in. It opens in a new tab ready to print, or to save as a PDF from the
+   print dialog. The pictures live in assets/sub-guide/. */
+function qrSVG(text){
+  const qr = window.qrcode(0, "M"); qr.addData(text); qr.make();
+  const n = qr.getModuleCount(), q = 2; let d = "";
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) d += `M${c + q} ${r + q}h1v1h-1z`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n + q * 2} ${n + q * 2}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+}
+function subGuideHTML(b, qr){
+  const code = b.shareCode, host = location.host, asset = f => new URL("assets/sub-guide/" + f, location.href).href;
+  const boxes = code.split("").map(ch => `<span>${esc(ch)}</span>`).join("");
+  const step = (num, title, body, img, alt) => `<div class="step"><div class="txt"><span class="num">${num}</span><div><h3>${title}</h3>${body}</div></div>
+      <div class="pic">${img ? `<img src="${asset(img)}" alt="${alt}">` : ""}</div></div><div class="arrow" aria-hidden="true">▼</div>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sub guide · ${esc(b.name || "Class board")} · ${code}</title>
+<style>
+@page{size:letter;margin:.4in}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;color:#1B2530;background:#E9EDF1;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.tools{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;justify-content:center;padding:.7rem 1rem;background:#173A55;color:#fff;font-size:.95rem}
+.tools button{font:inherit;font-weight:700;border:0;border-radius:.6rem;padding:.6rem 1.1rem;background:#C63F77;color:#fff;cursor:pointer}
+.tools button:hover{background:#B0346A}
+.sheet{width:8.5in;min-height:11in;margin:1rem auto;background:#fff;padding:.45in .5in;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+@media print{html{font-size:14.5px}body{background:#fff}.tools{display:none}.sheet{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}}
+@media (max-width:8.6in){.sheet{width:100%;padding:1rem}}
+.top{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-bottom:.6rem;border-bottom:4px solid #E8336E}
+.logo{display:flex;align-items:center}
+.logo img.k{height:62px}.logo img.k.flip{transform:scaleX(-1)}
+.logo img.w{height:40px;margin:0 -.2rem}
+.top-r{text-align:right}.top-r h1{margin:0;font-size:1.65rem}.top-r p{margin:.15rem 0 0;color:#5B6874}
+.card{display:flex;gap:1.2rem;align-items:center;justify-content:space-between;margin-top:.7rem;padding:.7rem 1.1rem;background:#E3F1FA;border-radius:4px}
+.fill{flex:1 1 auto}
+.lines{display:flex;gap:1.2rem;flex-wrap:wrap;font-size:1.02rem}
+.lines b{font-weight:700;border-bottom:1.5px solid #1B2530;padding:0 .3rem;display:inline-block;min-width:4.5rem}
+.lbl{margin:.5rem 0 .3rem;font-size:.92rem;font-weight:700;letter-spacing:.2em;color:#E8336E}
+.boxes{display:flex}
+.boxes span{width:2.9rem;height:3.1rem;border:2px solid #1B2530;margin-left:-2px;background:#fff;display:grid;place-items:center;font-size:2rem;font-weight:700;letter-spacing:0}
+.boxes span:first-child{margin-left:0}
+.hint{margin:.4rem 0 0;font-size:.8rem;font-style:italic;color:#5B6874}
+.qr{flex:0 0 auto;text-align:center;width:12.5rem}
+.qr svg{width:6.4rem;height:6.4rem;display:block;margin:0 auto .35rem}
+.qr b{display:block;font-size:.95rem}.qr span{font-size:.8rem;color:#5B6874}
+.steps{margin-top:.75rem}
+.step{display:grid;grid-template-columns:1fr 2.9in;gap:.9rem;align-items:center}
+.txt{display:flex;gap:.7rem;align-items:flex-start;padding:.45rem .8rem;border:1px solid #D8DDE2;border-left:6px solid #E8336E;background:#F6F8FA}
+.num{flex:0 0 auto;width:1.9rem;height:1.9rem;display:grid;place-items:center;background:#E8336E;color:#fff;font-weight:700;font-size:1.05rem}
+.txt h3{margin:0 0 .15rem;font-size:1.15rem}.txt p{margin:0;line-height:1.35;font-size:.98rem}
+.hl{background:#FFF27A;font-weight:700;padding:0 .15rem}
+.open{background:#1E6F9C;color:#fff;font-weight:700;padding:0 .35rem}
+.red{color:#E8336E;font-weight:700}
+.pic{text-align:center}.pic img{max-width:100%;max-height:.82in}
+.arrow{color:#E8336E;font-size:.7rem;margin:.1rem 0 .1rem .3rem;line-height:1}
+.bottom{display:grid;grid-template-columns:1fr 2.7in;gap:.9rem;align-items:start}
+.bottom .pic img{max-height:3.2in}
+.txt.done{border-left-color:#2E9E6A;background:#EEF8EF}.done .num{background:#2E9E6A}
+.sheet{break-inside:avoid}
+.stuck{margin-top:.6rem;padding:.5rem .8rem;background:#FFF3E0;font-size:.95rem;line-height:1.4}
+.stuck b.t{display:block;color:#E8336E;margin-bottom:.1rem}
+</style></head><body>
+<div class="tools"><button type="button" onclick="print()">Print or save as PDF</button><span>To save a PDF, choose <b>Save as PDF</b> as the printer.</span></div>
+<main class="sheet">
+  <header class="top">
+    <div class="logo"><img class="k" src="${asset("koi.png")}" alt=""><img class="w" src="${asset("logo.png")}" alt="Floatle"><img class="k flip" src="${asset("koi.png")}" alt=""></div>
+    <div class="top-r"><h1>Substitute Teacher Guide</h1><p>How to open today's class board on the screen</p></div>
+  </header>
+  <section class="card">
+    <div class="fill">
+      <div class="lines"><span>Class: <b>${esc(b.name || "")}</b></span><span>Room: <b>&nbsp;</b></span></div>
+      <div class="lbl">YOUR BOARD CODE</div>
+      <div class="boxes" aria-label="Board code ${code}">${boxes}</div>
+      <p class="hint">You will type this code in Step 4.</p>
+    </div>
+    ${qr ? `<div class="qr">${qr}<b>Have a phone or tablet?</b><span>Scan to open this class board. No code needed.</span></div>` : ""}
+  </section>
+  <section class="steps">
+    ${step(1, "Log in", `<p>Log in to the computer, <b>or</b> turn on the board at the front of the room.</p>`, "step1-computer.png", "A computer sign-in screen")}
+    ${step(2, "Open a web browser", `<p><b>Any</b> browser works: Chrome, Edge, or Safari. Look on the desktop or the taskbar.</p>`, "step2-browsers.png", "Chrome, Edge and Safari icons")}
+    ${step(3, "Go to " + esc(host), `<p>Click the long bar at the <b>very top</b> of the browser. Type <span class="hl">${esc(host)}</span> and press <b>Enter</b>.</p>`, "step3-address.png", "The address bar at the top of a browser")}
+    <div class="bottom"><div class="col">
+      <div class="txt"><span class="num">4</span><div><h3>Type the board code</h3>
+        <p>Find the <b>blue box</b> at the bottom of the page. Type <b>${code}</b>. Click <span class="open">Open</span>.</p>
+        <p class="red" style="margin-top:.3rem">No email or password needed.</p>
+        <p style="margin-top:.3rem;font-style:italic;color:#5B6874">See the picture →</p></div></div>
+      <div class="arrow" aria-hidden="true">▼</div>
+      <div class="txt done"><span class="num">✓</span><div><h3>You're in!</h3><p>The class notes open. Leave them on the screen for students. When you're done, tap <b>Note for the teacher</b> to say how class went.</p></div></div>
+      <div class="stuck"><b class="t">Stuck?</b>Shortcut: type <b>${esc(shortLink(code))}</b> in the top bar to open the board directly.<br>Check each letter and number in the code, and make sure <b>${esc(host)}</b> is in the top bar.<br>No computer? Scan the QR code with a phone.</div>
+    </div>
+    <div class="pic"><img src="${asset("step4-code.jpg")}" alt="The Floatle sign-in page with the board code box at the bottom"></div></div>
+  </section>
+</main></body></html>`;
+}
+async function openSubGuide(b){
+  if (!b.shareCode) return;
+  // open the tab during the click so pop-up blockers allow it, then fill it in
+  const w = window.open("", "_blank");
+  if (!w){ toast("Your browser blocked the new tab. Allow pop-ups for this site and try again."); return; }
+  try { w.document.title = "Sub guide"; w.document.body.textContent = "Making the sub guide…"; } catch(e){}
+  let qr = "";
+  try { await loadQR(); qr = qrSVG(shareURL(b.shareCode)); } catch(e){}
+  if (w.closed) return;
+  w.document.open(); w.document.write(subGuideHTML(b, qr)); w.document.close();
+  try { w.opener = null; } catch(e){}
 }
 function openShare(){ renderShare(); $("shareWrap").hidden = false; setTimeout(() => $("shareClose").focus(), 30); }
 function closeShare(){ $("shareWrap").hidden = true; renderSettings(); updateRepBadge(); }
@@ -3599,6 +3704,7 @@ $("shareWrap").addEventListener("click", async e => {
     document.body.appendChild(link); link.click(); link.remove();
     toast("QR card saved to your Downloads.");
   }
+  else if (a === "guide") openSubGuide(b);
   else if (a === "preview") window.open(shareURL(b.shareCode), "_blank", "noopener");
   else if (a === "newcode") armBtn(btn, "Tap again (old code stops working)", async () => {
     try { await stopSharing(b); await startSharing(b); renderShare(); toast("New code made. The old code no longer works."); }
