@@ -709,6 +709,26 @@ body.present .fc-only-edit,.pip .fc-only-edit{display:none !important}
 .doc-btn svg{width:1.05em;height:1.05em}
 .doc-link{border:0;background:none;padding:0;text-decoration:underline;font-size:.9em;opacity:.8;align-self:flex-start;color:inherit}
 .doc-link:hover{opacity:1}
+/* ---------- Materials notes: picture tiles of what students need today ---------- */
+.kind-materials .note-body{display:flex;flex-direction:column;gap:.4em;padding:.4em .55em .55em;overflow:hidden}
+.mats{flex:1 1 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(4.4em,1fr));grid-auto-rows:min-content;gap:.35em;align-content:start;min-height:0;overflow:auto}
+.mat{position:relative;display:flex;flex-direction:column;align-items:center;gap:.12em;background:#fff;border-radius:.45em;padding:.3em .2em .28em;box-shadow:0 1px 0 rgba(0,0,0,.12);min-width:0}
+.mat img{width:2.7em;height:2.7em;display:block;pointer-events:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
+.mat-label{font-weight:700;font-size:.5em;line-height:1.15;text-align:center;overflow-wrap:anywhere;min-width:1em;outline:none;border-radius:.2em;padding:0 .15em}
+.mat-label[contenteditable="true"]:focus,.mat-label[contenteditable="plaintext-only"]:focus{background:rgba(0,0,0,.07)}
+.mat-x{position:absolute;top:.25em;right:.25em;width:1.7em;height:1.7em;font-size:max(10px,.38em);border:0;border-radius:50%;background:rgba(27,37,48,.72);color:#fff;display:grid;place-items:center;padding:0;cursor:pointer;opacity:.75}
+.mat-x:hover,.mat-x:focus-visible{opacity:1}
+.mat-x svg{width:1em;height:1em}
+.mat-bar{display:flex;align-items:center;justify-content:space-between;gap:.6em;font-size:max(12px,.42em);flex:0 0 auto}
+.mat-bar .mat-hint{opacity:.75;line-height:1.3}
+.mat-bar .doc-btn{margin-left:auto;flex:0 0 auto}
+.mat-empty{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7em;text-align:center;border:2px dashed rgba(0,0,0,.28);border-radius:8px;padding:.6em;font-size:max(13px,.45em);line-height:1.35}
+.mat-pick{flex:1 1 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(6.4em,1fr));grid-auto-rows:min-content;gap:.4em;font-size:max(11px,.4em);overflow:auto;min-height:0;align-content:start;padding:.1em}
+.mat-opt{position:relative;display:flex;flex-direction:column;align-items:center;gap:.25em;background:#fff;border:2px solid rgba(0,0,0,.1);border-radius:.6em;padding:.45em .2em .4em;cursor:pointer;font:inherit;font-weight:700;color:#1B2530;line-height:1.15;text-align:center}
+.mat-opt img{width:3.6em;height:3.6em;pointer-events:none}
+.mat-opt[aria-pressed="true"]{border-color:var(--accent);background:#FFF0F6}
+.mat-opt[aria-pressed="true"]::after{content:"";position:absolute;top:.35em;right:.35em;width:1.1em;height:1.1em;border-radius:50%;background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/70% no-repeat}
+.pip .kind-materials .note-body{overflow:auto}
 </style>
 </head>
 <body>
@@ -895,6 +915,7 @@ const TYPES = {
   reminder:{ label:"Reminder", kind:"text", color:"tangerine", w:26, h:20, text:"" },
   list:{ label:"Checklist", kind:"list", color:"mint", w:28, h:32, items:[""] },
   timed:{ label:"Timed", kind:"timed", color:"lilac", w:32, h:50, tasks:[["",10]] },
+  materials:{ label:"Materials", kind:"materials", color:"paper", w:34, h:52 },
   image:{ label:"Image or slide", title:"Image", kind:"image", color:"paper", w:44, h:46 },
   flashcards:{ label:"Flashcards", kind:"cards", color:"sky", w:40, h:54 },
   dictionary:{ label:"Dictionary", kind:"dict", color:"paper", w:30, h:58 },
@@ -904,7 +925,7 @@ const TYPES = {
 /* "New" labels in the Add note menu. Each one goes away on its own: on the date below, or as soon
    as this teacher adds one of that kind, whichever comes first. To label a future note type, add
    it here with a date about a month after it ships. */
-const NEW_UNTIL = { timed:"2026-11-01", image:"2026-11-01", flashcards:"2026-11-15", dictionary:"2026-11-15", document:"2026-11-15" };
+const NEW_UNTIL = { timed:"2026-11-01", image:"2026-11-01", flashcards:"2026-11-15", dictionary:"2026-11-15", document:"2026-11-15", materials:"2026-12-01" };
 const TRIED_KEY = "floatle.triedTypes";
 function triedTypes(){ try { return JSON.parse(localStorage.getItem(TRIED_KEY)) || []; } catch(e){ return []; } }
 function markTried(type){
@@ -933,6 +954,7 @@ function makeNote(type, pos){
   else if (t.kind === "cards"){ n.cards = [{ id:uid(), f:"", b:"", ex:"", color:"" }]; n.fx = { i:0, flip:false, mode:"edit" }; }
   else if (t.kind === "dict"){ n.word = ""; n.dict = null; }
   else if (t.kind === "doc") n.doc = null;   // { path, name, ext, size } once a file is attached
+  else if (t.kind === "materials") n.mats = [];   // [{ k:"pencil", l:"Pencil" }], in the order they were picked
   else n.text = t.text;
   return n;
 }
@@ -1202,6 +1224,7 @@ try { const d = document.createElement("div"); d.contentEditable = "plaintext-on
 const editableAttr = () => presenting ? "false" : (PT ? "plaintext-only" : "true");
 
 const ICON = {
+  bag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="14" rx="3"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7M9 13h6"/></svg>',
   grip:'<svg class="grip" viewBox="0 0 8 14" fill="currentColor"><circle cx="2" cy="2" r="1.3"/><circle cx="6" cy="2" r="1.3"/><circle cx="2" cy="7" r="1.3"/><circle cx="6" cy="7" r="1.3"/><circle cx="2" cy="12" r="1.3"/><circle cx="6" cy="12" r="1.3"/></svg>',
   min:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14"/></svg>',
   max:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>',
@@ -1243,6 +1266,8 @@ const firstLine = n => n.kind === "list"
   ? (n.dict ? n.dict.w + " · " + (n.dict.m[0]?.defs[0]?.d || "") : "Look up a word")
   : n.kind === "doc"
   ? (n.doc && n.doc.name ? n.doc.name : "No file yet")
+  : n.kind === "materials"
+  ? ((n.mats || []).map(matLabel).join(", ") || "No materials yet")
   : (n.text || "").split("\n").find(l => l.trim()) || "";
 
 /* ---------- Timed notes: tasks with minutes + a linked timer ----------
@@ -1958,6 +1983,66 @@ $("docFile").addEventListener("change", e => {
   if (f) attachDoc(f, { noteId: id });
 });
 
+/* ---------- Materials notes ----------
+   Picture tiles (pencil, planner, laptop...) that show students what to have out today. Pictures help
+   ENL students and early readers. A note stores only the icon names and labels (n.mats), so boards stay
+   small and a redrawn icon updates on every board. The pictures live in assets/icons/supplies/.
+   To add an icon: put its SVG in that folder and add a line to MATS below. */
+const MATS = [
+  ["pencil","Pencil"], ["pen","Pen"], ["highlighter","Highlighter"], ["colored-pencils","Colored pencils"],
+  ["markers","Markers"], ["notebook","Notebook"], ["folder","Folder"], ["binder","Binder"],
+  ["planner","Planner"], ["textbook","Textbook"], ["reading-book","Reading book"], ["handout","Handout"],
+  ["index-cards","Index cards"], ["calculator","Calculator"], ["laptop","Laptop"], ["tablet","Tablet"],
+  ["headphones","Headphones"]
+];
+const MAT_NAME = Object.fromEntries(MATS);
+const MAT_ACTS = new Set(["matpick", "mattog", "matdel"]);
+// full address so the pictures also show inside the floating (picture-in-picture) window
+const matSrc = k => new URL("assets/icons/supplies/" + encodeURIComponent(k) + ".svg", location.href).href;
+const matLabel = m => (m.l || "").trim() || MAT_NAME[m.k] || "";
+const matPick = new Set();   // notes whose picker is open (this device only, not saved)
+function matsBodyHTML(n, ed, forPip){
+  const mats = (n.mats || []).filter(m => MAT_NAME[m.k]);
+  const editing = !forPip && !presenting && !viewing;
+  if (editing && matPick.has(n.id)){
+    const on = new Set(mats.map(m => m.k));
+    return `<div class="mat-bar"><span class="mat-hint">Tap what students need today.</span>
+        <button class="doc-btn" data-act="matpick">${ICON.check}Done</button></div>
+      <div class="mat-pick" role="group" aria-label="Choose materials">${MATS.map(([k, l]) =>
+        `<button class="mat-opt" data-act="mattog" data-k="${k}" aria-pressed="${on.has(k)}"><img src="${matSrc(k)}" alt="" draggable="false">${esc(l)}</button>`).join("")}</div>`;
+  }
+  if (!mats.length){
+    return editing
+      ? `<div class="mat-empty"><b>Show what students need today</b>
+          <button class="doc-btn" data-act="matpick">${ICON.bag}Choose materials</button></div>`
+      : `<div class="mat-empty"><span>No materials yet</span></div>`;
+  }
+  const tiles = mats.map(m => `<div class="mat" data-mat="${m.k}">
+      <img src="${matSrc(m.k)}" alt="" draggable="false">
+      <span class="mat-label" contenteditable="${ed}" spellcheck="false" data-ph="${esc(MAT_NAME[m.k])}">${esc(matLabel(m))}</span>
+      ${editing ? `<button class="mat-x" data-act="matdel" title="Remove" aria-label="Remove ${esc(matLabel(m))}">${ICON.x}</button>` : ""}
+    </div>`).join("");
+  return `<div class="mats" role="list">${tiles}</div>`
+    + (editing ? `<div class="mat-bar"><button class="doc-btn alt" data-act="matpick">${ICON.bag}Choose materials</button></div>` : "");
+}
+function matAct(n, act, btn){
+  const mats = n.mats || (n.mats = []);
+  if (act === "matpick"){ matPick.has(n.id) ? matPick.delete(n.id) : matPick.add(n.id); }
+  else if (act === "mattog"){
+    const k = btn.dataset.k, i = mats.findIndex(m => m.k === k);
+    if (i >= 0) mats.splice(i, 1); else if (MAT_NAME[k]) mats.push({ k, l:MAT_NAME[k] });
+  }
+  else if (act === "matdel"){
+    const k = btn.closest("[data-mat]")?.dataset.mat, i = mats.findIndex(m => m.k === k);
+    if (i >= 0) mats.splice(i, 1);
+  }
+  if (act !== "matpick") save();
+  const el = renderNote(n);
+  // keep the keyboard where it was
+  if (act === "mattog") el.querySelector(`.mat-opt[data-k="${btn.dataset.k}"]`)?.focus();
+  else if (act === "matpick") el.querySelector(matPick.has(n.id) ? ".mat-opt" : '[data-act="matpick"]')?.focus();
+}
+
 /* ---------- rendering ---------- */
 function noteHTML(n, forPip){
   const ed = forPip ? "false" : editableAttr();
@@ -1968,6 +2053,7 @@ function noteHTML(n, forPip){
     : n.kind === "cards" ? cardsBodyHTML(n, ed)
     : n.kind === "dict" ? dictBodyHTML(n, forPip)
     : n.kind === "doc" ? docBodyHTML(n, forPip)
+    : n.kind === "materials" ? matsBodyHTML(n, ed, forPip)
     : `<div class="note-text rich${n.ps ? " ps" : ""}" contenteditable="${forPip ? "false" : richEditableAttr()}"${n.ls ? ` style="line-height:${+n.ls}"` : ""} data-ph="${esc(PH[n.type]||"Type here")}">${richBody(n)}</div>`;
   const img = n.kind === "image";
   return `<header class="note-head">${ICON.grip}<img class="koi-tag" src="${KOI_TAG}" alt="" aria-hidden="true" draggable="false">
@@ -2074,7 +2160,7 @@ function renderBoard(){
 }
 function renderAddMenu(){
   $("addMenu").innerHTML = Object.entries(TYPES).map(([k,t]) => {
-    const ico = { image:ICON.image, cards:ICON.cards, dict:ICON.book, doc:ICON.file }[t.kind];
+    const ico = { image:ICON.image, cards:ICON.cards, dict:ICON.book, doc:ICON.file, materials:ICON.bag }[t.kind];
     const mark = ico ? `<span class="ico">${ico}</span>` : `<span class="swatch" style="background:${COLORS[t.color]}"></span>`;
     const main = `<button class="item" role="menuitem" data-type="${k}">${mark}${t.label}${isNew(k) ? '<span class="new-pill">New</span>' : ""}</button>`;
     if (k !== "timed") return main;
@@ -2184,6 +2270,7 @@ $("addMenu").addEventListener("click", e => {
   renderAddMenu();   // its "New" label is gone next time the menu opens
   b.notes.push(n);
   if (b.notes.length === 1) boardEl.innerHTML = "";
+  if (n.kind === "materials") matPick.add(n.id);   // open the picker right away
   const el = renderNote(n);
   if (n.kind === "timed" && btn.dataset.timer){ openPanelState(n); renderPanel(n); renderNote(n); }
   save();
@@ -2193,6 +2280,7 @@ $("addMenu").addEventListener("click", e => {
     pickDoc(n.id);   // open the file picker right away
     return;
   }
+  if (n.kind === "materials"){ el.querySelector(".mat-opt")?.focus(); return; }
   if (n.kind === "image"){
     imgTarget = n.id;   // the next paste fills this note
     toast(narrow() || matchMedia("(pointer:coarse)").matches
@@ -2322,6 +2410,7 @@ function handleNoteAction(n, e, noteNode, inPip){
   if (n.kind === "cards" && act.startsWith("fc")){ cardsAct(n, act, btn, inPip); return; }
   if (n.kind === "dict" && DICT_ACTS.has(act)){ dictAct(n, act, btn, noteNode); return; }
   if (n.kind === "doc" && DOC_ACTS.has(act)){ if (!(inPip && act === "docpick")) docAct(n, act); return; }
+  if (n.kind === "materials" && MAT_ACTS.has(act)){ if (!inPip && !presenting && !viewing) matAct(n, act, btn); return; }
   if (act === "min"){ n.min = !n.min; }
   else if (act === "color"){ n.color = COLOR_KEYS[(COLOR_KEYS.indexOf(n.color)+1) % COLOR_KEYS.length]; }
   else if ((act === "smaller" || act === "bigger") && n.kind === "image"){
@@ -2387,6 +2476,10 @@ boardEl.addEventListener("input", e => {
     if (x) x.t = txt(e.target).replace(/\n/g," ");
     if (!x?.t) e.target.innerHTML = "";
   }
+  else if (e.target.classList.contains("mat-label")){
+    const m = (n.mats || []).find(x => x.k === e.target.closest("[data-mat]").dataset.mat);
+    if (m) m.l = txt(e.target).replace(/\n/g, " ");
+  }
   else if (e.target.dataset && e.target.dataset.fcf){
     const f = e.target.dataset.fcf, c = (n.cards || []).find(x => x.id === e.target.closest("[data-card]").dataset.card);
     if (c){ c[f] = txt(e.target).replace(/\n$/, ""); if (!c[f].trim()) e.target.innerHTML = ""; }
@@ -2396,7 +2489,7 @@ boardEl.addEventListener("input", e => {
 });
 boardEl.addEventListener("keydown", e => {
   const t = e.target;
-  if (t.classList?.contains("note-title") && e.key === "Enter"){ e.preventDefault(); t.blur(); return; }
+  if ((t.classList?.contains("note-title") || t.classList?.contains("mat-label")) && e.key === "Enter"){ e.preventDefault(); t.blur(); return; }
   if (!t.classList?.contains("item-text")) return;
   const noteNode = t.closest(".note"); const n = findNote(noteNode.dataset.id);
   const li = t.closest("[data-item]"); const idx = n.items.findIndex(i => i.id === li.dataset.item);
