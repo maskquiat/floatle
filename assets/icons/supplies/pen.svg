@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>pen</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<g transform="rotate(-45 128 128)">
+<path d="M44 108 h108 v40 h-108 a20 20 0 0 1 0 -40z" fill="#3D8BFD"/>
+<rect x="152" y="110" width="34" height="36" fill="#FFFFFF"/>
+<path d="M186 112 L226 124 L226 132 L186 144 Z" fill="#DDE3EA"/>
+<path d="M226 124 L240 128 L226 132 Z" fill="#1E2A3B"/>
+<path d="M54 108 v-14 h70 v14" fill="#3D8BFD"/>
+</g>
+</g>
+</svg>

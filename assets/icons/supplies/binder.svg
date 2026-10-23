@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>binder</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<path d="M40 58 L166 12 Q182 6 182 22 L180 70 L92 112 Z" fill="#2563C9"/>
+<path d="M60 72 C62 44 104 40 108 82" stroke-width="16"/><path d="M60 72 C62 44 104 40 108 82" stroke="#DDE3EA" stroke-width="7"/>
+<path d="M40 58 L92 88 L92 244 L46 210 Z" fill="#2563C9"/>
+<path d="M92 88 L204 34 Q218 28 218 42 L214 180 Q214 192 204 198 L92 244 Z" fill="#3D8BFD"/>
+<path d="M112 116 L196 76 L194 132 L112 172 Z" fill="#FFFFFF"/>
+<ellipse cx="66" cy="116" rx="8" ry="10" fill="#FFFFFF" stroke-width="6"/>
+<ellipse cx="68" cy="196" rx="8" ry="10" fill="#FFFFFF" stroke-width="6"/>
+</g>
+</svg>

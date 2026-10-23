@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>handout</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<path d="M52 20 h112 l40 40 v176 H52 Z" fill="#FFFFFF"/>
+<path d="M164 20 v40 h40" fill="#DDE3EA"/>
+<rect x="74" y="44" width="70" height="20" rx="4" fill="#3D8BFD"/>
+<circle cx="84" cy="104" r="8" fill="#FFC93C"/><line x1="104" y1="104" x2="180" y2="104" stroke="#DDE3EA" stroke-width="8"/>
+<circle cx="84" cy="140" r="8" fill="#FFC93C"/><line x1="104" y1="140" x2="180" y2="140" stroke="#DDE3EA" stroke-width="8"/>
+<circle cx="84" cy="176" r="8" fill="#FFC93C"/><line x1="104" y1="176" x2="166" y2="176" stroke="#DDE3EA" stroke-width="8"/>
+<line x1="74" y1="210" x2="180" y2="210" stroke="#3D8BFD" stroke-width="8"/>
+</g>
+</svg>

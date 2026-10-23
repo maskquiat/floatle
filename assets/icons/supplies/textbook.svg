@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>textbook</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<path d="M60 40 h156 v188 h-156 z" fill="#FFFFFF"/>
+<line x1="76" y1="206" x2="206" y2="206" stroke="#DDE3EA" stroke-width="6"/><line x1="76" y1="218" x2="206" y2="218" stroke="#DDE3EA" stroke-width="6"/>
+<rect x="40" y="24" width="164" height="176" rx="10" fill="#2EC4B6"/>
+<path d="M50 24 h22 v176 h-22 a10 10 0 0 1 -10 -10 v-156 a10 10 0 0 1 10 -10z" fill="#3D8BFD"/>
+<rect x="94" y="60" width="86" height="22" rx="4" fill="#FFFFFF"/>
+<rect x="104" y="96" width="66" height="14" rx="4" fill="#FFFFFF"/>
+<circle cx="137" cy="150" r="20" fill="#FFC93C"/>
+</g>
+</svg>

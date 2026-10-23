@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>highlighter</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<g transform="rotate(-45 128 128)">
+<rect x="14" y="98" width="72" height="60" rx="14" fill="#2EC4B6"/>
+<rect x="86" y="102" width="92" height="52" fill="#FFFFFF"/>
+<line x1="100" y1="128" x2="164" y2="128" stroke="#2EC4B6" stroke-width="10"/>
+<path d="M178 106 L204 114 L204 142 L178 150 Z" fill="#DDE3EA"/>
+<path d="M204 114 L242 122 L242 140 L204 142 Z" fill="#2EC4B6"/>
+</g>
+</g>
+</svg>

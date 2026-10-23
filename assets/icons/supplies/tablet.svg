@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>tablet</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<rect x="44" y="18" width="168" height="220" rx="22" fill="#DDE3EA"/>
+<rect x="62" y="40" width="132" height="166" rx="6" fill="#3D8BFD"/>
+<path d="M120 40 h36 l-62 108 v-36 z" fill="#FFFFFF" stroke="none" opacity="0.35"/>
+<circle cx="128" cy="222" r="8" fill="#FFFFFF"/>
+</g>
+</svg>

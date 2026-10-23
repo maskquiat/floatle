@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>reading book</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<path d="M16 80 V214 C60 204 100 206 128 222 C156 206 196 204 240 214 V80 Z" fill="#FF6B6B"/>
+<path d="M128 72 C100 52 62 48 30 58 V196 C62 188 100 192 128 208 Z" fill="#FFFFFF"/>
+<path d="M128 72 C156 52 194 48 226 58 V196 C194 188 156 192 128 208 Z" fill="#FFFFFF"/>
+<line x1="46" y1="92" x2="108" y2="98" stroke="#DDE3EA" stroke-width="6"/><line x1="46" y1="116" x2="108" y2="122" stroke="#DDE3EA" stroke-width="6"/><line x1="46" y1="140" x2="108" y2="146" stroke="#DDE3EA" stroke-width="6"/><line x1="46" y1="164" x2="108" y2="170" stroke="#DDE3EA" stroke-width="6"/><line x1="148" y1="98" x2="210" y2="92" stroke="#DDE3EA" stroke-width="6"/><line x1="148" y1="122" x2="210" y2="116" stroke="#DDE3EA" stroke-width="6"/><line x1="148" y1="146" x2="210" y2="140" stroke="#DDE3EA" stroke-width="6"/><line x1="148" y1="170" x2="210" y2="164" stroke="#DDE3EA" stroke-width="6"/>
+<line x1="128" y1="72" x2="128" y2="208" stroke="#1E2A3B" stroke-width="8"/>
+</g>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>colored pencils</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<g transform="translate(78 150) rotate(-18)">
+<rect x="-16" y="-50" width="32" height="130" fill="#3D8BFD"/>
+<line x1="0" y1="-44" x2="0" y2="74" stroke="#00000022" stroke-width="6"/>
+<path d="M-16 -50 L0 -96 L16 -50 Z" fill="#F6D6A8"/>
+<path d="M-6 -78 L0 -96 L6 -78 Z" fill="#3D8BFD" stroke-width="6"/>
+</g><g transform="translate(178 150) rotate(18)">
+<rect x="-16" y="-50" width="32" height="130" fill="#FFC93C"/>
+<line x1="0" y1="-44" x2="0" y2="74" stroke="#00000022" stroke-width="6"/>
+<path d="M-16 -50 L0 -96 L16 -50 Z" fill="#F6D6A8"/>
+<path d="M-6 -78 L0 -96 L6 -78 Z" fill="#FFC93C" stroke-width="6"/>
+</g><g transform="translate(128 150) rotate(0)">
+<rect x="-16" y="-50" width="32" height="130" fill="#FF6B6B"/>
+<line x1="0" y1="-44" x2="0" y2="74" stroke="#00000022" stroke-width="6"/>
+<path d="M-16 -50 L0 -96 L16 -50 Z" fill="#F6D6A8"/>
+<path d="M-6 -78 L0 -96 L6 -78 Z" fill="#FF6B6B" stroke-width="6"/>
+</g>
+</g>
+</svg>

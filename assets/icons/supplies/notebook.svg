@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>notebook</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<rect x="56" y="28" width="160" height="204" rx="12" fill="#3D8BFD"/>
+<rect x="100" y="62" width="88" height="52" rx="6" fill="#FFFFFF"/>
+<line x1="114" y1="82" x2="174" y2="82" stroke="#3D8BFD" stroke-width="6"/><line x1="114" y1="98" x2="156" y2="98" stroke="#3D8BFD" stroke-width="6"/>
+<rect x="190" y="28" width="14" height="204" fill="#FFC93C" stroke="none"/>
+<line x1="190" y1="28" x2="190" y2="232" stroke="#1E2A3B" stroke-width="8"/><line x1="204" y1="28" x2="204" y2="232" stroke="#1E2A3B" stroke-width="8"/>
+<rect x="36" y="46" width="40" height="14" rx="7" fill="#FFFFFF"/><rect x="36" y="76" width="40" height="14" rx="7" fill="#FFFFFF"/><rect x="36" y="106" width="40" height="14" rx="7" fill="#FFFFFF"/><rect x="36" y="136" width="40" height="14" rx="7" fill="#FFFFFF"/><rect x="36" y="166" width="40" height="14" rx="7" fill="#FFFFFF"/><rect x="36" y="196" width="40" height="14" rx="7" fill="#FFFFFF"/>
+</g>
+</svg>

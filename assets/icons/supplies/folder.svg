@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>folder</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<path d="M28 60 h72 l18 22 h108 v138 H28 Z" fill="#F6D6A8"/>
+<rect x="48" y="70" width="160" height="80" fill="#FFFFFF"/>
+<line x1="68" y1="92" x2="150" y2="92" stroke="#DDE3EA" stroke-width="6"/>
+<path d="M20 112 h216 l-14 108 H34 Z" fill="#FFC93C"/>
+</g>
+</svg>
