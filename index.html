@@ -729,6 +729,97 @@ body.present .fc-only-edit,.pip .fc-only-edit{display:none !important}
 .mat-opt[aria-pressed="true"]{border-color:var(--accent);background:#FFF0F6}
 .mat-opt[aria-pressed="true"]::after{content:"";position:absolute;top:.35em;right:.35em;width:1.1em;height:1.1em;border-radius:50%;background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/70% no-repeat}
 .pip .kind-materials .note-body{overflow:auto}
+/* ---------- screen crawler (TV-style strip along the bottom) ---------- */
+.crawl{flex:0 0 auto;display:flex;align-items:stretch;height:clamp(3rem,7.5vh,5.5rem);font-size:clamp(1.05rem,3.2vh,2.2rem);border-top:.28rem solid var(--cr-accent);background:var(--cr-bg);color:var(--cr-ink);position:relative;z-index:5;overflow:hidden;font-family:var(--font)}
+.crawl[hidden]{display:none}
+.crawl.st-broadcast{--cr-bg:#0B1220;--cr-ink:#FFFFFF;--cr-tag:#E8663D;--cr-tag-ink:#0B1220;--cr-chip:#F2C14E;--cr-chip-ink:#0B1220;--cr-accent:#E8663D}
+.crawl.st-koi{--cr-bg:#F6EFE3;--cr-ink:#1B2530;--cr-tag:#173A55;--cr-tag-ink:#FFFFFF;--cr-chip:#B8461F;--cr-chip-ink:#FFFFFF;--cr-accent:#E8663D}
+.crawl.st-contrast{--cr-bg:#000000;--cr-ink:#FFFFFF;--cr-tag:#FFE600;--cr-tag-ink:#000000;--cr-chip:#FFFFFF;--cr-chip-ink:#000000;--cr-accent:#FFE600}
+.crawl.st-late{--cr-bg:#0B1220;--cr-ink:#FFFFFF;--cr-tag:#F2C14E;--cr-tag-ink:#0B1220;--cr-chip:#F2C14E;--cr-chip-ink:#0B1220;--cr-accent:#F2C14E}
+.cr-tag,.cr-clock{flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding:0 .8em;background:var(--cr-tag);color:var(--cr-tag-ink);font-family:var(--brand-font);font-weight:900;letter-spacing:.05em;white-space:nowrap;text-transform:uppercase;font-size:.85em}
+.cr-clock{font-variant-numeric:tabular-nums;letter-spacing:0;font-size:.95em}
+.cr-view{flex:1 1 auto;min-width:0;overflow:hidden;position:relative;display:flex;align-items:center}
+.cr-track{display:flex;align-items:center;width:max-content}
+.cr-track.run{animation:crawl var(--cr-dur,40s) linear infinite}
+.cr-view:hover .cr-track{animation-play-state:paused}
+@keyframes crawl{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--cr-w,0px)))}}
+.cr-half{display:flex;align-items:center;flex:0 0 auto}
+.cr-item{display:flex;align-items:center;gap:.55em;padding-left:1.3em;white-space:nowrap;font-weight:700}
+.cr-item::after{content:"";flex:0 0 auto;width:.36em;height:.36em;border-radius:50%;background:var(--cr-accent);margin-left:1.1em}
+.cr-chip{flex:0 0 auto;font-family:var(--brand-font);font-weight:900;font-size:.6em;letter-spacing:.08em;padding:.28em .6em;border-radius:.35em;background:var(--cr-chip);color:var(--cr-chip-ink);text-transform:uppercase}
+.cr-live{font-variant-numeric:tabular-nums}
+.crawl.one .cr-half{display:block;position:absolute;inset:0}
+.crawl.one .cr-item{position:absolute;inset:0;padding:0 1em;opacity:0;visibility:hidden;transition:opacity .6s ease,visibility .6s}
+.crawl.one .cr-item.on{opacity:1;visibility:visible}
+.crawl.one .cr-item::after{display:none}
+.crawl.one .cr-text{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.crawl.cr-preview{height:3.2rem;font-size:1.05rem;border-radius:.5rem}
+.crawl.pip-crawl{height:2.7rem;font-size:15px}
+.cr-empty{padding:0 1em;opacity:.75;font-weight:400}
+@media (prefers-reduced-motion:reduce){.crawl.one .cr-item{transition:none}}
+
+/* ---------- crawler + running-late panels ---------- */
+.cw-panel{max-width:40rem}
+.cw-sec{padding:.85rem 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:.55rem}
+.cw-sec h3{margin:0;font-size:1rem}
+.cw-help{color:var(--muted);font-size:.88rem;margin:0;line-height:1.45}
+.cw-switch,.cw-note,.cw-check{display:flex;align-items:center;gap:.6rem;min-height:2.6rem}
+.cw-switch{font-weight:700;font-size:1.05rem;padding:.2rem 0 .6rem}
+.cw-switch input,.cw-note input,.cw-check input{width:1.25rem;height:1.25rem;flex:0 0 auto;accent-color:var(--accent)}
+.cw-note .swatch{width:1.1rem;height:1.1rem;border-radius:.3rem;border:1px solid rgba(0,0,0,.15);flex:0 0 auto}
+.cw-n{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.cw-n small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cw-add{display:flex;gap:.5rem}
+.cw-in{font:inherit;padding:.55rem .65rem;border:1px solid var(--line);border-radius:.5rem;background:var(--chrome-2);color:var(--ink);width:100%;box-sizing:border-box;min-height:2.75rem}
+textarea.cw-in{resize:vertical;line-height:1.4}
+.cw-msgs{display:flex;flex-wrap:wrap;gap:.4rem}
+.cw-chip{display:inline-flex;align-items:center;gap:.2rem;background:var(--chrome-2);border:1px solid var(--line);border-radius:999px;padding:.15rem .2rem .15rem .8rem;font-weight:700}
+.cw-chip button{border:0;background:transparent;color:var(--ink);width:2.2rem;height:2.2rem;border-radius:50%;display:grid;place-items:center}
+.cw-chip button:hover{background:var(--chrome)}
+.cw-chip svg{width:1rem;height:1rem}
+.opt-row{display:flex;flex-wrap:wrap;gap:.45rem}
+.opt-row button{border:2px solid var(--line);background:var(--chrome);color:var(--ink);border-radius:.6rem;padding:.45rem .85rem;font:inherit;font-weight:700;min-height:2.75rem;display:inline-flex;align-items:center;gap:.5rem}
+.opt-row button[aria-pressed="true"]{border-color:var(--accent);background:var(--chrome-2);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt-row .mini{width:2.2rem;height:1.1rem;border-radius:.25rem;border-top:3px solid}
+.late-status{background:#FFF4D6;color:#4A3B08;border-radius:.7rem;padding:.75rem .9rem;display:flex;flex-direction:column;gap:.55rem;line-height:1.45;margin-top:.6rem}
+.late-status .acts{display:flex;flex-wrap:wrap;gap:.45rem}
+.late-go{width:100%;justify-content:center;min-height:3.2rem;font-size:1.08rem;font-weight:700;margin-top:.4rem}
+
+/* ---------- running late: start-of-class screen over the board ---------- */
+.late-layer{position:absolute;inset:0;z-index:100000;display:flex;flex-direction:column;gap:calc(var(--u)*1.4);padding:calc(var(--u)*1.8);background:rgba(8,22,34,.6);font-size:calc(var(--u)*1.35)}
+.late-banner{align-self:flex-start;background:#F2C14E;color:#0B1220;font-weight:700;border-radius:999px;padding:.45em 1.1em;font-size:1.1em}
+.late-grid{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:calc(var(--u)*1.4)}
+.late-spot,.late-adult{border-radius:1rem;box-shadow:0 12px 30px rgba(0,0,0,.35);overflow:auto;display:flex;flex-direction:column}
+.late-spot{background:var(--paper);color:#1B2530;padding:1.5em 1.7em;gap:.8em}
+.late-spot h2{margin:0;display:flex;justify-content:space-between;align-items:center;gap:1em;font-size:.95em;letter-spacing:.1em;text-transform:uppercase}
+.late-timer{font-family:var(--brand-font);font-weight:900;font-size:2.2em;letter-spacing:0;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.65);border-radius:.4em;padding:0 .35em}
+.late-timer.up{color:#B42318}
+.late-body{font-size:1.9em;font-weight:700;line-height:1.3;white-space:pre-wrap}
+.late-body ol,.late-body ul{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:.2em}
+.late-body li.done{text-decoration:line-through;opacity:.55}
+.late-adult{background:#FFFFFF;color:#1B2530;padding:1.3em 1.4em;gap:.7em}
+.late-adult h3{margin:0;font-size:.8em;letter-spacing:.1em;color:#8A2E0E}
+.late-adult p{margin:0;line-height:1.4}
+.late-adult .late-thanks{font-weight:700;font-size:1.1em}
+.late-adult ol{margin:0;padding-left:1.3em;line-height:1.45;display:flex;flex-direction:column;gap:.35em}
+.late-acts{display:flex;flex-wrap:wrap;gap:.5em;margin-top:auto}
+.late-acts button{font:inherit;font-size:.85em;font-weight:700;border:1px solid #C9D1D8;background:#F3F5F7;color:#1B2530;border-radius:.6em;padding:.55em .9em;min-height:2.75rem}
+.late-foot{font-size:.8em;color:#5B6874;background:#F3F5F7;border-radius:.6em;padding:.6em .8em}
+.late-layer.nospot{background:transparent;pointer-events:none}
+.late-layer.nospot .late-banner,.late-layer.nospot .late-adult{pointer-events:auto}
+.late-layer.nospot .late-grid{display:flex;justify-content:flex-end;align-items:flex-start}
+.late-layer.nospot .late-adult{width:min(30rem,34%)}
+.late-chip{left:auto;right:1rem}
+body.present .late-chip{bottom:calc(clamp(3rem,7.5vh,5.5rem) + 1rem)}
+.late-chip svg{color:#F2C14E}
+@media (max-width:700px){
+  .add-wrap{order:-2} #lateBtn{order:-1}   /* on phones, Running late sits right next to Add note */
+  .late-layer{position:fixed;top:auto;bottom:0;left:0;right:0;max-height:85%;font-size:15px;overflow:auto}
+  .late-grid{grid-template-columns:1fr}
+  .late-body{font-size:1.25em}
+  .late-layer.nospot .late-adult{width:auto}
+  .late-chip{right:.5rem;left:.5rem}
+}
 </style>
 </head>
 <body>
@@ -763,6 +854,9 @@ body.present .fc-only-edit,.pip .fc-only-edit{display:none !important}
   <button class="btn edit-only" id="shareBtn" aria-label="Share" title="Share this board with a substitute (link + QR code)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 14v.01M14 21h.01M17 21h4v-4"/></svg><span class="lbl">Share</span>
   </button>
+  <button class="btn edit-only" id="lateBtn" aria-label="Running late" title="Running late? Let class start without you">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span class="lbl">Running late</span>
+  </button>
   <button class="btn rep-btn edit-only" id="repBtn" aria-label="Sub reports" title="Reports your substitutes left for you" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="lbl">Sub reports</span><span class="rep-dot" id="repDot" hidden></span>
   </button>
@@ -783,6 +877,7 @@ body.present .fc-only-edit,.pip .fc-only-edit{display:none !important}
   </div>
 </header>
 <main class="board" id="board" aria-label="Board"></main>
+<div class="crawl" id="crawl" role="marquee" aria-label="Class announcements" hidden></div>
 <div class="auth" id="auth" hidden>
   <div class="pond" aria-hidden="true">
     <svg class="ripples" viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice">
@@ -880,6 +975,26 @@ body.present .fc-only-edit,.pip .fc-only-edit{display:none !important}
     <p class="trash-sub">Give each class board a start time. When the bell time comes, Floatle switches to that board on its own, in Present mode and the Float window too. It works while Floatle is open in a browser tab.</p>
     <div id="schedBody"></div>
   </div>
+</div>
+<div class="trash-wrap" id="crawlWrap" hidden>
+  <div class="trash-panel cw-panel" role="dialog" aria-modal="true" aria-labelledby="crawlTitle">
+    <div class="trash-head"><h2 id="crawlTitle">Screen crawler</h2><button class="btn" id="crawlClose">Done</button></div>
+    <p class="trash-sub">A strip along the bottom of the screen, like a news ticker. It shows the notes you pick from this board and keeps up as you edit them.</p>
+    <div id="crawlBody"></div>
+  </div>
+</div>
+<div class="trash-wrap" id="lateWrap" hidden>
+  <div class="trash-panel cw-panel" role="dialog" aria-modal="true" aria-labelledby="lateTitle">
+    <div class="trash-head"><h2 id="lateTitle">Running late?</h2><button class="btn" id="lateClose">Close</button></div>
+    <p class="trash-sub">Let class start without you. Whoever is covering opens your board with the code in your sub binder and sees a start-of-class screen: the first activity, a timer, and a few steps for them.</p>
+    <div id="lateBody"></div>
+  </div>
+</div>
+<div class="upnext late-chip" id="lateChip" role="status" aria-live="polite" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+  <div class="upnext-txt"><small id="lateChipWhen"></small><b id="lateChipName"></b></div>
+  <button type="button" id="lateChipEdit">Edit</button>
+  <button type="button" class="go" id="lateChipHere">I'm here</button>
 </div>
 <div class="upnext" id="upNext" role="status" aria-live="polite" hidden>
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
@@ -1028,7 +1143,7 @@ function saveLocal(){
    boards looked, so any change (typing, deleting, moving, reordering) can be undone.
    Bursts of typing are grouped so one undo removes one pause-to-pause chunk. */
 const HISTORY_MAX = 100;
-const NO_UNDO = new Set(["updatedAt", "z", "active", "fx", "pipScale"]);
+const NO_UNDO = new Set(["updatedAt", "z", "active", "fx", "pipScale", "late"]);
 let undoStack = [], redoStack = [], lastSnap = null, lastKind = "", lastEditAt = 0;
 function snap(){
   // leave out things that shouldn't count as an edit: save time, stacking order, which tab is open,
@@ -1074,10 +1189,11 @@ function applySnapshot(json, pushTo){
   pushTo.push(lastSnap);
   const f = focusInfo();
   const cur = state, next = JSON.parse(json);
-  const zs = {}, fxs = {}, scales = {};
-  cur.boards.forEach(b => { scales[b.id] = b.pipScale; b.notes.forEach(n => { zs[n.id] = n.z; fxs[n.id] = n.fx; }); });
+  const zs = {}, fxs = {}, scales = {}, lates = {};
+  cur.boards.forEach(b => { scales[b.id] = b.pipScale; lates[b.id] = b.late; b.notes.forEach(n => { zs[n.id] = n.z; fxs[n.id] = n.fx; }); });
   next.boards.forEach(b => {
     if (scales[b.id] != null) b.pipScale = scales[b.id];
+    if (lates[b.id]) b.late = lates[b.id]; else delete b.late;   // a late start isn't undone by Undo
     b.notes.forEach(n => { n.z = zs[n.id] ?? ++zTop; if (fxs[n.id]) n.fx = fxs[n.id]; });
   });
   next.active = cur.active;
@@ -1104,6 +1220,7 @@ function persist(){
   }
   updateUndoButtons();
   renderPip();
+  if (CRAWL_READY) renderCrawl();
 }
 async function pushRemote(){
   if (!sb || !userId) return;
@@ -2156,6 +2273,7 @@ function renderBoard(){
   }
   b.notes.forEach(n => boardEl.appendChild(noteEl(n)));
   renderPanels();
+  if (CRAWL_READY){ renderLateLayer(); renderCrawl(); }
   sizeUnit();
 }
 function renderAddMenu(){
@@ -2179,6 +2297,8 @@ function renderSettings(){
     <button class="item" data-set="share">Share with a sub (link + QR code)${b.shareCode ? " &bull; on" : ""}</button>
     ${sb && userId ? `<button class="item" data-set="reports">Sub reports${reports.length && unreadCount() ? " (" + unreadCount() + " new)" : ""}</button>` : ""}
     <button class="item" data-set="sched">Schedule boards by class period${b.sched && b.sched.on ? " &bull; " + fmtTime(b.sched.t) : ""}</button>
+    <button class="item" data-set="crawl">Screen crawler (bottom ticker)${CRAWL_READY && crawlCfg(b).on ? " &bull; on" : ""}</button>
+    <button class="item" data-set="late">Running late? Start class without me${lateActive(b) ? " &bull; on" : ""}</button>
     <button class="item" data-set="dup">Duplicate this board</button>
     <button class="item" data-set="expand">Expand all notes</button>
     <button class="item" data-set="collapse">Minimize all notes</button>
@@ -2251,6 +2371,8 @@ document.addEventListener("keydown", e => {
     if (!$("leaveWrap").hidden){ closeLeave(); return; }
     if (!$("repWrap").hidden){ closeReports(); return; }
     if (!$("schedWrap").hidden){ closeSched(); return; }
+    if (!$("crawlWrap").hidden){ closeCrawlSet(); return; }
+    if (!$("lateWrap").hidden){ closeLate(); return; }
     if (document.querySelector(".menu.open")){ closeMenus(); return; }
     if (presenting && !viewing) setPresent(false);
   }
@@ -2322,6 +2444,8 @@ $("setMenu").addEventListener("click", e => {
   if (act === "trash"){ toggleMenu($("setBtn"), $("setMenu"), false); openTrash(); return; }
   if (act === "share"){ toggleMenu($("setBtn"), $("setMenu"), false); openShare(); return; }
   if (act === "sched"){ toggleMenu($("setBtn"), $("setMenu"), false); openSched(); return; }
+  if (act === "crawl"){ toggleMenu($("setBtn"), $("setMenu"), false); openCrawlSet(); return; }
+  if (act === "late"){ toggleMenu($("setBtn"), $("setMenu"), false); openLate(b.id); return; }
   if (act === "reports"){ toggleMenu($("setBtn"), $("setMenu"), false); openReports(); return; }
   if (act === "feedback"){ window.open(FEEDBACK_URL, "_blank", "noopener"); toggleMenu($("setBtn"), $("setMenu"), false); return; }
   if (act === "import"){ $("importFile").click(); toggleMenu($("setBtn"), $("setMenu"), false); return; }
@@ -2340,6 +2464,8 @@ $("setMenu").addEventListener("click", e => {
       }
     });
     if (Array.isArray(copy.pipOrder)) copy.pipOrder = copy.pipOrder.map(id => idMap[id]).filter(Boolean);
+    if (copy.crawl && Array.isArray(copy.crawl.ids)) copy.crawl.ids = copy.crawl.ids.map(id => idMap[id]).filter(Boolean);
+    delete copy.late;        // a late start belongs to the board it was set on
     state.boards.splice(state.boards.indexOf(b)+1, 0, copy);
     state.active = copy.id; render(); save();
     toggleMenu($("setBtn"), $("setMenu"), false);
@@ -3084,7 +3210,7 @@ let imgTarget = null;                      // an empty Image note the next paste
 let pickTarget = null;                     // the note "Choose an image" was clicked in
 
 function modalOpen(){
-  return !$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden || !$("leaveWrap").hidden || !$("repWrap").hidden || !$("imgView").hidden || !$("schedWrap").hidden;
+  return !$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden || !$("leaveWrap").hidden || !$("repWrap").hidden || !$("imgView").hidden || !$("schedWrap").hidden || !$("crawlWrap").hidden || !$("lateWrap").hidden;
 }
 function imageBodyHTML(n, forPip){
   const tapZoom = !forPip && (presenting || viewing);
@@ -3457,6 +3583,7 @@ function renderPip(){
     }
     root.appendChild(el);
   });
+  if (CRAWL_READY) renderPipCrawl(pd, b);
   root.scrollTop = scroll;
   tickTimed();
 }
@@ -4265,18 +4392,426 @@ $("schedBody").addEventListener("change", e => {
   else if (f === "t" && e.target.value){ s.t = e.target.value; save(); }   // no redraw, so typing the time isn't interrupted
 });
 
+/* ---------- Screen crawler ----------
+   A TV-style strip along the bottom of the display, shown in Present mode, the Float window and the
+   sub's shared view (never while editing). It is saved with the board:
+   b.crawl = { on, ids (null = every note that can scroll), msgs:[], motion:"scroll"|"one",
+               speed:"slow"|"med"|"fast", style:"broadcast"|"koi"|"contrast", where:{ present, float, shared } }
+   It reads the notes themselves, so editing a note updates the crawler. A Timed note shows its live time left. */
+const CRAWL_KINDS = new Set(["text", "list", "timed", "materials", "doc"]);
+const CR_SPEED = { slow:{ px:55, sec:10 }, med:{ px:85, sec:7 }, fast:{ px:125, sec:5 } };
+const CR_STYLES = { broadcast:["Broadcast", "#0B1220", "#E8663D"], koi:["Koi", "#F6EFE3", "#E8663D"], contrast:["High contrast", "#000000", "#FFE600"] };
+const CR_DEF = { on:false, ids:null, msgs:[], motion:"scroll", speed:"slow", style:"broadcast" };
+const CR_WHERE = { present:true, float:true, shared:true };
+const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+const crawlCfg = b => { const c = (b && b.crawl) || {}; return { ...CR_DEF, ...c, msgs: Array.isArray(c.msgs) ? c.msgs : [], where:{ ...CR_WHERE, ...(c.where || {}) } }; };
+function crawlEdit(b){ b.crawl = crawlCfg(b); return b.crawl; }
+const crawlable = n => CRAWL_KINDS.has(n.kind);
+const byReading = (a, c) => ((+a.y || 0) - (+c.y || 0)) || ((+a.x || 0) - (+c.x || 0));
+function crawlNotes(b, c){ return b.notes.filter(n => crawlable(n) && (!c.ids || c.ids.includes(n.id))).sort(byReading); }
+const oneLine = s => String(s || "").replace(/\s*\n+\s*/g, "  ·  ").replace(/[ \t]+/g, " ").trim();
+const noteTag = n => (n.title || (TYPES[n.type] && TYPES[n.type].label) || "Note").trim() || "Note";
+function timedLine(n){
+  const I = tInfo(n);
+  if (!I.tasks.length) return "";
+  if (I.allDone) return "All tasks done";
+  const name = I.t.t || "Current task", nx = I.tasks[I.cur + 1];
+  const started = I.running || I.rem !== I.taskMs;
+  const now = started ? name + ": " + (I.over ? "over by " + fmtMs(-I.rem) : fmtMs(I.remPos) + " left") : name + " (" + I.t.min + " min)";
+  return now + (nx && nx.t ? "  ·  Next: " + nx.t : "");
+}
+function crawlItem(n){
+  const tag = noteTag(n);
+  if (n.kind === "list"){
+    const open = (n.items || []).filter(i => !i.done && (i.t || "").trim());
+    return open.length ? { tag, text: open[0].t + (open[1] ? "  ·  Next: " + open[1].t : "") } : null;
+  }
+  if (n.kind === "timed") return (n.tasks || []).length ? { tag, live:n.id, text:timedLine(n) } : null;
+  if (n.kind === "materials"){ const m = (n.mats || []).map(matLabel).filter(Boolean); return m.length ? { tag, text:"Have out: " + m.join(", ") } : null; }
+  if (n.kind === "doc") return n.doc && n.doc.name ? { tag, text:n.doc.name } : null;
+  const t = oneLine(n.text);
+  return t ? { tag, text: t.length > 220 ? t.slice(0, 217) + "…" : t } : null;
+}
+function lateActive(b){ const L = b && b.late; return !!(L && L.on && Date.now() < (L.until || 0)); }
+function noteItems(b, c){
+  const items = [];
+  crawlNotes(b, c).forEach(n => { const it = crawlItem(n); if (it) items.push(it); });
+  c.msgs.forEach(m => { if (m && m.trim()) items.push({ tag:"Reminder", text:m.trim() }); });
+  return items;
+}
+function crawlItems(b, where){
+  const c = crawlCfg(b), items = [];
+  if (where !== "float" && lateActive(b)){
+    const L = b.late, n = L.spot && b.notes.find(x => x.id === L.spot);
+    items.push({ tag:"On the way", text: L.msg || "Your teacher is on the way." });
+    if (n && L.mins) items.push({ tag: noteTag(n), live:"late", text: lateLine(L) });
+    if (L.eta) items.push({ tag:"Arriving", text:"About " + clockText(L.eta) });
+  }
+  if (c.on && c.where[where] !== false) items.push(...noteItems(b, c));
+  return items;
+}
+function crawlMarkup(items){
+  return items.map(it => `<span class="cr-item"><span class="cr-chip">${esc(it.tag)}</span><span class="cr-text${it.live ? " cr-live" : ""}"${it.live ? ` data-cl="${esc(it.live)}"` : ""}>${esc(it.text)}</span></span>`).join("");
+}
+function stopCrawl(el){ if (el && el._crTimer){ clearInterval(el._crTimer); el._crTimer = null; } }
+// Fills a crawler strip. Skips the redraw when nothing changed, so the scrolling doesn't restart.
+function fillCrawl(el, b, items, where, force){
+  const c = crawlCfg(b), late = where !== "float" && lateActive(b);
+  const one = c.motion === "one" || reduceMotion();
+  const cls = "crawl st-" + (late && c.style !== "contrast" ? "late" : c.style) + (one ? " one" : "") + (el.dataset.extra ? " " + el.dataset.extra : "");
+  const sig = JSON.stringify([cls, c.speed, items.map(it => it.live ? [it.tag, it.live] : [it.tag, it.text]), el.offsetWidth]);
+  if (!force && el.dataset.sig === sig) return;
+  el.dataset.sig = sig;
+  stopCrawl(el);
+  el.className = cls;
+  const inner = items.length ? crawlMarkup(items) : `<span class="cr-item cr-empty">Nothing to show yet. Pick notes or add a message.</span>`;
+  el.innerHTML = `<div class="cr-tag">${late ? "On the way" : "Today"}</div><div class="cr-view"><div class="cr-track"><span class="cr-half">${inner}</span></div></div><div class="cr-clock">${clockText(Date.now())}</div>`;
+  const track = el.querySelector(".cr-track"), view = el.querySelector(".cr-view");
+  if (one){
+    const its = el.querySelectorAll(".cr-item");
+    let i = 0;
+    its[0] && its[0].classList.add("on");
+    if (its.length > 1) el._crTimer = setInterval(() => {
+      if (!el.isConnected){ stopCrawl(el); return; }
+      its[i].classList.remove("on"); i = (i + 1) % its.length; its[i].classList.add("on");
+    }, CR_SPEED[c.speed].sec * 1000);
+    return;
+  }
+  const half = track.firstElementChild.offsetWidth;
+  if (!half) return;   // not on screen yet; the next render fills it
+  // repeat the items until they cover the strip, then slide by exactly one copy so the loop is seamless
+  const copies = Math.max(1, Math.ceil(view.offsetWidth / half)) + 1;
+  for (let k = 1; k < copies; k++){ const h = track.firstElementChild.cloneNode(true); h.setAttribute("aria-hidden", "true"); track.appendChild(h); }
+  track.style.setProperty("--cr-w", half + "px");
+  track.style.setProperty("--cr-dur", Math.max(8, half / CR_SPEED[c.speed].px).toFixed(1) + "s");
+  track.classList.add("run");
+}
+function crawlWhere(){ return viewing ? "shared" : presenting ? "present" : ""; }
+function renderCrawl(){
+  const el = $("crawl"); if (!el || !state) return;
+  const b = board(), where = crawlWhere();
+  const items = where ? crawlItems(b, where) : [];
+  if (!items.length){
+    if (!el.hidden){ el.hidden = true; stopCrawl(el); el.dataset.sig = ""; el.innerHTML = ""; }
+    return;
+  }
+  el.hidden = false;
+  fillCrawl(el, b, items, where);
+}
+function renderPipCrawl(pd, b){
+  let pc = pd.getElementById("pipCrawl");
+  const items = crawlItems(b, "float");
+  if (!items.length){ if (pc){ stopCrawl(pc); pc.remove(); } return; }
+  if (!pc){
+    pc = pd.createElement("div"); pc.id = "pipCrawl"; pc.dataset.extra = "pip-crawl";
+    pc.setAttribute("role", "marquee"); pc.setAttribute("aria-label", "Class announcements");
+    pd.body.insertBefore(pc, pd.getElementById("pipBar"));
+  }
+  fillCrawl(pc, b, items, "float");
+}
+window.addEventListener("resize", () => { const el = $("crawl"); if (el) el.dataset.sig = ""; renderCrawl(); });
+
+/* ---------- Running late: class starts without you ----------
+   The teacher taps Running late (on a phone or any device). It's saved with the board and its share code:
+   b.late = { on, start, eta, until, spot (note id or ""), mins, msg, steps:[] }
+   Whoever covers opens the board with the code in the sub binder and sees a start-of-class screen: the
+   first activity, its timer, and steps for the covering adult, with an "on the way" crawler. It ends when
+   the teacher taps I'm here, or on its own 30 minutes after the expected arrival. */
+const lateSeen = {};   // per screen: when this device first showed this late start (its timer starts then)
+function lateClock(L){ const k = L.start || 0; return lateSeen[k] || (lateSeen[k] = { t:Date.now(), hidden:false }); }
+function lateRem(L){ return L.mins ? L.mins * 60000 - (Date.now() - lateClock(L).t) : 0; }
+function lateLine(L){ const r = lateRem(L); return r > 0 ? fmtMs(r) + " left" : "time's up"; }
+function spotHTML(n){
+  if (n.kind === "list"){
+    const it = (n.items || []).filter(i => (i.t || "").trim());
+    return it.length ? `<ol>${it.map(i => `<li class="${i.done ? "done" : ""}">${esc(i.t)}</li>`).join("")}</ol>` : "";
+  }
+  if (n.kind === "timed"){
+    const t = (n.tasks || []).filter(x => (x.t || "").trim());
+    return t.length ? `<ol>${t.map(x => `<li>${esc(x.t)} (${x.min} min)</li>`).join("")}</ol>` : "";
+  }
+  if (n.kind === "materials") return `<ul>${(n.mats || []).map(m => `<li>${esc(matLabel(m))}</li>`).join("")}</ul>`;
+  if (n.kind === "doc") return esc(n.doc && n.doc.name ? n.doc.name : "");
+  return esc(n.text || "");
+}
+function renderLateLayer(){
+  const old = boardEl.querySelector(".late-layer"); if (old) old.remove();
+  const b = board();
+  if (!(viewing || presenting) || !lateActive(b)) return;
+  const L = b.late, seen = lateClock(L);
+  if (seen.hidden) return;
+  const n = L.spot && b.notes.find(x => x.id === L.spot);
+  const steps = (L.steps || []).map(s => String(s).trim()).filter(Boolean);
+  const r = lateRem(L);
+  const el = document.createElement("div");
+  el.className = "late-layer" + (n ? "" : " nospot");
+  el.innerHTML = `<div class="late-banner" role="status">Class is starting. Your teacher is on the way${L.eta ? ", arriving about " + clockText(L.eta) : ""}.</div>
+    <div class="late-grid">
+      ${n ? `<section class="late-spot" style="--paper:${COLORS[n.color] || COLORS.lemon}" aria-label="Start here">
+        <h2><span>${esc(noteTag(n))} &middot; start here</span>${L.mins ? `<span class="late-timer${r > 0 ? "" : " up"}" data-lt role="timer">${r > 0 ? fmtMs(r) : "Time!"}</span>` : ""}</h2>
+        <div class="late-body">${spotHTML(n)}</div></section>` : ""}
+      <section class="late-adult" aria-label="For the adult covering">
+        <h3>FOR THE ADULT COVERING</h3>
+        <p class="late-thanks">Thank you for stepping in. Everything is ready, so there's nothing else to open.</p>
+        ${steps.length ? `<ol>${steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>` : ""}
+        <div class="late-acts">${n && L.mins ? `<button type="button" data-late="restart">Restart timer</button>` : ""}<button type="button" data-late="board">Show the full board</button></div>
+        <p class="late-foot">This screen goes back to the full board when the teacher arrives.</p>
+      </section>
+    </div>`;
+  boardEl.appendChild(el);
+}
+boardEl.addEventListener("click", e => {
+  const btn = e.target.closest("[data-late]"); if (!btn) return;
+  const b = board(); if (!lateActive(b)) return;
+  const seen = lateClock(b.late);
+  if (btn.dataset.late === "restart"){ seen.t = Date.now(); renderLateLayer(); }
+  else if (btn.dataset.late === "board"){ seen.hidden = true; renderLateLayer(); toast("Showing the full board. The crawler still shows the start-of-class message."); }
+});
+// once a second: the crawler clocks, live times, the late-start timer, and switching back when a late start ends
+let lateKey = "";
+function crawlTick(){
+  if (!state) return;
+  const b = board(), now = Date.now();
+  const key = state.boards.map(x => lateActive(x) ? x.id + ":" + x.late.start : "").join("|");
+  if (key !== lateKey){ lateKey = key; renderLateLayer(); renderCrawl(); renderPip(); renderLateChip(); }
+  const docs = [document];
+  if (pipWin && !pipWin.closed) docs.push(pipWin.document);
+  const ct = clockText(now);
+  docs.forEach(d => {
+    d.querySelectorAll(".cr-clock").forEach(el => { if (el.textContent !== ct) el.textContent = ct; });
+    d.querySelectorAll(".cr-live").forEach(el => {
+      let v = "";
+      if (el.dataset.cl === "late"){ if (lateActive(b)) v = lateLine(b.late); }
+      else { const n = b.notes.find(x => x.id === el.dataset.cl); if (n) v = timedLine(n); }
+      if (v && el.textContent !== v) el.textContent = v;
+    });
+  });
+  const lt = boardEl.querySelector("[data-lt]");
+  if (lt && lateActive(b)){ const r = lateRem(b.late), v = r > 0 ? fmtMs(r) : "Time!"; if (lt.textContent !== v){ lt.textContent = v; lt.classList.toggle("up", r <= 0); } }
+  if (!viewing && !$("lateChip").hidden) renderLateChip();
+}
+setInterval(crawlTick, 1000);
+
+/* the teacher's own screens: a chip while a late start is on */
+function lateBoards(){ return state.boards.filter(lateActive); }
+function renderLateChip(){
+  const chip = $("lateChip");
+  const lb = viewing ? [] : lateBoards();
+  chip.hidden = !lb.length;
+  if (!lb.length) return;
+  const b = lb[0];
+  $("lateChipWhen").textContent = "Late start is on" + (b.late.eta ? " · arriving about " + clockText(b.late.eta) : "");
+  $("lateChipName").textContent = lb.map(x => x.name).join(", ");
+}
+function endLate(b){
+  if (!b || !b.late) return;
+  b.late.on = false; save(); renderBoard(); renderLateChip();
+  toast("Welcome back. " + b.name + " is back to the full board.");
+}
+$("lateChipHere").addEventListener("click", () => { lateBoards().forEach(b => { b.late.on = false; }); save(); renderBoard(); renderLateChip(); toast("Welcome back. Your board is back to normal."); });
+$("lateChipEdit").addEventListener("click", () => { const lb = lateBoards(); openLate(lb.length ? lb[0].id : null); });
+
+/* ---------- crawler settings panel ---------- */
+const X_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
+function renderCrawlSet(){
+  const b = board(), c = crawlCfg(b);
+  const notes = b.notes.filter(crawlable).sort(byReading);
+  const opt = (f, v, label, extra) => `<button type="button" data-c="${f}" data-v="${v}" aria-pressed="${c[f] === v}">${extra || ""}${label}</button>`;
+  $("crawlBody").innerHTML = `
+    <label class="cw-switch"><input type="checkbox" data-c="on" ${c.on ? "checked" : ""}>Show the crawler on ${esc(b.name)}</label>
+    <div class="cw-sec"><h3>What scrolls</h3>
+      ${notes.length ? notes.map(n => `<label class="cw-note"><input type="checkbox" data-c="note" value="${n.id}" ${!c.ids || c.ids.includes(n.id) ? "checked" : ""}>
+        <span class="swatch" style="background:${COLORS[n.color] || COLORS.paper}" aria-hidden="true"></span>
+        <span class="cw-n"><b>${esc(noteTag(n))}</b><small>${esc(firstLine(n) || "Empty for now")}</small></span></label>`).join("")
+      : `<p class="cw-help">Add an Objective, Agenda, Homework or other note to this board to see it here.</p>`}
+      <p class="cw-help">Agenda and checklist notes show the current step and the next one. A Timed note shows the time left on its current task.</p>
+    </div>
+    <div class="cw-sec"><h3>Your own messages</h3>
+      <div class="cw-add"><input class="cw-in" id="crMsg" maxlength="140" placeholder="e.g. Picture day is Thursday" aria-label="New crawler message"><button type="button" class="btn" data-c="add">Add</button></div>
+      ${c.msgs.length ? `<div class="cw-msgs">${c.msgs.map((m, i) => `<span class="cw-chip">${esc(m)}<button type="button" data-c="delmsg" data-v="${i}" aria-label="Remove ${esc(m)}">${X_ICON}</button></span>`).join("")}</div>` : ""}
+    </div>
+    <div class="cw-sec"><h3>Motion</h3>
+      <div class="opt-row">${opt("motion", "scroll", "Scroll")}${opt("motion", "one", "One at a time")}</div>
+      <p class="cw-help">One at a time is calmer for students who find moving text distracting. Screens set to reduce motion always show one at a time.</p>
+    </div>
+    <div class="cw-sec"><h3>Speed</h3><div class="opt-row">${opt("speed", "slow", "Slow")}${opt("speed", "med", "Medium")}${opt("speed", "fast", "Fast")}</div></div>
+    <div class="cw-sec"><h3>Style</h3><div class="opt-row">${Object.entries(CR_STYLES).map(([k, s]) => opt("style", k, s[0], `<span class="mini" style="background:${s[1]};border-top-color:${s[2]}" aria-hidden="true"></span>`)).join("")}</div></div>
+    <div class="cw-sec"><h3>Show the crawler in</h3>
+      <label class="cw-check"><input type="checkbox" data-c="where" value="present" ${c.where.present ? "checked" : ""}>Present mode</label>
+      <label class="cw-check"><input type="checkbox" data-c="where" value="float" ${c.where.float ? "checked" : ""}>The Float window</label>
+      <label class="cw-check"><input type="checkbox" data-c="where" value="shared" ${c.where.shared ? "checked" : ""}>Your sub's shared view</label>
+    </div>
+    <div class="cw-sec"><h3>Preview</h3><div class="crawl cr-preview" id="crPrev" data-extra="cr-preview"></div></div>`;
+  fillCrawl($("crPrev"), b, noteItems(b, c), "present", true);
+}
+function openCrawlSet(){ $("crawlWrap").hidden = false; renderCrawlSet(); setTimeout(() => $("crawlClose").focus(), 30); }
+function closeCrawlSet(){ const p = $("crPrev"); if (p) stopCrawl(p); $("crawlWrap").hidden = true; renderSettings(); }
+function crawlChanged(focusSel){
+  save(); renderCrawlSet(); renderCrawl(); renderPip();
+  const el = focusSel && $("crawlBody").querySelector(focusSel); if (el) el.focus();
+}
+function addCrawlMsg(){
+  const inp = $("crMsg"), v = (inp.value || "").trim(); if (!v) { inp.focus(); return; }
+  const c = crawlEdit(board()); c.msgs = [...c.msgs, v];
+  if (!c.on) c.on = true;
+  crawlChanged("#crMsg");
+}
+$("crawlClose").addEventListener("click", closeCrawlSet);
+$("crawlWrap").addEventListener("click", e => {
+  if (e.target === $("crawlWrap")){ closeCrawlSet(); return; }
+  const btn = e.target.closest("button[data-c]"); if (!btn) return;
+  const b = board(), c = crawlEdit(b), f = btn.dataset.c, v = btn.dataset.v;
+  if (f === "add"){ addCrawlMsg(); return; }
+  if (f === "delmsg"){ c.msgs = c.msgs.filter((_, i) => i !== +v); crawlChanged("#crMsg"); return; }
+  if (f === "motion" || f === "speed" || f === "style"){ c[f] = v; crawlChanged(`[data-c="${f}"][data-v="${v}"]`); }
+});
+$("crawlBody").addEventListener("keydown", e => { if (e.target.id === "crMsg" && e.key === "Enter"){ e.preventDefault(); addCrawlMsg(); } });
+$("crawlBody").addEventListener("change", e => {
+  const f = e.target.dataset.c; if (!f) return;
+  const b = board(), c = crawlEdit(b);
+  if (f === "on") c.on = e.target.checked;
+  else if (f === "note"){
+    const all = b.notes.filter(crawlable).map(n => n.id);
+    const cur = new Set(c.ids || all);
+    e.target.checked ? cur.add(e.target.value) : cur.delete(e.target.value);
+    c.ids = all.filter(id => cur.has(id));
+  }
+  else if (f === "where") c.where = { ...c.where, [e.target.value]: e.target.checked };
+  crawlChanged(f === "note" || f === "where" ? `[data-c="${f}"][value="${e.target.value}"]` : `[data-c="${f}"]`);
+});
+
+/* ---------- running late panel ---------- */
+let lateForm = null;
+const LATE_ETAS = [5, 10, 15, 20];
+const LATE_MINS = [0, 3, 5, 8, 10];
+const firstWord = n => n ? noteTag(n) : "first activity";
+function guessSpot(b){
+  const ok = b.notes.filter(crawlable).sort(byReading);
+  const re = /do ?now|warm.?up|bell ?ringer|starter|entry/i;
+  return (ok.find(n => re.test(n.title || "")) || ok.find(n => re.test(firstLine(n))) || ok.find(n => n.type === "objective") || ok[0] || { id:"" }).id;
+}
+function defaultSteps(name){
+  return [
+    "Take attendance with the roster in the sub binder.",
+    "Students begin the " + name + ". The timer is on the screen.",
+    "If the timer ends before I arrive, students pair up and compare their work."
+  ];
+}
+function lateFormFor(b){
+  const L = lateActive(b) ? b.late : null;
+  const spot = L ? (L.spot || "") : guessSpot(b);
+  const n = b.notes.find(x => x.id === spot);
+  return {
+    bid: b.id, spot,
+    mins: L ? (L.mins || 0) : 8,
+    eta: L && L.eta ? Math.max(5, Math.min(20, Math.round((L.eta - Date.now()) / 300000) * 5 || 5)) : 10,
+    msg: L ? L.msg : (b.lateMsg || "Your teacher is on the way. Please begin the " + firstWord(n) + " quietly."),
+    steps: (L ? L.steps : b.lateSteps) || defaultSteps(firstWord(n))
+  };
+}
+function renderLate(){
+  const body = $("lateBody");
+  if (!sb){ body.innerHTML = `<p class="cw-help">Running late needs Floatle's online sharing, which isn't available here.</p>`; return; }
+  if (!userId){
+    body.innerHTML = `<p class="cw-help">Sign in to use Running late. It works through your board's code, so whoever covers can open the board on the classroom computer.</p>
+      <button class="btn primary late-go" data-lf="signin">Sign in</button>`;
+    return;
+  }
+  const b = state.boards.find(x => x.id === lateForm.bid) || board();
+  const f = lateForm, on = lateActive(b);
+  const notes = b.notes.filter(crawlable).sort(byReading);
+  const pill = (k, v, label) => `<button type="button" data-lf="${k}" data-v="${v}" aria-pressed="${f[k] === v}">${label}</button>`;
+  body.innerHTML = `
+    <div class="cw-sec" style="border-top:0;padding-top:0"><h3><label for="lfBoard">Which class</label></h3>
+      <select class="cw-in" id="lfBoard">${state.boards.map(x => `<option value="${x.id}" ${x.id === b.id ? "selected" : ""}>${esc(x.name)}${x.shareCode ? "" : " (no board code yet)"}${lateActive(x) ? " · late start on" : ""}</option>`).join("")}</select>
+      ${b.shareCode ? `<p class="cw-help">Board code in your sub binder: <b>${b.shareCode}</b></p>`
+        : `<p class="cw-help">This board doesn't have a board code yet. Running late uses the code in your sub binder, so the covering adult can open the board.</p>
+           <button type="button" class="btn" data-lf="share">Create a board code</button>`}
+      ${on ? `<div class="late-status" role="status"><span><b>Late start is on.</b> Whoever opens the board sees the start-of-class screen until you tap I'm here${b.late.until ? " (or until " + clockText(b.late.until) + ")" : ""}.</span>
+        <span class="acts"><button type="button" class="btn primary" data-lf="here">I'm here</button><button type="button" class="btn" data-lf="more">Add 10 minutes</button></span></div>` : ""}
+    </div>
+    <div class="cw-sec"><h3><label for="lfSpot">What the room sees first</label></h3>
+      <select class="cw-in" id="lfSpot">${notes.map(n => `<option value="${n.id}" ${n.id === f.spot ? "selected" : ""}>${esc(noteTag(n))}: ${esc((firstLine(n) || "Empty").slice(0, 60))}</option>`).join("")}
+        <option value="" ${!f.spot ? "selected" : ""}>The full board (no spotlight)</option></select>
+    </div>
+    ${f.spot ? `<div class="cw-sec"><h3>Timer for it</h3><div class="opt-row">${LATE_MINS.map(m => pill("mins", m, m ? m + " min" : "No timer")).join("")}</div></div>` : ""}
+    <div class="cw-sec"><h3>I'll be there in about</h3><div class="opt-row">${LATE_ETAS.map(m => pill("eta", m, m === 20 ? "20+ min" : m + " min")).join("")}</div></div>
+    <div class="cw-sec"><h3><label for="lfMsg">Message on the crawler</label></h3><textarea class="cw-in" id="lfMsg" rows="2" maxlength="160">${esc(f.msg)}</textarea></div>
+    <div class="cw-sec"><h3><label for="lfSteps">Steps for the adult covering</label></h3>
+      <textarea class="cw-in" id="lfSteps" rows="4" maxlength="600">${esc(f.steps.join("\n"))}</textarea>
+      <p class="cw-help">One step per line. Please don't include student names.</p></div>
+    <button type="button" class="btn primary late-go" data-lf="go" ${b.shareCode ? "" : "disabled"}>${on ? "Update the late start" : "Start class without me"}</button>
+    <p class="cw-help" style="text-align:center;margin-top:.5rem">It switches back when you tap I'm here, or 30 minutes after you expect to arrive.</p>`;
+}
+function openLate(bid){
+  closeMenus();
+  const b = state.boards.find(x => x.id === bid) || board();
+  lateForm = lateFormFor(b);
+  renderLate(); $("lateWrap").hidden = false;
+  setTimeout(() => $("lateClose").focus(), 30);
+}
+function closeLate(){ $("lateWrap").hidden = true; renderSettings(); }
+function readLateText(){
+  const m = $("lfMsg"), s = $("lfSteps");
+  if (m) lateForm.msg = m.value.trim();
+  if (s) lateForm.steps = s.value.split("\n").map(x => x.trim()).filter(Boolean).slice(0, 8);
+}
+$("lateBtn").addEventListener("click", () => openLate(board().id));
+$("lateClose").addEventListener("click", closeLate);
+$("lateBody").addEventListener("change", e => {
+  if (e.target.id === "lfBoard"){ readLateText(); lateForm = lateFormFor(state.boards.find(x => x.id === e.target.value) || board()); renderLate(); $("lfBoard").focus(); }
+  else if (e.target.id === "lfSpot"){
+    readLateText();
+    const b = state.boards.find(x => x.id === lateForm.bid), n = b && b.notes.find(x => x.id === e.target.value);
+    lateForm.spot = e.target.value;
+    if (lateForm.spot && !lateForm.mins) lateForm.mins = 8;
+    // keep the default wording in step with the note picked, unless the teacher already rewrote it
+    if (b && !b.lateMsg && /^Your teacher is on the way\. Please begin the .* quietly\.$/.test(lateForm.msg)) lateForm.msg = "Your teacher is on the way. Please begin the " + firstWord(n) + " quietly.";
+    renderLate(); $("lfSpot").focus();
+  }
+});
+$("lateWrap").addEventListener("click", async e => {
+  if (e.target === $("lateWrap")){ closeLate(); return; }
+  const btn = e.target.closest("[data-lf]"); if (!btn) return;
+  const a = btn.dataset.lf, b = state.boards.find(x => x.id === (lateForm && lateForm.bid)) || board();
+  if (a === "signin"){ closeLate(); try { localStorage.removeItem("swbats.skipLogin"); } catch(err){} showAuth("signin"); return; }
+  readLateText();
+  if (a === "mins" || a === "eta"){ lateForm[a] = +btn.dataset.v; renderLate(); $("lateBody").querySelector(`[data-lf="${a}"][data-v="${btn.dataset.v}"]`)?.focus(); return; }
+  if (a === "share"){
+    btn.disabled = true; btn.textContent = "Creating…";
+    try { await startSharing(b); renderLate(); toast("Board code " + b.shareCode + " is ready. Print the sub guide from Share so it's in your sub binder."); }
+    catch(err){ btn.disabled = false; btn.textContent = "Create a board code"; toast("Couldn't create a board code. Check your connection and try again."); }
+    return;
+  }
+  if (a === "here"){ endLate(b); closeLate(); return; }
+  if (a === "more"){ if (lateActive(b)){ b.late.eta = (b.late.eta || Date.now()) + 600000; b.late.until += 600000; save(); renderLate(); renderLateChip(); toast("Added 10 minutes."); } return; }
+  if (a === "go"){
+    if (!b.shareCode) return;
+    const now = Date.now(), f = lateForm, eta = now + f.eta * 60000;
+    const keep = lateActive(b) ? b.late.start : now;   // updating keeps the covering adult's timer running
+    b.late = { on:true, start:keep, eta, until: Math.max(now + 30 * 60000, eta + 30 * 60000), spot:f.spot || "", mins: f.spot ? f.mins : 0,
+      msg: f.msg || "Your teacher is on the way.", steps: f.steps };
+    b.lateMsg = f.msg; b.lateSteps = f.steps;   // remembered for next time
+    save(); renderBoard(); renderLateChip(); closeLate();
+    toast("Late start is on for " + b.name + ". Whoever covers opens it with code " + b.shareCode + ".");
+  }
+});
+var CRAWL_READY = true;
+
 render();
 resetHistory();
 if (!viewing){
   schedCheck(true);                   // opening Floatle shows the board scheduled for right now
   setInterval(() => schedCheck(), 1000);
+  // a classroom computer presenting a signed-in board picks up changes made on the teacher's phone (like Running late)
+  setInterval(() => { if (presenting && userId && document.visibilityState === "visible" && !modalOpen()) pullRemote(); }, 30000);
 }
 if (viewing){
   document.body.classList.add("viewing");
   viewMsg = "<div>Loading the class board…</div>";
   setPresent(true);
   loadShared(true);
-  setInterval(() => { if (document.visibilityState === "visible") loadShared(false); }, 45000);
+  setInterval(() => { if (document.visibilityState === "visible") loadShared(false); }, 20000);
 }
 })();
 </script>
