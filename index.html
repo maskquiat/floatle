@@ -755,6 +755,13 @@ body.present .fc-only-edit,.pip .fc-only-edit{display:none !important}
 .crawl.one .cr-text{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .crawl.cr-preview{height:3.2rem;font-size:1.05rem;border-radius:.5rem}
 .crawl.pip-crawl{height:2.7rem;font-size:15px}
+.crawl.pip-crawl-full{height:100vh;font-size:clamp(16px,34vh,72px);border-top-width:clamp(3px,3vh,8px)}
+body.pip-mode-crawl .pip{display:none}
+body.pip-mode-crawl .pip-bar [data-pact="smaller"],body.pip-mode-crawl .pip-bar [data-pact="bigger"],body.pip-mode-crawl .pip-bar .pip-pct,body.pip-mode-crawl .pip-bar .pip-sep,body.pip-mode-crawl #pipUndo{display:none}
+body.pip-mode-crawl .pip-bar{top:50%;bottom:auto;transform:translateY(-50%)}
+.pip-bar .pip-mode{font-size:.85rem;padding:0 .7rem}
+.pip-menu button.item{display:flex;flex-direction:column;align-items:flex-start;gap:.1rem}
+.pip-menu button.item small{color:var(--muted);font-weight:400;font-size:.82rem;line-height:1.3;text-align:left}
 .cr-empty{padding:0 1em;opacity:.75;font-weight:400}
 @media (prefers-reduced-motion:reduce){.crawl.one .cr-item{transition:none}}
 
@@ -848,6 +855,7 @@ body.present .late-chip{bottom:calc(clamp(3rem,7.5vh,5.5rem) + 1rem)}
   <button class="btn edit-only" id="pipBtn" aria-label="Float" title="Open a small always-on-top window">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="5" rx="1" fill="currentColor"/></svg><span class="lbl">Float</span>
   </button>
+  <div class="menu pip-menu" id="pipMenu" role="menu"></div>
   <button class="btn edit-only" id="presentBtn" aria-label="Present" title="Present this board full screen">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8"/></svg><span class="lbl">Present</span>
   </button>
@@ -2334,7 +2342,7 @@ tickDate(); setInterval(tickDate, 60000);
 /* The two menus are moved out of the top bar into <body>. On phones the tool buttons sit in a
    sideways-scrolling strip, and phone browsers (Safari especially) clip anything inside a
    scrolling strip, so the menus opened but were invisible. From <body> nothing can clip them. */
-const MENU_BTN = { addMenu:"addBtn", setMenu:"setBtn" };
+const MENU_BTN = { addMenu:"addBtn", setMenu:"setBtn", pipMenu:"pipBtn" };
 Object.keys(MENU_BTN).forEach(id => document.body.appendChild($(id)));
 function placeMenu(menu){
   if (!menu.classList.contains("open")) return;
@@ -3463,15 +3471,48 @@ let pipWin = null;
 let pipDrag = null;          // reorder drag in progress inside the floating window
 let pipRenderPending = false;
 let pipSuppressClick = false;
-$("pipBtn").addEventListener("click", async () => {
-  if (pipWin && !pipWin.closed){ pipWin.focus?.(); return; }
+/* The Float window has two modes (a browser allows one floating window at a time):
+   "notes" (the stacked notes) and "crawl" (a wide, short strip that is just the screen crawler,
+   for showing over slides or any other window). The choice is remembered on this device. */
+let pipMode = (() => { try { return localStorage.getItem("floatle.pipMode") === "crawl" ? "crawl" : "notes"; } catch(e){ return "notes"; } })();
+const PIP_SIZE = { notes:() => ({ width:380, height:520 }), crawl:() => ({ width:Math.round((screen.availWidth || 1280) * 0.8), height:150 }) };
+const crawlCanFloat = () => CRAWL_READY && crawlCfg(board()).on;
+function setPipMode(mode, resize){
+  pipMode = mode;
+  try { localStorage.setItem("floatle.pipMode", mode); } catch(e){}
+  if (!pipWin || pipWin.closed) return;
+  if (resize){ const s = PIP_SIZE[mode](); try { pipWin.resizeTo(s.width, s.height); } catch(e){} }
+  renderPip(); pipWake();
+}
+function renderPipMenu(){
+  $("pipMenu").innerHTML = `
+    <button class="item" role="menuitem" data-pip="notes">Float notes<small>A small window with this board's notes</small></button>
+    <button class="item" role="menuitem" data-pip="crawl">Float the crawler<small>A strip that stays on top of slides and other windows</small></button>`;
+}
+$("pipBtn").addEventListener("click", e => {
+  if (crawlCanFloat()){ e.stopPropagation(); renderPipMenu(); toggleMenu($("pipBtn"), $("pipMenu")); return; }
+  openPip("notes");
+});
+$("pipMenu").addEventListener("click", e => {
+  const it = e.target.closest("[data-pip]"); if (!it) return;
+  toggleMenu($("pipBtn"), $("pipMenu"), false);
+  openPip(it.dataset.pip);
+});
+async function openPip(mode){
+  if (pipWin && !pipWin.closed){
+    if (mode !== pipMode) setPipMode(mode, true);
+    pipWin.focus?.(); return;
+  }
   if (!("documentPictureInPicture" in window)){
     toast("The floating window needs Chrome or Edge on a computer. On iPad, use Split View beside your slides.");
     return;
   }
   try {
     const hasTimer = board().notes.some(n => n.kind === "timed" && n.tp && n.tp.open);
-    pipWin = await window.documentPictureInPicture.requestWindow({ width:380, height: hasTimer ? 680 : 520 });
+    pipMode = mode === "crawl" ? "crawl" : "notes";
+    try { localStorage.setItem("floatle.pipMode", pipMode); } catch(e){}
+    const size = pipMode === "crawl" ? PIP_SIZE.crawl() : { width:380, height: hasTimer ? 680 : 520 };
+    pipWin = await window.documentPictureInPicture.requestWindow(size);
   } catch(e){
     toast("Your browser blocked the floating window here. Open this page in its own tab and try Float again.");
     return;
@@ -3487,6 +3528,7 @@ $("pipBtn").addEventListener("click", async () => {
       <button data-pact="bigger" title="Bigger text (Ctrl +)" aria-label="Bigger text" style="font-size:1.2rem">A+</button>
       <span class="pip-sep" aria-hidden="true"></span>
       <button data-pact="undo" id="pipUndo" title="Undo (Ctrl+Z)" aria-label="Undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+      <button data-pact="mode" id="pipModeBtn" class="pip-mode" hidden></button>
       <button data-pact="close" class="pip-close" title="Close the Float window" aria-label="Close the Float window">${ICON.x}</button>
     </div>`;
   d.addEventListener("keydown", onUndoKey);
@@ -3508,6 +3550,7 @@ $("pipBtn").addEventListener("click", async () => {
       else if (a === "smaller") setPipScale(-1);
       else if (a === "bigger") setPipScale(1);
       else if (a === "close") pipWin.close();
+      else if (a === "mode") setPipMode(pipMode === "crawl" ? "notes" : "crawl", true);
       return;
     }
     const tpn = e.target.closest(".tpanel"); if (tpn){ panelClick(e, tpn, true); return; }
@@ -3521,9 +3564,12 @@ $("pipBtn").addEventListener("click", async () => {
   d.body.addEventListener("pointerup", pipPointerUp);
   d.body.addEventListener("pointercancel", pipPointerUp);
   pipWin.addEventListener("pagehide", () => { clearTimeout(pipIdleTimer); pipWin = null; pipDrag = null; pipRenderPending = false; });
+  // resizing the window: refill the crawler so the scrolling text covers the new width
+  pipWin.addEventListener("resize", () => { const pc = pipWin && pipWin.document.getElementById("pipCrawl"); if (pc) pc.dataset.sig = ""; renderPip(); });
   renderPip();
   pipWake();
-});
+  if (pipMode === "crawl") toast("Drag the crawler window to the bottom of your screen. Chrome usually remembers where you put it.");
+}
 
 /* Float window text size: per board, from 80% to 220% */
 const PIP_MIN = 0.8, PIP_MAX = 2.2;
@@ -3564,6 +3610,13 @@ function renderPip(){
   const scroll = root.scrollTop;
   const b = board();
   const pd = pipWin.document, scale = pipScaleOf(b);
+  pd.body.classList.toggle("pip-mode-crawl", pipMode === "crawl");
+  const mb = pd.getElementById("pipModeBtn");
+  if (mb){
+    mb.hidden = !(pipMode === "crawl" || crawlCanFloat());
+    mb.textContent = pipMode === "crawl" ? "Notes" : "Crawler";
+    mb.title = pipMode === "crawl" ? "Show this board's notes instead" : "Show only the screen crawler, as a wide strip";
+  }
   root.innerHTML = "";
   root.style.setProperty("--ps", scale);
   const pct = pd.getElementById("pipPct"); if (pct) pct.textContent = Math.round(scale * 100) + "%";
@@ -4447,7 +4500,7 @@ function crawlItems(b, where){
     if (n && L.mins) items.push({ tag: noteTag(n), live:"late", text: lateLine(L) });
     if (L.eta) items.push({ tag:"Arriving", text:"About " + clockText(L.eta) });
   }
-  if (c.on && c.where[where] !== false) items.push(...noteItems(b, c));
+  if (c.on && (where === "floatbar" || c.where[where] !== false)) items.push(...noteItems(b, c));
   return items;
 }
 function crawlMarkup(items){
@@ -4500,14 +4553,17 @@ function renderCrawl(){
 }
 function renderPipCrawl(pd, b){
   let pc = pd.getElementById("pipCrawl");
-  const items = crawlItems(b, "float");
+  const full = pipMode === "crawl";
+  let items = crawlItems(b, full ? "floatbar" : "float");
+  if (full && !items.length) items = [{ tag:"Floatle", text:"Nothing to show yet. Turn on the crawler in Settings and pick notes." }];
   if (!items.length){ if (pc){ stopCrawl(pc); pc.remove(); } return; }
   if (!pc){
     pc = pd.createElement("div"); pc.id = "pipCrawl"; pc.dataset.extra = "pip-crawl";
     pc.setAttribute("role", "marquee"); pc.setAttribute("aria-label", "Class announcements");
     pd.body.insertBefore(pc, pd.getElementById("pipBar"));
   }
-  fillCrawl(pc, b, items, "float");
+  pc.dataset.extra = full ? "pip-crawl pip-crawl-full" : "pip-crawl";
+  fillCrawl(pc, b, items, full ? "floatbar" : "float");
 }
 window.addEventListener("resize", () => { const el = $("crawl"); if (el) el.dataset.sig = ""; renderCrawl(); });
 
@@ -4636,6 +4692,10 @@ function renderCrawlSet(){
     </div>
     <div class="cw-sec"><h3>Speed</h3><div class="opt-row">${opt("speed", "slow", "Slow")}${opt("speed", "med", "Medium")}${opt("speed", "fast", "Fast")}</div></div>
     <div class="cw-sec"><h3>Style</h3><div class="opt-row">${Object.entries(CR_STYLES).map(([k, s]) => opt("style", k, s[0], `<span class="mini" style="background:${s[1]};border-top-color:${s[2]}" aria-hidden="true"></span>`)).join("")}</div></div>
+    <div class="cw-sec"><h3>Over slides and other windows</h3>
+      <p class="cw-help">Float the crawler as a strip that stays on top of PowerPoint, Google Slides, videos and other apps. Works in Chrome or Edge on a computer.</p>
+      <div><button type="button" class="btn" data-c="float">Float the crawler</button></div>
+    </div>
     <div class="cw-sec"><h3>Show the crawler in</h3>
       <label class="cw-check"><input type="checkbox" data-c="where" value="present" ${c.where.present ? "checked" : ""}>Present mode</label>
       <label class="cw-check"><input type="checkbox" data-c="where" value="float" ${c.where.float ? "checked" : ""}>The Float window</label>
@@ -4662,6 +4722,7 @@ $("crawlWrap").addEventListener("click", e => {
   const btn = e.target.closest("button[data-c]"); if (!btn) return;
   const b = board(), c = crawlEdit(b), f = btn.dataset.c, v = btn.dataset.v;
   if (f === "add"){ addCrawlMsg(); return; }
+  if (f === "float"){ if (!c.on){ c.on = true; save(); } closeCrawlSet(); openPip("crawl"); return; }
   if (f === "delmsg"){ c.msgs = c.msgs.filter((_, i) => i !== +v); crawlChanged("#crMsg"); return; }
   if (f === "motion" || f === "speed" || f === "style"){ c[f] = v; crawlChanged(`[data-c="${f}"][data-v="${v}"]`); }
 });
