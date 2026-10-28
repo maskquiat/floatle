@@ -105,11 +105,11 @@ body.tabs-tight:not(.present) .date{display:none}
 
 /* ---------- board ---------- */
 .board{position:relative;z-index:0;isolation:isolate;flex:1 1 auto;overflow:hidden;--u:12px}
-.board.bg-slate{background-color:#1E2A35;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:28px 28px}
-.board.bg-white{background-color:#F1F3F4;background-image:radial-gradient(rgba(0,0,0,.07) 1px,transparent 1px);background-size:28px 28px}
-.board.bg-cork{background-color:#BF956A;background-image:radial-gradient(rgba(90,50,20,.25) 1px,transparent 1.5px),radial-gradient(rgba(255,235,200,.25) 1px,transparent 1.5px);background-size:9px 9px,13px 13px;background-position:0 0,4px 6px}
-.board.bg-green{background-color:#23392F;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:28px 28px}
-.board.bg-pond{background-color:#173A55;background-image:url("assets/pond-bg.jpg"),radial-gradient(ellipse 70% 60% at 50% 45%,#1F5470 0%,#173A55 55%,#0F2033 100%);background-size:cover;background-position:center}
+.bg-slate{background-color:#1E2A35;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:28px 28px}
+.bg-white{background-color:#F1F3F4;background-image:radial-gradient(rgba(0,0,0,.07) 1px,transparent 1px);background-size:28px 28px}
+.bg-cork{background-color:#BF956A;background-image:radial-gradient(rgba(90,50,20,.25) 1px,transparent 1.5px),radial-gradient(rgba(255,235,200,.25) 1px,transparent 1.5px);background-size:9px 9px,13px 13px;background-position:0 0,4px 6px}
+.bg-green{background-color:#23392F;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:28px 28px}
+.bg-pond{background-color:#173A55;background-image:url("assets/pond-bg.jpg"),radial-gradient(ellipse 70% 60% at 50% 45%,#1F5470 0%,#173A55 55%,#0F2033 100%);background-size:cover;background-position:center}
 .empty{position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.75);text-align:center;padding:2rem;font-size:1.1rem}
 .bg-white .empty,.bg-cork .empty{color:rgba(0,0,0,.6)}
 
@@ -393,7 +393,6 @@ body.present.viewing #pipBtn{display:inline-flex !important}
 .menu .item-clock{flex:0 0 auto;width:2.5rem;height:2.5rem;border:0;border-radius:.5rem;background:#EFEBFB;color:#4B3A99;display:grid;place-items:center;padding:0}
 .menu .item-clock:hover{background:#E2DBF8}
 .menu .item-clock svg{width:1.25rem;height:1.25rem}
-.new-pill{font-size:.7rem;font-weight:700;padding:.05rem .45rem;border-radius:999px;background:#4B3A99;color:#fff;margin-left:.15rem}
 
 /* ---------- Timed note (tasks + minutes) ---------- */
 .tm-now{display:flex;align-items:center;gap:.45em;padding:.3em .4em;margin:0 0 .4em;border-radius:.5em;background:rgba(255,255,255,.6)}
@@ -828,6 +827,138 @@ body.present .late-chip{bottom:calc(clamp(3rem,7.5vh,5.5rem) + 1rem)}
   .late-layer.nospot .late-adult{width:auto}
   .late-chip{right:.5rem;left:.5rem}
 }
+
+/* ---------- Add note menu: sections ---------- */
+.menu .menu-sec{margin:.55rem .6rem .2rem;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.menu .menu-sec:first-child{margin-top:.2rem}
+.menu .item .ico.pen{color:#C63F77}
+
+/* ---------- backgrounds: colors, gradients, scenes, uploads, slideshow ---------- */
+.board.bg-light .empty{color:rgba(0,0,0,.62)}
+.board.bg-photo .empty{text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.bgfade{position:absolute;inset:0;z-index:-1;pointer-events:none;transition:opacity 1.4s ease}
+.bg-panel{max-width:50rem}
+.bg-tabs{display:flex;flex-wrap:wrap;gap:.3rem;margin:.7rem 0 .2rem}
+.bg-tabs button{border:1px solid var(--line);background:var(--chrome);color:var(--ink);border-radius:999px;padding:.45rem .9rem;font-weight:700;display:inline-flex;align-items:center;gap:.4rem;min-height:2.6rem}
+.bg-tabs button[aria-selected="true"]{background:var(--ink);color:var(--chrome);border-color:var(--ink)}
+.pro-tag{font-size:.65rem;font-weight:700;letter-spacing:.06em;padding:.1rem .4rem;border-radius:999px;background:#EFEBFB;color:#4B3A99}
+.bg-sec{margin:.9rem 0 .4rem;font-size:.85rem;font-weight:700;color:var(--muted)}
+.bg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(8.5rem,1fr));gap:.6rem}
+.bg-opt{position:relative;display:flex;flex-direction:column;gap:.3rem;border:0;background:none;padding:0;text-align:left;color:var(--ink);font-size:.85rem;font-weight:700}
+.bg-opt .th{display:block;width:100%;aspect-ratio:16/9;border-radius:.55rem;border:2px solid var(--line);background-size:cover;background-position:center;overflow:hidden}
+.bg-opt:hover .th{border-color:var(--muted)}
+.bg-opt[aria-pressed="true"] .th{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.bg-opt[aria-pressed="true"]::after{content:"";position:absolute;top:.4rem;right:.4rem;width:1.3rem;height:1.3rem;border-radius:50%;background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/70% no-repeat}
+.bg-opt .num{position:absolute;top:.4rem;left:.4rem;min-width:1.4rem;height:1.4rem;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:.75rem;display:grid;place-items:center;padding:0 .3rem}
+.bg-opt-wrap .del{position:absolute;top:.35rem;right:.35rem;width:1.9rem;height:1.9rem;border:0;border-radius:50%;background:rgba(27,37,48,.75);color:#fff;display:grid;place-items:center;padding:0}
+.bg-opt-wrap .del svg{width:.9rem;height:.9rem}
+.bg-colors{display:grid;grid-template-columns:repeat(auto-fill,minmax(3.2rem,1fr));gap:.5rem}
+.bg-colors .bg-opt .th{aspect-ratio:1}
+.bg-custom{display:flex;align-items:center;gap:.6rem;margin-top:.7rem;font-weight:700}
+.bg-custom input{width:3rem;height:2.4rem;border:1px solid var(--line);border-radius:.5rem;padding:.15rem;background:var(--chrome)}
+.bg-note{color:var(--muted);font-size:.88rem;line-height:1.45;margin:.5rem 0}
+.bg-up{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.3rem;aspect-ratio:16/9;border:2px dashed var(--line);border-radius:.55rem;background:var(--chrome-2);color:var(--ink);font-weight:700;padding:.5rem;text-align:center}
+.bg-up small{font-weight:400;color:var(--muted)}
+.bg-up:hover{border-color:var(--muted)}
+.bg-row-act{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.6rem 0}
+.bg-row-act select{font:inherit;padding:.5rem .6rem;border:1px solid var(--line);border-radius:.5rem;background:var(--chrome-2);color:var(--ink);min-height:2.6rem}
+.bg-link{display:flex;gap:.5rem;margin:.6rem 0}
+.bg-link input{flex:1 1 auto;min-width:0;font:inherit;padding:.6rem .7rem;border:1px solid var(--line);border-radius:.55rem;background:var(--chrome-2);color:var(--ink);min-height:2.75rem}
+.bg-cur{display:flex;align-items:center;gap:.7rem;padding:.7rem .85rem;border-radius:.7rem;background:var(--chrome-2);border:1px solid var(--line);margin:.6rem 0;flex-wrap:wrap}
+.bg-cur b{flex:1 1 12rem;min-width:0;overflow-wrap:anywhere}
+.bg-err{color:var(--danger);font-weight:700;min-height:1.2em;margin:.2rem 0}
+
+/* ---------- slides or a video filling the whole board (notes float on top) ---------- */
+.backdrop{position:absolute;inset:0;z-index:0;background:#000}
+.backdrop iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.bd-chip{position:absolute;top:.6rem;left:50%;transform:translateX(-50%);z-index:99980;display:flex;align-items:center;gap:.25rem;padding:.25rem .3rem .25rem .8rem;border-radius:999px;background:rgba(16,32,46,.88);color:#fff;font-size:.85rem;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.35);white-space:nowrap;max-width:calc(100% - 1.5rem)}
+.bd-chip span{overflow:hidden;text-overflow:ellipsis}
+.bd-chip button{border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:999px;padding:.35rem .7rem;font:inherit;font-weight:700}
+.bd-chip button:hover{background:rgba(255,255,255,.26)}
+body.present .bd-chip,body.viewing .bd-chip{display:none}
+
+/* ---------- Embed notes: slides, video, music, websites ---------- */
+.kind-embed .note-body{display:flex;flex-direction:column;padding:.3em;overflow:hidden;min-height:0}
+.emb{position:relative;flex:1 1 auto;min-height:0;border-radius:6px;overflow:hidden;background:#10161C}
+.emb iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:transparent}
+.emb.audio{background:transparent}
+.emb-empty{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;gap:.6em;border:2px dashed rgba(0,0,0,.28);border-radius:8px;padding:.7em .8em;font-size:max(13px,.45em);line-height:1.35;overflow:auto}
+.emb-empty b{font-size:1.15em}
+.emb-form{display:flex;gap:.4em}
+.emb-in,.lk-in{flex:1 1 auto;min-width:0;font:inherit;padding:.5em .7em;border:2px solid rgba(0,0,0,.25);border-radius:.55em;background:#fff;color:#1D1A14}
+.emb-in:focus,.lk-in:focus{outline:none;border-color:#1D1A14}
+.emb-hint{opacity:.72;font-size:.92em}
+.emb-err{color:#A3271A;font-weight:700;min-height:1em;font-size:.95em}
+.emb-err:empty{display:none}
+.emb-card{flex:1 1 auto;display:flex;flex-direction:column;align-items:flex-start;gap:.4em;font-size:.7em;padding:.3em}
+.emb-card .doc-sub{opacity:.75}
+@media (max-width:700px){
+  .kind-embed .note-body{display:block}
+  .emb{aspect-ratio:16/9}
+  .emb.audio{aspect-ratio:auto;height:160px}
+}
+
+/* ---------- Links notes ---------- */
+.kind-links .note-body{display:flex;flex-direction:column;gap:.35em}
+.lk-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.3em}
+.lk{display:flex;align-items:center;gap:.5em;padding:.35em .5em;border-radius:.5em;background:rgba(255,255,255,.7);color:inherit;text-decoration:none;min-width:0;font-size:.8em}
+.lk:hover{background:#fff}
+.lk-ico{width:1.4em;height:1.4em;flex:0 0 auto;border-radius:.3em;object-fit:contain}
+.lk-glyph{width:1.4em;height:1.4em;flex:0 0 auto;display:grid;place-items:center;opacity:.6}
+.lk-glyph svg{width:1.1em;height:1.1em}
+.lk-t{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;line-height:1.2}
+.lk-t b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lk-t small{font-size:.65em;opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lk-go{flex:0 0 auto;width:1.8em;height:1.8em;border-radius:50%;background:#1D1A14;color:#fff;display:grid;place-items:center}
+.lk-go svg{width:.9em;height:.9em}
+.lk-edit{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.35em;font-size:max(12px,.55em)}
+.lk-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.3em;background:rgba(255,255,255,.6);border-radius:.5em;padding:.4em}
+.lk-fields{display:flex;flex-direction:column;gap:.3em;min-width:0}
+.lk-row .lk-in{padding:.4em .55em;border-width:1px}
+.lk-row .lk-in.t{font-weight:700}
+.lk-btns{display:flex;flex-direction:column;gap:.15em}
+.lk-btns button{border:0;background:none;width:2em;height:2em;border-radius:.35em;display:grid;place-items:center;padding:0;opacity:.7}
+.lk-btns button:hover{opacity:1;background:rgba(0,0,0,.08)}
+.lk-btns button:disabled{opacity:.2}
+.lk-btns svg{width:1em;height:1em}
+.lk-bar{display:flex;align-items:center;flex-wrap:wrap;gap:.5em;font-size:max(12px,.42em)}
+.lk-bar label{display:flex;align-items:center;gap:.35em;margin-right:auto}
+.lk-bar .doc-btn{flex:0 0 auto}
+.lk-empty{flex:1 1 auto;display:grid;place-items:center;text-align:center;font-size:.7em;opacity:.7}
+
+/* ---------- drawing: Draw notes and drawing right on the board ---------- */
+.kind-draw .note-body{display:flex;flex-direction:column;gap:.3em;padding:.3em .4em .45em;overflow:hidden;container-type:inline-size}
+.dp{position:relative;flex:1 1 auto;min-height:0;border-radius:6px;overflow:hidden;touch-action:none;background-color:rgba(255,255,255,.55);cursor:crosshair}
+.dp svg,.ink svg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:hidden}
+.dp.paper-lined{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(6cqw - 1.5px),rgba(30,91,184,.28) calc(6cqw - 1.5px),rgba(30,91,184,.28) 6cqw)}
+.dp.paper-graph{background-image:linear-gradient(rgba(30,91,184,.2) 1px,transparent 1px),linear-gradient(90deg,rgba(30,91,184,.2) 1px,transparent 1px);background-size:4cqw 4cqw}
+.dp.paper-dots{background-image:radial-gradient(rgba(0,0,0,.32) 1.4px,transparent 1.6px);background-size:4cqw 4cqw}
+.dp.paper-chalk{background-color:#23392F}
+.dp.ro{cursor:default}
+.dt{display:flex;align-items:center;flex-wrap:wrap;gap:.2rem;font-size:max(12px,calc(var(--u) * .95));line-height:1}
+.dt button{border:0;background:rgba(255,255,255,.75);color:#1D1A14;min-width:2.1em;height:2.1em;border-radius:.45em;display:inline-grid;place-items:center;padding:0 .3em;font:inherit;font-weight:700}
+.dt button:hover{background:#fff}
+.dt button[aria-pressed="true"]{background:#1D1A14;color:#fff}
+.dt button svg{width:1.15em;height:1.15em}
+.dt .sw{width:1.55em;min-width:1.55em;height:1.55em;border-radius:50%;border:2px solid rgba(0,0,0,.2);padding:0}
+.dt .sw[aria-pressed="true"]{box-shadow:0 0 0 2px #fff,0 0 0 4px #1D1A14;background:inherit}
+.dt .sz i{display:block;border-radius:50%;background:currentColor}
+.dt .sep{width:1px;align-self:stretch;margin:.15em .2em;background:rgba(0,0,0,.18)}
+.pip .dt,body.viewing .kind-draw .dt{display:none}
+.pip .dp{min-height:8em;cursor:default}
+@media (max-width:700px){ .dp{min-height:14em;flex:0 0 auto} }
+.ink{position:absolute;inset:0;z-index:99990;pointer-events:none}
+.ink.on{pointer-events:auto;cursor:crosshair;touch-action:none;background:rgba(255,255,255,.02)}
+.ink path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ink-bar{position:fixed;left:50%;bottom:calc(1rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:2450;display:none;align-items:center;gap:.25rem;padding:.4rem .5rem;border-radius:1rem;background:var(--chrome);color:var(--ink);border:1px solid var(--line);box-shadow:0 12px 30px rgba(0,0,0,.35);font-size:16px;max-width:calc(100vw - 1rem);overflow-x:auto}
+.ink-bar.show{display:flex}
+.ink-bar .dt{font-size:16px;flex-wrap:nowrap}
+.ink-bar .dt button{background:var(--chrome-2);color:var(--ink)}
+.ink-bar .dt button[aria-pressed="true"]{background:var(--ink);color:var(--chrome)}
+.ink-bar .ink-done{background:var(--accent) !important;color:var(--accent-ink) !important;padding:0 .9em !important}
+.draw-btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+body.viewing .draw-btn{display:none !important}
+@media (max-width:700px){ .draw-btn,.ink{display:none !important} }
 </style>
 </head>
 <body>
@@ -852,6 +983,9 @@ body.present .late-chip{bottom:calc(clamp(3rem,7.5vh,5.5rem) + 1rem)}
   </button>
   <button class="btn icon edit-only" id="redoBtn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" disabled>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>
+  </button>
+  <button class="btn draw-btn" id="drawBtn" aria-label="Draw on the board" aria-pressed="false" title="Draw on the board (pen, highlighter, eraser)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c2.5-.4 4-1.5 4.6-3.2"/><path d="M14.5 5.5l4 4L9 19l-4.6.6L5 15z"/><path d="M13 7l4 4"/></svg><span class="lbl">Draw</span>
   </button>
   <button class="btn edit-only" id="pipBtn" aria-label="Float" title="Open a small always-on-top window">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="5" rx="1" fill="currentColor"/></svg><span class="lbl">Float</span>
@@ -1011,6 +1145,14 @@ body.present .late-chip{bottom:calc(clamp(3rem,7.5vh,5.5rem) + 1rem)}
   <button type="button" class="go" id="upNextGo">Switch now</button>
   <button type="button" id="upNextStay">Stay here</button>
 </div>
+<div class="trash-wrap" id="bgWrap" hidden>
+  <div class="trash-panel bg-panel" role="dialog" aria-modal="true" aria-labelledby="bgTitle">
+    <div class="trash-head"><h2 id="bgTitle">Background</h2><button class="btn" id="bgClose">Done</button></div>
+    <div id="bgBody"></div>
+  </div>
+</div>
+<div class="ink-bar" id="inkBar" role="toolbar" aria-label="Drawing tools"></div>
+<input type="file" id="bgFile" accept="image/*" hidden>
 <input type="file" id="importFile" accept=".json,application/json" hidden>
 <input type="file" id="imgFile" accept="image/*" hidden>
 <input type="file" id="docFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.gif,.webp" hidden>
@@ -1032,35 +1174,25 @@ const BGS = { pond:"Koi pond", slate:"Slate", green:"Chalkboard", white:"Whitebo
 const BG_SWATCH = { pond:"#1F5470", slate:"#1E2A35", green:"#23392F", white:"#F1F3F4", cork:"#BF956A" };
 const uid = () => Math.random().toString(36).slice(2,10);
 
+/* g = the section of the Add note menu it's listed in (MENU_GROUPS, below the list) */
 const TYPES = {
   objective:{ label:"Objective", kind:"text", color:"lemon", w:44, h:24, text:"" },
   agenda:{ label:"Agenda", kind:"list", color:"sky", w:30, h:44, items:["Do Now",""] },
   homework:{ label:"Homework", kind:"text", color:"rose", w:30, h:26, text:"" },
   reminder:{ label:"Reminder", kind:"text", color:"tangerine", w:26, h:20, text:"" },
   list:{ label:"Checklist", kind:"list", color:"mint", w:28, h:32, items:[""] },
-  timed:{ label:"Timed", kind:"timed", color:"lilac", w:32, h:50, tasks:[["",10]] },
   materials:{ label:"Materials", kind:"materials", color:"paper", w:34, h:52 },
-  image:{ label:"Image or slide", title:"Image", kind:"image", color:"paper", w:44, h:46 },
-  flashcards:{ label:"Flashcards", kind:"cards", color:"sky", w:40, h:54 },
-  dictionary:{ label:"Dictionary", kind:"dict", color:"paper", w:30, h:58 },
-  document:{ label:"Document", kind:"doc", color:"paper", w:30, h:34 },
-  note:{ label:"Blank note", kind:"text", color:"paper", w:26, h:22, text:"" }
+  note:{ label:"Blank note", kind:"text", color:"paper", w:26, h:22, text:"" },
+  timed:{ label:"Timed", kind:"timed", color:"lilac", w:32, h:50, tasks:[["",10]], g:"tools" },
+  flashcards:{ label:"Flashcards", kind:"cards", color:"sky", w:40, h:54, g:"tools" },
+  dictionary:{ label:"Dictionary", kind:"dict", color:"paper", w:30, h:58, g:"tools" },
+  draw:{ label:"Draw", kind:"draw", color:"paper", w:36, h:46, g:"tools" },
+  image:{ label:"Image or slide", title:"Image", kind:"image", color:"paper", w:44, h:46, g:"media" },
+  document:{ label:"Document", kind:"doc", color:"paper", w:30, h:34, g:"media" },
+  embed:{ label:"Embed slides or video", title:"Embed", kind:"embed", color:"paper", w:46, h:54, g:"media" },
+  links:{ label:"Links", kind:"links", color:"sky", w:30, h:40, g:"media" }
 };
-/* "New" labels in the Add note menu. Each one goes away on its own: on the date below, or as soon
-   as this teacher adds one of that kind, whichever comes first. To label a future note type, add
-   it here with a date about a month after it ships. */
-const NEW_UNTIL = { timed:"2026-11-01", image:"2026-11-01", flashcards:"2026-11-15", dictionary:"2026-11-15", document:"2026-11-15", materials:"2026-12-01" };
-const TRIED_KEY = "floatle.triedTypes";
-function triedTypes(){ try { return JSON.parse(localStorage.getItem(TRIED_KEY)) || []; } catch(e){ return []; } }
-function markTried(type){
-  if (!NEW_UNTIL[type]) return;
-  const t = triedTypes(); if (t.includes(type)) return;
-  t.push(type); try { localStorage.setItem(TRIED_KEY, JSON.stringify(t)); } catch(e){}
-}
-function isNew(type){
-  const until = NEW_UNTIL[type];
-  return !!until && Date.now() < new Date(until + "T23:59:59").getTime() && !triedTypes().includes(type);
-}
+const MENU_GROUPS = [["notes","Notes"], ["tools","Tools"], ["media","Media and links"]];
 const PH = { objective:"What you want to get done today", homework:"What's due and when", reminder:"Something you don't want to forget", note:"Type here" };
 
 function makeNote(type, pos){
@@ -1079,6 +1211,9 @@ function makeNote(type, pos){
   else if (t.kind === "dict"){ n.word = ""; n.dict = null; }
   else if (t.kind === "doc") n.doc = null;   // { path, name, ext, size } once a file is attached
   else if (t.kind === "materials") n.mats = [];   // [{ k:"pencil", l:"Pencil" }], in the order they were picked
+  else if (t.kind === "draw") n.draw = { paper:"blank", strokes:[] };
+  else if (t.kind === "embed") n.embed = null;    // { prov, src, open, raw } once a link is added
+  else if (t.kind === "links") n.links = [];      // [{ id, t, u }], up to 10
   else n.text = t.text;
   return n;
 }
@@ -1395,6 +1530,12 @@ const firstLine = n => n.kind === "list"
   ? (n.doc && n.doc.name ? n.doc.name : "No file yet")
   : n.kind === "materials"
   ? ((n.mats || []).map(matLabel).join(", ") || "No materials yet")
+  : n.kind === "draw"
+  ? (n.draw && n.draw.strokes && n.draw.strokes.length ? "Drawing" : "Blank drawing")
+  : n.kind === "embed"
+  ? (n.embed ? n.embed.prov + " · " + hostOf(n.embed.open) : "Nothing to show yet")
+  : n.kind === "links"
+  ? ((n.links || []).filter(l => normURL(l.u)).map(linkName).join(", ") || "No links yet")
   : (n.text || "").split("\n").find(l => l.trim()) || "";
 
 /* ---------- Timed notes: tasks with minutes + a linked timer ----------
@@ -2054,7 +2195,7 @@ async function attachDoc(file, opts){
     if (!canAddDoc(b)){ docLimitToast(); return; }
     const k = b.notes.length % 6;
     n = makeNote("document", opts.pos || { x: 6 + k * 5, y: 8 + k * 6 });
-    markTried("document"); renderAddMenu();
+    
     b.notes.push(n);
     boardEl.querySelector(".empty")?.remove();
     save();
@@ -2181,6 +2322,9 @@ function noteHTML(n, forPip){
     : n.kind === "dict" ? dictBodyHTML(n, forPip)
     : n.kind === "doc" ? docBodyHTML(n, forPip)
     : n.kind === "materials" ? matsBodyHTML(n, ed, forPip)
+    : n.kind === "draw" ? drawBodyHTML(n, forPip)
+    : n.kind === "embed" ? embBodyHTML(n, forPip)
+    : n.kind === "links" ? linksBodyHTML(n, forPip)
     : `<div class="note-text rich${n.ps ? " ps" : ""}" contenteditable="${forPip ? "false" : richEditableAttr()}"${n.ls ? ` style="line-height:${+n.ls}"` : ""} data-ph="${esc(PH[n.type]||"Type here")}">${richBody(n)}</div>`;
   const img = n.kind === "image";
   return `<header class="note-head">${ICON.grip}<img class="koi-tag" src="${KOI_TAG}" alt="" aria-hidden="true" draggable="false">
@@ -2193,6 +2337,8 @@ function noteHTML(n, forPip){
         <button class="tool t-edit" data-act="smaller" title="Make picture smaller" aria-label="Make picture smaller">${ICON.smaller}</button>
         <button class="tool t-edit" data-act="bigger" title="Make picture bigger" aria-label="Make picture bigger">${ICON.bigger}</button>
         <button class="tool" data-act="zoom" title="Show full screen" aria-label="Show image full screen">${ICON.enlarge}</button>` : "")
+        : n.kind === "embed" ? embTools(n)
+        : n.kind === "draw" ? ""
         : `<button class="tool t-edit" data-act="smaller" title="Smaller text" aria-label="Smaller text">${ICON.smaller}</button>
         <button class="tool t-edit" data-act="bigger" title="Bigger text" aria-label="Bigger text">${ICON.bigger}</button>`}
         ${n.kind === "timed" ? `<button class="tool t-timer" data-act="ttimer" title="${n.tp && n.tp.open ? "Hide timer" : "Show timer"}" aria-label="${n.tp && n.tp.open ? "Hide timer" : "Show timer"}">${ICON.clock}</button>` : ""}
@@ -2205,8 +2351,9 @@ function noteHTML(n, forPip){
 }
 /* Image notes have no text-size buttons (their A− / A+ resize the picture), so their title bar follows
    the other notes on the board: the typical text size there, made smaller as the image note gets smaller. */
+const SIZED = new Set(["image", "embed", "draw"]);   // notes without text-size buttons
 function imgHeadScale(n, b){
-  const ss = (b || board()).notes.filter(x => x.kind !== "image").map(x => +x.s || 1).sort((a, c) => a - c);
+  const ss = (b || board()).notes.filter(x => !SIZED.has(x.kind)).map(x => +x.s || 1).sort((a, c) => a - c);
   const typical = ss.length ? ss[Math.floor((ss.length - 1) / 2)] : 1;
   const bySize = clamp((+n.w || 30) / 40, 0.6, 1);
   return +(typical * bySize).toFixed(3);
@@ -2214,7 +2361,7 @@ function imgHeadScale(n, b){
 function refreshImgHeads(){
   if (!state) return;
   const b = board();
-  boardEl.querySelectorAll(".note.kind-image").forEach(el => {
+  boardEl.querySelectorAll(".note.kind-image, .note.kind-embed, .note.kind-draw").forEach(el => {
     const n = b.notes.find(x => x.id === el.dataset.id); if (!n) return;
     const v = String(imgHeadScale(n, b));
     if (el.style.getPropertyValue("--s") !== v) el.style.setProperty("--s", v);
@@ -2224,14 +2371,24 @@ function noteEl(n, forPip){
   const el = document.createElement("article");
   el.className = "note kind-" + (n.kind || "text") + (n.min ? " is-min" : "");
   el.dataset.id = n.id;
-  el.style.cssText = `left:${n.x}%;top:${n.y}%;width:${n.w}%;height:${n.h}%;z-index:${n.z||1};--paper:${COLORS[n.color]||COLORS.lemon};--s:${n.kind === "image" && !forPip ? imgHeadScale(n) : (n.s||1)}`;
+  el.style.cssText = `left:${n.x}%;top:${n.y}%;width:${n.w}%;height:${n.h}%;z-index:${n.z||1};--paper:${COLORS[n.color]||COLORS.lemon};--s:${SIZED.has(n.kind) && !forPip ? imgHeadScale(n) : (n.s||1)}`;
   el.setAttribute("aria-label", n.title || "Note");
   el.innerHTML = noteHTML(n, forPip);
+  const live = !forPip && el.querySelector(".emb iframe");
+  if (live) el.dataset.live = live.getAttribute("src");   // an embedded video or deck, kept playing when redrawn
   return el;
+}
+/* redraw a note around its embedded page without reloading it (a reloaded video starts over) */
+function patchLive(old, el){
+  old.className = el.className;
+  old.style.cssText = el.style.cssText;
+  old.setAttribute("aria-label", el.getAttribute("aria-label"));
+  old.querySelector(".note-head").replaceWith(el.querySelector(".note-head"));
 }
 function renderNote(n){
   const old = boardEl.querySelector(`.note[data-id="${n.id}"]`);
   const el = noteEl(n);
+  if (old && el.dataset.live && old.dataset.live === el.dataset.live){ patchLive(old, el); return old; }
   if (old) old.replaceWith(el); else boardEl.appendChild(el);
   if (n.kind === "timed") tickTimed();
   return el;
@@ -2291,27 +2448,60 @@ tabsEl.addEventListener("wheel", e => {
 new ResizeObserver(updateTabArrows).observe(tabsEl);
 function renderBoard(){
   const b = board();
-  boardEl.className = "board bg-" + (BGS[b.bg] ? b.bg : "slate");
-  boardEl.innerHTML = "";
-  if (!b.notes.length){
-    boardEl.innerHTML = viewing
-      ? `<div class="empty">${viewMsg || "<div>This board is empty.</div>"}</div>`
-      : `<div class="empty"><div>This board is empty.<br>${presenting ? "Choose Edit board to add notes." : "Use Add note to post your first note."}</div></div>`;
+  boardEl.className = "board";
+  paintBg(false);
+  // Embedded videos and slides (in notes, or filling the board) keep playing while the board redraws:
+  // their elements stay where they are and only their title bars are rebuilt. Everything else is redrawn.
+  const keep = new Map();
+  [...boardEl.children].forEach(c => {
+    if (c.dataset && c.dataset.live && (c.classList.contains("note") || c.classList.contains("backdrop")))
+      keep.set((c.classList.contains("backdrop") ? "bd" : c.dataset.id) + "|" + c.dataset.live, c);
+    else c.remove();
+  });
+  const bd = b.backdrop && safeURL(b.backdrop.src) ? b.backdrop : null;
+  if (bd){
+    const k = "bd|" + frameSrc(bd);
+    if (keep.has(k)) keep.delete(k);
+    else {
+      const el = document.createElement("div");
+      el.className = "backdrop"; el.dataset.live = frameSrc(bd);
+      el.innerHTML = embFrame(bd, bd.title);
+      boardEl.insertBefore(el, boardEl.firstChild);
+    }
+    if (!presenting && !viewing) boardEl.insertAdjacentHTML("beforeend",
+      `<div class="bd-chip edit-only" role="group" aria-label="Board background"><span>${esc(bd.prov)} fills this board</span><button data-bd="bg">Change</button><button data-bd="note">Make it a note</button><button data-bd="remove">Remove</button></div>`);
   }
-  b.notes.forEach(n => boardEl.appendChild(noteEl(n)));
+  if (!b.notes.length && !bd){
+    boardEl.insertAdjacentHTML("beforeend", viewing
+      ? `<div class="empty">${viewMsg || "<div>This board is empty.</div>"}</div>`
+      : `<div class="empty"><div>This board is empty.<br>${presenting ? "Choose Edit board to add notes." : "Use Add note to post your first note."}</div></div>`);
+  }
+  b.notes.forEach(n => {
+    const el = noteEl(n), k = n.id + "|" + (el.dataset.live || ""), old = el.dataset.live && keep.get(k);
+    if (old){ keep.delete(k); patchLive(old, el); }
+    else boardEl.appendChild(el);
+  });
+  keep.forEach(el => el.remove());
+  renderInkLayer();
   renderPanels();
   if (CRAWL_READY){ renderLateLayer(); renderCrawl(); }
   sizeUnit();
 }
 function renderAddMenu(){
-  $("addMenu").innerHTML = Object.entries(TYPES).map(([k,t]) => {
-    const ico = { image:ICON.image, cards:ICON.cards, dict:ICON.book, doc:ICON.file, materials:ICON.bag }[t.kind];
+  const item = ([k, t]) => {
+    const ico = { image:ICON.image, cards:ICON.cards, dict:ICON.book, doc:ICON.file, materials:ICON.bag, draw:ICON.pencil, embed:ICON.screen, links:ICON.link }[t.kind];
     const mark = ico ? `<span class="ico">${ico}</span>` : `<span class="swatch" style="background:${COLORS[t.color]}"></span>`;
-    const main = `<button class="item" role="menuitem" data-type="${k}">${mark}${t.label}${isNew(k) ? '<span class="new-pill">New</span>' : ""}</button>`;
+    const main = `<button class="item" role="menuitem" data-type="${k}">${mark}${t.label}</button>`;
     if (k !== "timed") return main;
     // the clock button adds a Timed note and opens its timer beside it
     return `<div class="item-row">${main}<button class="item-clock" role="menuitem" data-type="timed" data-timer="1" title="Add a Timed note with its timer" aria-label="Add a Timed note with its timer">${ICON.clock}</button></div>`;
-  }).join("");
+  };
+  // grouped into sections, so the menu stays easy to scan as more kinds of notes are added
+  $("addMenu").innerHTML = MENU_GROUPS.map(([g, title]) =>
+    `<div class="menu-sec" role="presentation">${title}</div>`
+    + Object.entries(TYPES).filter(([, t]) => (t.g || "notes") === g).map(item).join("")
+    + (g === "tools" ? `<button class="item draw-btn" role="menuitem" data-ink="1"><span class="ico pen">${ICON.pen}</span>Draw on the board</button>` : "")
+  ).join("");
 }
 function renderSettings(){
   const b = board();
@@ -2319,13 +2509,15 @@ function renderSettings(){
     <label for="className">Board name</label>
     <div style="padding:0 .6rem .4rem"><input type="text" id="className" value="${esc(b.name)}" maxlength="40"></div>
     <h3>Background</h3>
-    <div class="bg-row">${Object.keys(BGS).map(k => `<button data-bg="${k}" aria-pressed="${b.bg===k}" title="${BGS[k]}" aria-label="${BGS[k]}" style="background:${BG_SWATCH[k]}"></button>`).join("")}</div>
+    <div class="bg-row">${Object.keys(BGS).map(k => `<button data-bg="${k}" aria-pressed="${b.bg===k && !showOf(b) && !b.backdrop}" title="${BGS[k]}" aria-label="${BGS[k]}" style="background:${BG_SWATCH[k]}"></button>`).join("")}</div>
+    <button class="item" data-set="bg"><span class="ico">${ICON.palette}</span>More backgrounds${b.backdrop ? " &bull; " + esc(b.backdrop.prov) : showOf(b) ? " &bull; slideshow" : BGS[b.bg] ? "" : " &bull; " + esc(bgInfo(b.bg).name)}</button>
     <hr>
     <button class="item" data-set="share">Share with a sub (link + QR code)${b.shareCode ? " &bull; on" : ""}</button>
     ${sb && userId ? `<button class="item" data-set="reports">Sub reports${reports.length && unreadCount() ? " (" + unreadCount() + " new)" : ""}</button>` : ""}
     <button class="item" data-set="sched">Schedule boards by class period${b.sched && b.sched.on ? " &bull; " + fmtTime(b.sched.t) : ""}</button>
     <button class="item" data-set="crawl">Screen crawler (bottom ticker)${CRAWL_READY && crawlCfg(b).on ? " &bull; on" : ""}</button>
     <button class="item" data-set="late">Running late? Start class without me${lateActive(b) ? " &bull; on" : ""}</button>
+    ${b.ink && b.ink.length ? `<button class="item" data-set="inkclear">Clear the drawing on this board</button>` : ""}
     <button class="item" data-set="dup">Duplicate this board</button>
     <button class="item" data-set="expand">Expand all notes</button>
     <button class="item" data-set="collapse">Minimize all notes</button>
@@ -2400,12 +2592,15 @@ document.addEventListener("keydown", e => {
     if (!$("schedWrap").hidden){ closeSched(); return; }
     if (!$("crawlWrap").hidden){ closeCrawlSet(); return; }
     if (!$("lateWrap").hidden){ closeLate(); return; }
+    if (!$("bgWrap").hidden){ closeBg(); return; }
     if (document.querySelector(".menu.open")){ closeMenus(); return; }
+    if (inkMode){ setInk(false); return; }
     if (presenting && !viewing) setPresent(false);
   }
 });
 
 $("addMenu").addEventListener("click", e => {
+  if (e.target.closest("[data-ink]")){ toggleMenu($("addBtn"), $("addMenu"), false); setInk(true); return; }
   const btn = e.target.closest("[data-type]"); if (!btn) return;
   const b = board();
   if (btn.dataset.type === "document"){
@@ -2415,11 +2610,10 @@ $("addMenu").addEventListener("click", e => {
   }
   const k = b.notes.length % 6;
   const n = makeNote(btn.dataset.type, { x: 6 + k*5, y: 8 + k*6 });
-  markTried(btn.dataset.type);
-  renderAddMenu();   // its "New" label is gone next time the menu opens
   b.notes.push(n);
   if (b.notes.length === 1) boardEl.innerHTML = "";
   if (n.kind === "materials") matPick.add(n.id);   // open the picker right away
+  if (n.kind === "links"){ linkEdit.add(n.id); n.links.push({ id:uid(), t:"", u:"" }); }
   const el = renderNote(n);
   if (n.kind === "timed" && btn.dataset.timer){ openPanelState(n); renderPanel(n); renderNote(n); }
   save();
@@ -2430,6 +2624,9 @@ $("addMenu").addEventListener("click", e => {
     return;
   }
   if (n.kind === "materials"){ el.querySelector(".mat-opt")?.focus(); return; }
+  if (n.kind === "embed"){ el.querySelector(".emb-in")?.focus(); return; }
+  if (n.kind === "links"){ el.querySelector('.lk-in[data-lf="u"]')?.focus(); return; }
+  if (n.kind === "draw") return;
   if (n.kind === "image"){
     imgTarget = n.id;   // the next paste fills this note
     toast(narrow() || matchMedia("(pointer:coarse)").matches
@@ -2452,7 +2649,10 @@ $("setMenu").addEventListener("input", e => {
 $("setMenu").addEventListener("click", e => {
   const b = board();
   const bg = e.target.closest("[data-bg]");
-  if (bg){ b.bg = bg.dataset.bg; boardEl.className = "board bg-" + b.bg; renderSettings(); save(); return; }
+  if (bg){
+    if (b.backdrop){ toast(b.backdrop.prov + " is covering the background. Remove it from the board to see this one.", () => openBg("slides"), "Show me"); }
+    setBg(bg.dataset.bg); renderSettings(); return;
+  }
   const act = e.target.closest("[data-set]")?.dataset.set; if (!act) return;
   if (act === "signout"){ toggleMenu($("setBtn"), $("setMenu"), false); signOut(); return; }
   if (act === "signin"){ toggleMenu($("setBtn"), $("setMenu"), false); try { localStorage.removeItem("swbats.skipLogin"); } catch(e){} showAuth("signin"); return; }
@@ -2469,6 +2669,8 @@ $("setMenu").addEventListener("click", e => {
     toggleMenu($("setBtn"), $("setMenu"), false); return;
   }
   if (act === "trash"){ toggleMenu($("setBtn"), $("setMenu"), false); openTrash(); return; }
+  if (act === "bg"){ toggleMenu($("setBtn"), $("setMenu"), false); openBg(b.backdrop ? "slides" : null); return; }
+  if (act === "inkclear"){ toggleMenu($("setBtn"), $("setMenu"), false); b.ink = []; save(); renderInkLayer(); toast("Drawing cleared from " + b.name + ".", undo); return; }
   if (act === "share"){ toggleMenu($("setBtn"), $("setMenu"), false); openShare(); return; }
   if (act === "sched"){ toggleMenu($("setBtn"), $("setMenu"), false); openSched(); return; }
   if (act === "crawl"){ toggleMenu($("setBtn"), $("setMenu"), false); openCrawlSet(); return; }
@@ -2564,6 +2766,9 @@ function handleNoteAction(n, e, noteNode, inPip){
   if (n.kind === "dict" && DICT_ACTS.has(act)){ dictAct(n, act, btn, noteNode); return; }
   if (n.kind === "doc" && DOC_ACTS.has(act)){ if (!(inPip && act === "docpick")) docAct(n, act); return; }
   if (n.kind === "materials" && MAT_ACTS.has(act)){ if (!inPip && !presenting && !viewing) matAct(n, act, btn); return; }
+  if (n.kind === "embed" && EMB_ACTS.has(act)){ embAct(n, act, noteNode, inPip); return; }
+  if (n.kind === "links" && LINK_ACTS.has(act)){ if (!inPip && !presenting && !viewing) linkAct(n, act, btn); return; }
+  if (n.kind === "draw" && DRAW_ACTS.has(act)){ if (!inPip && !viewing) drawToolAct(act, btn, n); return; }
   if (act === "min"){ n.min = !n.min; }
   else if (act === "color"){ n.color = COLOR_KEYS[(COLOR_KEYS.indexOf(n.color)+1) % COLOR_KEYS.length]; }
   else if ((act === "smaller" || act === "bigger") && n.kind === "image"){
@@ -2614,7 +2819,8 @@ function handleNoteAction(n, e, noteNode, inPip){
 
 /* text editing (no re-render, keeps the caret where it is) */
 boardEl.addEventListener("input", e => {
-  if (e.target.classList.contains("dict-in")) return;   // looked up on Enter, not saved while typing
+  if (e.target.classList.contains("lk-in")){ linkInput(e); return; }
+  if (e.target.matches("input, select")) return;   // dictionary word (looked up on Enter), embed link, check boxes
   const noteNode = e.target.closest(".note"); if (!noteNode) return;
   const n = findNote(noteNode.dataset.id); if (!n) return;
   if (e.target.classList.contains("note-title")){ n.title = txt(e.target).replace(/\n/g," ").trim(); noteNode.setAttribute("aria-label", n.title||"Note"); }
@@ -3190,7 +3396,7 @@ function renderTrash(){
     const acts = `<div class="trash-acts"><button class="btn" data-tact="restore">Restore</button><button class="btn danger-btn" data-tact="forever">Delete forever</button></div>`;
     if (t.type === "board"){
       const c = (t.item.notes || []).length;
-      return `<div class="trash-item" data-tid="${t.id}"><span class="swatch" style="background:${BG_SWATCH[t.item.bg] || BG_SWATCH.slate}"></span>
+      return `<div class="trash-item" data-tid="${t.id}"><span class="swatch" style="background:${esc(bgSwatch(t.item.bg))};background-size:cover"></span>
         <div class="trash-info"><b>${esc(t.item.name)} (whole board)</b><div class="pv">${c} note${c === 1 ? "" : "s"}</div><div class="meta">${meta}</div></div>${acts}</div>`;
     }
     const n = t.item;
@@ -3237,7 +3443,7 @@ let imgTarget = null;                      // an empty Image note the next paste
 let pickTarget = null;                     // the note "Choose an image" was clicked in
 
 function modalOpen(){
-  return !$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden || !$("leaveWrap").hidden || !$("repWrap").hidden || !$("imgView").hidden || !$("schedWrap").hidden || !$("crawlWrap").hidden || !$("lateWrap").hidden;
+  return !$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden || !$("leaveWrap").hidden || !$("repWrap").hidden || !$("imgView").hidden || !$("schedWrap").hidden || !$("crawlWrap").hidden || !$("lateWrap").hidden || !$("bgWrap").hidden;
 }
 function imageBodyHTML(n, forPip){
   const tapZoom = !forPip && (presenting || viewing);
@@ -4497,7 +4703,7 @@ $("schedBody").addEventListener("change", e => {
    b.crawl = { on, ids (null = every note that can scroll), msgs:[], motion:"scroll"|"one",
                speed:"slow"|"med"|"fast", style:"broadcast"|"koi"|"contrast", where:{ present, float, shared } }
    It reads the notes themselves, so editing a note updates the crawler. A Timed note shows its live time left. */
-const CRAWL_KINDS = new Set(["text", "list", "timed", "materials", "doc"]);
+const CRAWL_KINDS = new Set(["text", "list", "timed", "materials", "doc", "links"]);
 const CR_SPEED = { slow:{ px:55, sec:10 }, med:{ px:85, sec:7 }, fast:{ px:125, sec:5 } };
 const CR_STYLES = { broadcast:["Broadcast", "#0B1220", "#E8663D"], koi:["Koi", "#F6EFE3", "#E8663D"], contrast:["High contrast", "#000000", "#FFE600"] };
 const CR_DEF = { on:false, ids:null, msgs:[], motion:"scroll", speed:"slow", style:"broadcast" };
@@ -4528,6 +4734,7 @@ function crawlItem(n){
   if (n.kind === "timed") return (n.tasks || []).length ? { tag, live:n.id, text:timedLine(n) } : null;
   if (n.kind === "materials"){ const m = (n.mats || []).map(matLabel).filter(Boolean); return m.length ? { tag, text:"Have out: " + m.join(", ") } : null; }
   if (n.kind === "doc") return n.doc && n.doc.name ? { tag, text:n.doc.name } : null;
+  if (n.kind === "links"){ const l = (n.links || []).filter(x => normURL(x.u)).map(linkName); return l.length ? { tag, text:l.join("  ·  ") } : null; }
   const t = oneLine(n.text);
   return t ? { tag, text: t.length > 220 ? t.slice(0, 217) + "…" : t } : null;
 }
@@ -4634,6 +4841,7 @@ function spotHTML(n){
   }
   if (n.kind === "materials") return `<ul>${(n.mats || []).map(m => `<li>${esc(matLabel(m))}</li>`).join("")}</ul>`;
   if (n.kind === "doc") return esc(n.doc && n.doc.name ? n.doc.name : "");
+  if (n.kind === "links") return `<ul>${(n.links || []).filter(x => normURL(x.u)).map(x => `<li>${esc(linkName(x))}</li>`).join("")}</ul>`;
   return esc(n.text || "");
 }
 function renderLateLayer(){
@@ -4903,6 +5111,717 @@ $("lateWrap").addEventListener("click", async e => {
     toast("Late start is on for " + b.name + ". Whoever covers opens it with code " + b.shareCode + ".");
   }
 });
+/* ====================================================================================
+   Embed, Links and Draw notes, drawing on the board, and backgrounds (added Oct 2026)
+   ==================================================================================== */
+Object.assign(ICON, {
+  out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+  link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>',
+  fill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 12H6m0 0 2-2m-2 2 2 2M15 12h3m0 0-2-2m2 2-2 2"/></svg>',
+  screen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M10.5 8.2v5l4-2.5z" fill="currentColor"/><path d="M8 21h8"/></svg>',
+  pen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c2.5-.4 4-1.5 4.6-3.2"/><path d="M14.5 5.5l4 4L9 19l-4.6.6L5 15z"/><path d="M13 7l4 4"/></svg>',
+  marker:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 15.5 6 13l8.5-8.5 5 5L11 18z"/><path d="M6 13l-2.5 5.5L5 20l2-.5 4-1.5M4 21h16"/></svg>',
+  eraser:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 15.5 13.5 5.5l5 5L9 20H6.5z"/><path d="M8.5 10.5l5 5M12 20h8"/></svg>',
+  undo1:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>',
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>',
+  up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>',
+  down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  palette:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1.3-1.2-1.6-1.2-2.8 0-1 .8-1.6 1.8-1.6H17a4 4 0 0 0 4-4C21 6.4 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.2" fill="currentColor"/><circle cx="10" cy="7" r="1.2" fill="currentColor"/><circle cx="15" cy="7.5" r="1.2" fill="currentColor"/></svg>'
+});
+const hostOf = s => { try { return new URL(s).hostname.replace(/^www\./, ""); } catch(e){ return ""; } };
+function safeURL(s){ try { const u = new URL(s); return u.protocol === "https:" && /\./.test(u.hostname) ? u : null; } catch(e){ return null; } }
+function proToast(what){
+  if (!sb || !userId){ docSignInToast(); return; }
+  toast(what + " come with Floatle Pro.");
+}
+
+/* ---------- Embed notes: Google Slides, Canva, PowerPoint, YouTube, Spotify and other sites ----------
+   n.embed = { prov, src (what the frame shows), open (the normal link, for "Open in a new tab"), raw (what
+   the teacher pasted), audio }. A teacher can paste a plain link or a site's embed code; Floatle turns
+   share links into the version made for showing inside another page. The frame is sandboxed, so an
+   embedded site can't take over the Floatle page.
+   A board can also show one embed across the whole board behind the notes: b.backdrop (same shape).
+   Redrawing the board keeps a playing video or a slide deck where it is (see renderBoard). */
+const EMB_SANDBOX = "allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation allow-forms";
+const EMB_ALLOW = "autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write";
+const EMB_ACTS = new Set(["embgo", "embcancel", "embedit", "embopen", "embfill"]);
+const embEdit = new Set();   // Embed notes showing their link box on this device (not saved)
+const SITE_NAMES = { "desmos.com":"Desmos", "geogebra.org":"GeoGebra", "padlet.com":"Padlet", "wordwall.net":"Wordwall", "quizlet.com":"Quizlet",
+  "edpuzzle.com":"Edpuzzle", "nearpod.com":"Nearpod", "genial.ly":"Genially", "prezi.com":"Prezi", "flip.com":"Flip", "codepen.io":"CodePen",
+  "scratch.mit.edu":"Scratch", "google.com":"Google", "figma.com":"Figma", "miro.com":"Miro", "classroomscreen.com":"Classroomscreen" };
+const siteName = h => { const k = Object.keys(SITE_NAMES).find(d => h === d || h.endsWith("." + d)); return k ? SITE_NAMES[k] : h; };
+function parseEmbed(raw){
+  raw = String(raw || "").trim();
+  if (!raw) return { err:"Paste a link or embed code first." };
+  let src = raw, fromCode = false;
+  const m = /<iframe\b[^>]*?\ssrc\s*=\s*["']([^"']+)["']/i.exec(raw);
+  if (m){ src = m[1].replace(/&amp;/g, "&"); fromCode = true; }
+  else if (/^</.test(raw)) return { err:"That embed code needs a script, which Floatle can't run. Paste the plain link instead." };
+  src = src.replace(/^\/\//, "https://");
+  if (!/^[a-z][\w+.-]*:/i.test(src)) src = "https://" + src;
+  src = src.replace(/^http:\/\//i, "https://");
+  const u = safeURL(src);
+  if (!u) return { err:"That doesn't look like a web link. It should start with https://" };
+  const h = u.hostname.replace(/^(www|m)\./, ""), p = u.pathname, q = u.searchParams;
+  const out = (prov, s, extra) => Object.assign({ prov, src:s, open:u.href, raw }, extra || {});
+  // YouTube (the privacy-friendly player, which also skips most ads and related videos)
+  if (/(^|\.)youtube\.com$|^youtu\.be$|(^|\.)youtube-nocookie\.com$/.test(h)){
+    const id = h === "youtu.be" ? p.slice(1).split("/")[0] : (q.get("v") || ((/^\/(embed|shorts|live|v)\/([\w-]{6,})/.exec(p) || [])[2]) || "");
+    const list = q.get("list"), t = q.get("t") || q.get("start") || "";
+    const tm = /^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?$/.exec(t), start = tm ? (+(tm[1] || 0)) * 3600 + (+(tm[2] || 0)) * 60 + (+(tm[3] || 0)) : 0;
+    if (/^[\w-]{6,}$/.test(id)) return out("YouTube", `https://www.youtube.com/embed/${id}?rel=0${start ? "&start=" + start : ""}${list ? "&list=" + encodeURIComponent(list) : ""}`, { open:`https://www.youtube.com/watch?v=${id}${start ? "&t=" + start + "s" : ""}` });
+    if (list) return out("YouTube", `https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(list)}`);
+    return { err:"That YouTube link doesn't point to one video. Open the video, choose Share, and copy that link." };
+  }
+  if (/(^|\.)vimeo\.com$/.test(h)){
+    const mm = /\/(?:video\/)?(\d{5,})(?:\/([\da-f]{6,}))?/.exec(p), hash = (mm && mm[2]) || q.get("h");
+    if (mm) return out("Vimeo", `https://player.vimeo.com/video/${mm[1]}${hash ? "?h=" + hash : ""}`);
+  }
+  if (h === "open.spotify.com"){
+    const mm = /^\/(?:intl-[\w-]+\/)?(?:embed\/)?(track|album|playlist|episode|show|artist)\/([A-Za-z0-9]+)/.exec(p);
+    if (mm) return out("Spotify", `https://open.spotify.com/embed/${mm[1]}/${mm[2]}`, { audio:true });
+  }
+  if (h === "docs.google.com"){
+    let mm = /^\/presentation\/(?:u\/\d+\/)?d\/(e\/)?([\w-]+)/.exec(p);
+    if (mm) return out("Google Slides", `https://docs.google.com/presentation/d/${mm[1] || ""}${mm[2]}/embed?start=false&loop=false&delayms=5000`);
+    mm = /^\/forms\/(?:u\/\d+\/)?d\/(e\/)?([\w-]+)/.exec(p);
+    if (mm) return out("Google Forms", `https://docs.google.com/forms/d/${mm[1] || ""}${mm[2]}/viewform?embedded=true`);
+    mm = /^\/(document|spreadsheets|drawings)\/(?:u\/\d+\/)?d\/(e\/)?([\w-]+)/.exec(p);
+    if (mm){
+      const prov = { document:"Google Docs", spreadsheets:"Google Sheets", drawings:"Google Drawings" }[mm[1]];
+      if (!mm[2]) return out(prov, `https://docs.google.com/${mm[1]}/d/${mm[3]}/preview`);
+      const pub = { document:"pub?embedded=true", spreadsheets:"pubhtml?widget=true&headers=false", drawings:"pub?w=1440&h=1080" }[mm[1]];
+      return out(prov, `https://docs.google.com/${mm[1]}/d/e/${mm[3]}/${pub}`);
+    }
+  }
+  if (h === "drive.google.com"){
+    const id = ((/\/file\/d\/([\w-]+)/.exec(p) || [])[1]) || q.get("id");
+    if (id) return out("Google Drive", `https://drive.google.com/file/d/${id}/preview`);
+  }
+  if (/(^|\.)canva\.com$/.test(h)){
+    const mm = /^\/design\/([\w-]+)\/([\w-]+)/.exec(p);
+    if (mm) return out("Canva", `https://www.canva.com/design/${mm[1]}/${mm[2]}/view?embed`);
+  }
+  if (h === "1drv.ms" && !fromCode) return { err:"For PowerPoint, open the file online, choose File, Share, Embed, then paste the embed code here." };
+  if (h === "onedrive.live.com"){
+    if (!/^\/embed/.test(p)) u.pathname = "/embed";
+    return out("PowerPoint", u.href);
+  }
+  if (/(^|\.)sharepoint\.com$/.test(h)){
+    if (!fromCode && !/embed/i.test(u.search)) u.searchParams.set("action", "embedview");
+    return out(/:x:|xlsx?/i.test(src) ? "Excel" : /:w:|docx?/i.test(src) ? "Word" : "PowerPoint", u.href);
+  }
+  if (h === "view.officeapps.live.com") return out("Office file", u.href);
+  if (/\.(pptx?|docx?|xlsx?)$/i.test(p)) return out("Office file", "https://view.officeapps.live.com/op/embed.aspx?src=" + encodeURIComponent(u.href));
+  if (/(^|\.)loom\.com$/.test(h)){
+    const mm = /\/(?:share|embed)\/([\da-f]{10,})/.exec(p);
+    if (mm) return out("Loom", `https://www.loom.com/embed/${mm[1]}`);
+  }
+  // any other site: show it as it is (some sites don't allow being shown inside another page)
+  return out(siteName(h), u.href, { site:true });
+}
+/* Well-known players (YouTube, Google, Canva, Microsoft, Spotify, Vimeo, Loom) run without the sandbox:
+   YouTube refuses to play inside one ("Error 153"). Any other site stays sandboxed. */
+const EMB_TRUSTED = /(^|\.)(youtube\.com|youtube-nocookie\.com|google\.com|canva\.com|live\.com|sharepoint\.com|spotify\.com|vimeo\.com|loom\.com)$/;
+function frameSrc(e){
+  const u = safeURL(e.src); if (!u) return "";
+  if (/(^|\.)youtube(-nocookie)?\.com$/.test(u.hostname)){
+    // the standard player, told which site it's on (it checks, and shows Error 153 when it can't tell)
+    u.hostname = "www.youtube.com";
+    if (/^https?:$/.test(location.protocol)) u.searchParams.set("origin", location.origin);
+  }
+  return u.href;
+}
+function embFrame(e, title){
+  const src = frameSrc(e), trusted = EMB_TRUSTED.test((safeURL(src) || {}).hostname || "");
+  return `<iframe src="${esc(src)}" title="${esc(title || e.prov || "Embedded page")}" allow="${EMB_ALLOW}" allowfullscreen${trusted ? "" : ` sandbox="${EMB_SANDBOX}"`} referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+}
+function embBodyHTML(n, forPip){
+  const e = n.embed && safeURL(n.embed.src) ? n.embed : null, editing = !forPip && !presenting && !viewing;
+  if (editing && (!e || embEdit.has(n.id))){
+    return `<div class="emb-empty"><b>${e ? "Show something else" : "Show slides, a video or music"}</b>
+      <div class="emb-form"><input class="emb-in" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a link or embed code" value="${esc(e ? e.raw : "")}" aria-label="Link or embed code">
+        <button class="doc-btn" data-act="embgo">${e ? "Save" : "Show it"}</button>${e ? `<button class="doc-btn alt" data-act="embcancel">Cancel</button>` : ""}</div>
+      <div class="emb-err" role="alert"></div>
+      <span class="emb-hint">Google Slides, Docs, Forms and Drive, Canva, PowerPoint (File &rsaquo; Share &rsaquo; Embed), YouTube, Vimeo, Spotify, Loom, and most sites that allow it. Subs see it too, so share it as "anyone with the link can view."</span></div>`;
+  }
+  if (!e) return `<div class="lk-empty">Nothing to show yet</div>`;
+  if (forPip) return `<div class="emb-card"><b>${esc(e.prov)}</b><span class="doc-sub">${esc(hostOf(e.open))}</span><button class="doc-btn" data-act="embopen">${ICON.out}Open in a new tab</button></div>`;
+  return `<div class="emb${e.audio ? " audio" : ""}">${embFrame(e, n.title)}</div>`;
+}
+function embTools(n){
+  if (!n.embed) return "";
+  return `<button class="tool" data-act="embopen" title="Open in a new tab" aria-label="Open in a new tab">${ICON.out}</button>
+        <button class="tool t-edit" data-act="embedit" title="Change what it shows" aria-label="Change what it shows">${ICON.link}</button>
+        <button class="tool t-edit" data-act="embfill" title="Fill the whole board with it (notes float on top)" aria-label="Fill the board with it">${ICON.fill}</button>`;
+}
+function embApply(n, noteNode){
+  const inp = noteNode.querySelector(".emb-in"), err = noteNode.querySelector(".emb-err");
+  const e = parseEmbed(inp ? inp.value : "");
+  if (e.err){ if (err) err.textContent = e.err; inp && inp.focus(); return; }
+  const oldTitle = n.embed ? n.embed.prov : TYPES.embed.title;
+  n.embed = e;
+  if (!n.title || n.title === oldTitle || n.title === TYPES.embed.title) n.title = e.prov;
+  if (e.audio && n.h > 30){ n.h = 30; }
+  embEdit.delete(n.id);
+  save(); renderNote(n);
+  if (e.site) toast("If it stays blank, that site doesn't allow being shown inside other pages. Use Open in a new tab instead.");
+}
+function embAct(n, act, noteNode, inPip){
+  if (act === "embopen"){
+    const e = n.embed; if (!e || !safeURL(e.open)) return;
+    (inPip && pipWin ? pipWin : window).open(e.open, "_blank", "noopener");
+    return;
+  }
+  if (inPip || presenting || viewing) return;
+  if (act === "embgo"){ embApply(n, noteNode); return; }
+  if (act === "embcancel"){ embEdit.delete(n.id); renderNote(n); return; }
+  if (act === "embedit"){
+    embEdit.add(n.id);
+    const el = renderNote(n), inp = el.querySelector(".emb-in");
+    if (inp){ inp.focus(); inp.select(); }
+    return;
+  }
+  if (act === "embfill"){
+    const b = board();
+    b.backdrop = { ...n.embed, title:n.title };
+    b.notes.splice(b.notes.indexOf(n), 1);
+    renderBoard(); save();
+    toast(n.embed.prov + " now fills this board. Your notes float on top.", undo);
+  }
+}
+function backdropToNote(){
+  const b = board(), e = b.backdrop; if (!e) return;
+  const n = makeNote("embed", { x:8, y:10 });
+  n.embed = { prov:e.prov, src:e.src, open:e.open, raw:e.raw, audio:e.audio, site:e.site };
+  n.title = e.title || e.prov;
+  delete b.backdrop;
+  b.notes.push(n);
+  renderBoard(); save();
+}
+boardEl.addEventListener("click", e => {
+  const c = e.target.closest("[data-bd]"); if (!c) return;
+  if (c.dataset.bd === "note") backdropToNote();
+  else if (c.dataset.bd === "remove"){ delete board().backdrop; renderBoard(); save(); toast("Removed from the board.", undo); }
+  else if (c.dataset.bd === "bg") openBg("slides");
+});
+// clicking into an embedded page doesn't reach this page, so close open menus when it takes the focus
+window.addEventListener("blur", () => setTimeout(() => { if (document.activeElement && document.activeElement.tagName === "IFRAME") closeMenus(); }, 0));
+
+/* ---------- Links notes: up to 10 websites, each opens in a new tab ----------
+   n.links = [{ id, t (title, optional), u (address) }]; n.noIco hides the site icons. */
+const LINK_MAX = 10;
+const LINK_ACTS = new Set(["lkedit", "lkdone", "lkadd", "lkdel", "lkup", "lkdown", "lkico"]);
+const linkEdit = new Set();   // Links notes in edit view on this device (not saved)
+function normURL(s){
+  s = String(s || "").trim(); if (!s) return "";
+  if (!/^[a-z][\w+.-]*:/i.test(s)) s = "https://" + s.replace(/^\/+/, "");
+  try { const u = new URL(s); return /^https?:$/.test(u.protocol) && /\.[a-z]/i.test(u.hostname) ? u.href : ""; } catch(e){ return ""; }
+}
+const favURL = u => "https://www.google.com/s2/favicons?sz=64&domain=" + encodeURIComponent(hostOf(u));
+const linkName = l => (l.t || "").trim() || hostOf(normURL(l.u));
+function linksBodyHTML(n, forPip){
+  const links = n.links || (n.links = []), editing = !forPip && !presenting && !viewing;
+  if (editing && linkEdit.has(n.id)){
+    const rows = links.map((l, i) => `<li class="lk-row" data-link="${l.id}">
+        <div class="lk-fields"><input class="lk-in t" data-lf="t" type="text" placeholder="Title (optional)" value="${esc(l.t)}" aria-label="Link ${i + 1} title" autocomplete="off">
+          <input class="lk-in" data-lf="u" type="url" inputmode="url" placeholder="Paste a web address" value="${esc(l.u)}" aria-label="Link ${i + 1} web address" autocomplete="off" spellcheck="false"></div>
+        <div class="lk-btns"><button data-act="lkup" title="Move up" aria-label="Move link ${i + 1} up" ${i === 0 ? "disabled" : ""}>${ICON.up}</button>
+          <button data-act="lkdown" title="Move down" aria-label="Move link ${i + 1} down" ${i === links.length - 1 ? "disabled" : ""}>${ICON.down}</button>
+          <button data-act="lkdel" title="Remove" aria-label="Remove link ${i + 1}">${ICON.x}</button></div></li>`).join("");
+    return `<ul class="lk-edit">${rows}</ul>
+      <div class="lk-bar">${links.length < LINK_MAX ? `<button class="doc-btn alt" data-act="lkadd">${ICON.plus}Add a link</button>` : `<span>A note holds up to ${LINK_MAX} links.</span>`}
+        <label><input type="checkbox" data-act="lkico" ${n.noIco ? "" : "checked"}> Site icons</label>
+        <button class="doc-btn" data-act="lkdone">${ICON.check}Done</button></div>`;
+  }
+  const ok = links.filter(l => normURL(l.u));
+  if (!ok.length){
+    return editing ? `<div class="mat-empty"><b>Keep class links in one place</b><button class="doc-btn" data-act="lkedit">${ICON.link}Add links</button></div>`
+                   : `<div class="lk-empty">No links yet</div>`;
+  }
+  return `<ul class="lk-list">${ok.map(l => {
+      const u = normURL(l.u);
+      const ico = n.noIco ? `<span class="lk-glyph">${ICON.link}</span>`
+        : `<img class="lk-ico" src="${esc(favURL(u))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">`;
+      return `<li><a class="lk" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${ico}<span class="lk-t"><b>${esc(linkName(l))}</b>${(l.t || "").trim() ? `<small>${esc(hostOf(u))}</small>` : ""}</span><span class="lk-go" aria-hidden="true">${ICON.out}</span></a></li>`;
+    }).join("")}</ul>`
+    + (editing ? `<div class="lk-bar"><span></span><button class="doc-btn alt" data-act="lkedit">${ICON.pencil}Edit links</button></div>` : "");
+}
+function linkFocus(n, id, field){
+  const el = boardEl.querySelector(`.note[data-id="${n.id}"] [data-link="${id}"] [data-lf="${field || "u"}"]`);
+  if (el){ el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch(e){} }
+}
+function linkAct(n, act, btn){
+  const links = n.links || (n.links = []);
+  const row = btn.closest("[data-link]"), i = row ? links.findIndex(l => l.id === row.dataset.link) : -1;
+  if (act === "lkedit"){ linkEdit.add(n.id); if (!links.length) links.push({ id:uid(), t:"", u:"" }); renderNote(n); linkFocus(n, links[links.length - 1].id); return; }
+  if (act === "lkadd"){
+    if (links.length >= LINK_MAX) return;
+    const l = { id:uid(), t:"", u:"" }; links.push(l); renderNote(n); linkFocus(n, l.id); return;
+  }
+  if (act === "lkdone"){
+    const bad = links.filter(l => (l.u || "").trim() && !normURL(l.u)).length;
+    n.links = links.filter(l => normURL(l.u)).map(l => ({ ...l, u:normURL(l.u) }));
+    linkEdit.delete(n.id); save(); renderNote(n);
+    if (bad) toast(bad === 1 ? "One address wasn't a web link, so it was left out." : bad + " addresses weren't web links, so they were left out.");
+    return;
+  }
+  if (act === "lkico"){ n.noIco = !btn.checked; save(); renderNote(n); return; }
+  if (i < 0) return;
+  if (act === "lkdel") links.splice(i, 1);
+  else if (act === "lkup" && i > 0) links.splice(i - 1, 0, links.splice(i, 1)[0]);
+  else if (act === "lkdown" && i < links.length - 1) links.splice(i + 1, 0, links.splice(i, 1)[0]);
+  save();
+  const el = renderNote(n);
+  const again = act !== "lkdel" && el.querySelector(`[data-link="${row.dataset.link}"] [data-act="${act}"]:not([disabled])`);
+  (again || el.querySelector('[data-act="lkadd"], [data-act="lkdone"]'))?.focus();
+}
+function linkInput(e){
+  const nn = e.target.closest(".note"), n = nn && findNote(nn.dataset.id); if (!n) return;
+  const l = (n.links || []).find(x => x.id === e.target.closest("[data-link]").dataset.link); if (!l) return;
+  l[e.target.dataset.lf] = e.target.value;
+  nn.querySelector(".preview").textContent = firstLine(n);
+  save("typing");
+}
+boardEl.addEventListener("keydown", e => {
+  const t = e.target;
+  if (t.classList?.contains("emb-in") && e.key === "Enter"){
+    e.preventDefault();
+    const nn = t.closest(".note"), n = nn && findNote(nn.dataset.id); if (n) embApply(n, nn);
+    return;
+  }
+  if (t.classList?.contains("emb-in") && e.key === "Escape"){
+    const nn = t.closest(".note"), n = nn && findNote(nn.dataset.id);
+    if (n && n.embed){ e.stopPropagation(); embEdit.delete(n.id); renderNote(n); }
+    return;
+  }
+  if (!t.classList?.contains("lk-in") || e.key !== "Enter") return;
+  e.preventDefault();
+  const nn = t.closest(".note"), n = nn && findNote(nn.dataset.id); if (!n) return;
+  const id = t.closest("[data-link]").dataset.link;
+  if (t.dataset.lf === "t"){ linkFocus(n, id, "u"); return; }
+  const links = n.links, i = links.findIndex(l => l.id === id);
+  if (links[i + 1]){ linkFocus(n, links[i + 1].id); return; }
+  if (links.length < LINK_MAX && normURL(t.value)){ const l = { id:uid(), t:"", u:"" }; links.push(l); renderNote(n); linkFocus(n, l.id); }
+  else linkAct(n, "lkdone", t);
+});
+
+/* ---------- drawing: Draw notes, and drawing right on the board ----------
+   A line is saved as { c: color, w: size (1, 2 or 4), t: "pen" | "hl" (highlighter), p:[x, y, x, y, ...] }.
+   Draw note: n.draw = { paper, strokes:[] }. Points are measured in thousandths of the drawing's width (both
+   x and y), so resizing the note scales the drawing evenly and a taller note just shows more paper.
+   On the board: b.ink = [...]. Points are thousandths of the board's width (x) and height (y), the same way
+   notes are placed, so a drawing stays on the note it marks up on every screen. */
+const DRAW_COLORS = [["#1B2530","Black"],["#C62828","Red"],["#1E5BB8","Blue"],["#1F7A50","Green"],["#E8A317","Yellow"],["#7B3FB8","Purple"],["#FFFFFF","White"]];
+const DRAW_SIZES = [[1,"Thin"],[2,"Medium"],[4,"Thick"]];
+const PAPERS = [["blank","Blank"],["lined","Lined"],["graph","Graph paper"],["dots","Dot grid"],["chalk","Chalkboard"]];
+const DRAW_ACTS = new Set(["dtool", "dcolor", "dsize", "dpaper", "dundo", "dclear", "dinkdone"]);
+const DRAW = (() => {
+  const d = { tool:"pen", color:"#1B2530", size:2 };
+  try { Object.assign(d, JSON.parse(localStorage.getItem("floatle.draw") || "{}")); } catch(e){}
+  return d;
+})();
+function setDraw(k, v){ DRAW[k] = v; try { localStorage.setItem("floatle.draw", JSON.stringify(DRAW)); } catch(e){} }
+const NOTE_PEN = 5, INK_PEN = 1.4;   // base line width: thousandths of the drawing's width
+const r1 = v => Math.round(v * 10) / 10;
+function strokeD(p){
+  if (p.length < 2) return "";
+  if (p.length < 4) return `M${p[0]} ${p[1]}h.1`;
+  let d = `M${p[0]} ${p[1]}`;
+  for (let i = 2; i < p.length - 2; i += 2) d += `Q${p[i]} ${p[i + 1]} ${r1((p[i] + p[i + 2]) / 2)} ${r1((p[i + 1] + p[i + 3]) / 2)}`;
+  return d + `L${p[p.length - 2]} ${p[p.length - 1]}`;
+}
+function strokeAttrs(s, where){
+  const hl = s.t === "hl", w = (where === "ink" ? INK_PEN : NOTE_PEN) * (+s.w || 2) * (hl ? 3.2 : 1);
+  const col = /^#[0-9a-f]{6}$/i.test(s.c || "") ? s.c : "#1B2530";
+  return where === "ink"
+    ? { stroke:col, "stroke-opacity":hl ? ".38" : "1", "vector-effect":"non-scaling-stroke", style:`stroke-width:calc(var(--u) * ${Math.round(w * 10) / 100})` }
+    : { stroke:col, "stroke-opacity":hl ? ".38" : "1", "stroke-width":r1(w), fill:"none", "stroke-linecap":"round", "stroke-linejoin":"round" };
+}
+function strokesSVG(list, where){
+  return (list || []).map(s => {
+    const a = strokeAttrs(s, where);
+    return `<path d="${strokeD(s.p || [])}" ${Object.entries(a).map(([k, v]) => `${k}="${v}"`).join(" ")}/>`;
+  }).join("");
+}
+const drawSVG = (list, where) => where === "ink"
+  ? `<svg viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">${strokesSVG(list, "ink")}</svg>`
+  : `<svg viewBox="0 0 1000 10000" preserveAspectRatio="xMinYMin slice" aria-hidden="true">${strokesSVG(list, "note")}</svg>`;
+function drawToolsHTML(where, paper){
+  const tool = (t, ico, label) => `<button data-act="dtool" data-v="${t}" aria-pressed="${DRAW.tool === t}" title="${label}" aria-label="${label}">${ico}</button>`;
+  const pName = (PAPERS.find(x => x[0] === paper) || PAPERS[0])[1];
+  return `<div class="dt">${tool("pen", ICON.pen, "Pen")}${tool("hl", ICON.marker, "Highlighter")}${tool("erase", ICON.eraser, "Eraser: touch a line to remove it")}<span class="sep"></span>
+    ${DRAW_COLORS.map(([c, l]) => `<button class="sw" data-act="dcolor" data-v="${c}" style="background:${c}" aria-pressed="${DRAW.color === c}" title="${l}" aria-label="${l}"></button>`).join("")}<span class="sep"></span>
+    ${DRAW_SIZES.map(([z, l], i) => `<button class="sz" data-act="dsize" data-v="${z}" aria-pressed="${DRAW.size === z}" title="${l} line" aria-label="${l} line"><i style="width:${.3 + i * .28}em;height:${.3 + i * .28}em"></i></button>`).join("")}<span class="sep"></span>
+    ${where === "note" ? `<button data-act="dpaper" title="Paper: ${pName}. Click for the next kind." aria-label="Change paper (now ${pName})">${ICON.grid}</button>` : ""}
+    <button data-act="dundo" title="Take back the last line" aria-label="Take back the last line">${ICON.undo1}</button>
+    <button data-act="dclear" title="${where === "note" ? "Clear this drawing" : "Clear everything drawn on this board"}" aria-label="${where === "note" ? "Clear this drawing" : "Clear the drawing on this board"}">${ICON.trash}</button>
+    ${where === "ink" ? `<button class="ink-done" data-act="dinkdone">Done</button>` : ""}</div>`;
+}
+function drawBodyHTML(n, forPip){
+  const d = n.draw || (n.draw = { paper:"blank", strokes:[] });
+  const paper = PAPERS.some(x => x[0] === d.paper) ? d.paper : "blank";
+  const ro = forPip || viewing;
+  return (ro ? "" : drawToolsHTML("note", paper))
+    + `<div class="dp paper-${paper}${ro ? " ro" : ""}" role="img" aria-label="Drawing">${drawSVG(d.strokes, "note")}</div>`;
+}
+function refreshDrawTools(){
+  boardEl.querySelectorAll(".note.kind-draw").forEach(el => {
+    const n = findNote(el.dataset.id), dt = el.querySelector(".dt");
+    if (n && dt) dt.outerHTML = drawToolsHTML("note", n.draw && n.draw.paper);
+  });
+  renderInkBar();
+}
+function drawToolAct(act, btn, n){
+  if (act === "dtool"){ setDraw("tool", btn.dataset.v); refreshDrawTools(); return; }
+  if (act === "dcolor"){ setDraw("color", btn.dataset.v); if (DRAW.tool === "erase") setDraw("tool", "pen"); refreshDrawTools(); return; }
+  if (act === "dsize"){ setDraw("size", +btn.dataset.v); if (DRAW.tool === "erase") setDraw("tool", "pen"); refreshDrawTools(); return; }
+  if (act === "dinkdone"){ setInk(false); return; }
+  if (n){
+    const d = n.draw || (n.draw = { paper:"blank", strokes:[] });
+    if (act === "dpaper"){
+      const i = PAPERS.findIndex(x => x[0] === d.paper);
+      d.paper = PAPERS[(i + 1) % PAPERS.length][0];
+      if (d.paper === "chalk" && DRAW.color === "#1B2530") setDraw("color", "#FFFFFF");
+      else if (d.paper === "blank" && DRAW.color === "#FFFFFF") setDraw("color", "#1B2530");
+      save(); renderNote(n);
+      boardEl.querySelector(`.note[data-id="${n.id}"] [data-act="dpaper"]`)?.focus();
+      refreshDrawTools();
+      return;
+    }
+    if (act === "dundo"){ if (!d.strokes.length) return; d.strokes.pop(); }
+    else if (act === "dclear"){ if (!d.strokes.length) return; d.strokes = []; toast("Drawing cleared.", undo); }
+    save();
+    const pad = boardEl.querySelector(`.note[data-id="${n.id}"] .dp`);
+    if (pad) pad.innerHTML = drawSVG(d.strokes, "note");
+    return;
+  }
+  const b = board(), ink = b.ink || [];
+  if (!ink.length) return;
+  if (act === "dundo") ink.pop();
+  else if (act === "dclear"){ b.ink = []; toast("Drawing cleared from " + b.name + ".", undo); }
+  save(); renderInkLayer();
+}
+
+/* the pen itself: pointer events work for mouse, pen and touch (interactive boards included) */
+let pen = null;
+function inkSurface(target){
+  const pad = target.closest && target.closest(".dp:not(.ro)");
+  if (pad){
+    const nn = pad.closest(".note"), n = nn && findNote(nn.dataset.id);
+    if (!n) return null;
+    if (!n.draw) n.draw = { paper:"blank", strokes:[] };
+    return { host:pad, n, list:n.draw.strokes, where:"note" };
+  }
+  const ink = target.closest && target.closest(".ink.on");
+  if (ink){ const b = board(); if (!b.ink) b.ink = []; return { host:ink, list:b.ink, where:"ink" }; }
+  return null;
+}
+boardEl.addEventListener("pointerdown", e => {
+  if (e.button > 0) return;
+  const S = inkSurface(e.target); if (!S) return;
+  e.preventDefault();
+  const r = S.host.getBoundingClientRect();
+  if (!r.width || !r.height) return;
+  const toU = S.where === "ink"
+    ? (x, y) => [r1((x - r.left) / r.width * 1000), r1((y - r.top) / r.height * 1000)]
+    : (x, y) => [r1((x - r.left) / r.width * 1000), r1((y - r.top) / r.width * 1000)];
+  pen = { ...S, r, toU, pid:e.pointerId, erase: DRAW.tool === "erase", removed:false };
+  try { S.host.setPointerCapture(e.pointerId); } catch(err){}
+  if (pen.erase){ eraseAt(e.clientX, e.clientY); return; }
+  pen.s = { c:DRAW.color, w:DRAW.size, t:DRAW.tool === "hl" ? "hl" : "pen", p:[] };
+  const NS = "http://www.w3.org/2000/svg", path = document.createElementNS(NS, "path");
+  Object.entries(strokeAttrs(pen.s, S.where)).forEach(([k, v]) => path.setAttribute(k, v));
+  S.host.querySelector("svg").appendChild(path);
+  pen.path = path;
+  addPenPoint(e.clientX, e.clientY);
+});
+function addPenPoint(x, y){
+  const [ux, uy] = pen.toU(x, y), p = pen.s.p, n = p.length;
+  if (n && Math.hypot(ux - p[n - 2], uy - p[n - 1]) < (pen.where === "ink" ? 1.2 : 2.5)) return;
+  p.push(ux, uy);
+  pen.path.setAttribute("d", n < 2 ? `M${ux} ${uy}h.1` : (pen.path.getAttribute("d") || `M${p[0]} ${p[1]}`) + `L${ux} ${uy}`);
+}
+function eraseAt(x, y){
+  const r = pen.r, px = x - r.left, py = y - r.top, sy = pen.where === "ink" ? r.height : r.width;
+  const base = (pen.where === "ink" ? INK_PEN : NOTE_PEN) / 1000 * r.width;
+  for (let k = pen.list.length - 1; k >= 0; k--){
+    const s = pen.list[k], p = s.p || [], tol = Math.max(10, base * (+s.w || 2) * (s.t === "hl" ? 3.2 : 1) / 2 + 6);
+    for (let i = 0; i < p.length; i += 2){
+      const ax = p[i] / 1000 * r.width, ay = p[i + 1] / 1000 * sy;
+      const bx = (p[i + 2] ?? p[i]) / 1000 * r.width, by = (p[i + 3] ?? p[i + 1]) / 1000 * sy;
+      const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy;
+      const t = L ? clamp(((px - ax) * dx + (py - ay) * dy) / L, 0, 1) : 0;
+      if (Math.hypot(px - (ax + t * dx), py - (ay + t * dy)) <= tol){
+        pen.list.splice(k, 1); pen.removed = true;
+        pen.host.querySelector("svg").innerHTML = strokesSVG(pen.list, pen.where);
+        return;
+      }
+    }
+  }
+}
+boardEl.addEventListener("pointermove", e => {
+  if (!pen || e.pointerId !== pen.pid) return;
+  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
+  (evs && evs.length ? evs : [e]).forEach(ev => pen.erase ? eraseAt(ev.clientX, ev.clientY) : addPenPoint(ev.clientX, ev.clientY));
+});
+function endPen(e){
+  if (!pen || (e && e.pointerId !== pen.pid)) return;
+  const P = pen; pen = null;
+  if (P.erase){ if (P.removed) save(); return; }
+  if (!P.s.p.length){ P.path.remove(); return; }
+  P.path.setAttribute("d", strokeD(P.s.p));
+  P.list.push(P.s);
+  if (P.where === "note"){ const nn = P.host.closest(".note"); if (nn) nn.querySelector(".preview").textContent = firstLine(P.n); }
+  save();
+}
+boardEl.addEventListener("pointerup", endPen);
+boardEl.addEventListener("pointercancel", endPen);
+
+/* drawing on the board itself: a see-through layer over the board and its notes */
+let inkMode = false;
+function setInk(on){
+  inkMode = !!on && !narrow() && !viewing;
+  $("drawBtn").setAttribute("aria-pressed", String(inkMode));
+  if (inkMode){ closeMenus(); if (DRAW.color === "#FFFFFF" && /white|light/.test(boardEl.className)) setDraw("color", "#1B2530"); }
+  renderInkLayer(); renderInkBar();
+}
+function renderInkLayer(){
+  const b = board(), has = Array.isArray(b.ink) && b.ink.length;
+  let el = boardEl.querySelector(":scope > .ink");
+  if (!has && !inkMode){ if (el) el.remove(); return; }
+  if (!el){ el = document.createElement("div"); el.className = "ink"; boardEl.appendChild(el); }
+  el.classList.toggle("on", inkMode);
+  el.innerHTML = drawSVG(b.ink || [], "ink");
+}
+function renderInkBar(){
+  const bar = $("inkBar");
+  bar.classList.toggle("show", inkMode);
+  bar.innerHTML = inkMode ? drawToolsHTML("ink") : "";
+}
+$("inkBar").addEventListener("click", e => { const btn = e.target.closest("[data-act]"); if (btn) drawToolAct(btn.dataset.act, btn, null); });
+$("drawBtn").addEventListener("click", () => setInk(!inkMode));
+window.addEventListener("resize", () => { if (inkMode && narrow()) setInk(false); });
+
+/* ---------- backgrounds ----------
+   b.bg is one of: a classic key ("pond", "slate", "green", "white", "cork"), "c:#RRGGBB" (a color),
+   "g:<key>" (a gradient), "p:<key>" (an illustrated scene in assets/backgrounds/<key>.svg) or
+   "u:<address>" (a picture the teacher uploaded; Pro). A board can also rotate through several:
+   b.bgShow = { on, every (seconds), list:[values] } (Pro). Which one shows is worked out from the clock,
+   so every screen showing the board (the teacher's, a sub's) changes at the same moment.
+   A teacher's uploaded pictures are listed in state.bgUploads = [{ url, at }].
+   To add a scene: put a 16:9 picture in assets/backgrounds/ and add a line to BG_LIB (a .jpg works too). */
+const BG_LIB = [   // key, name, group, light (dark text reads better on it), color shown while it loads, file (optional)
+  ["mountains","Misty mountains","calm",true,"#AEBBD2"], ["clouds","Soft clouds","calm",true,"#CFE0F2"],
+  ["sand","Sand garden","calm",true,"#E8DDC8"], ["night","Night sky","calm",false,"#141A3A"],
+  ["leaves","Big leaves","nature",false,"#1D3729"], ["waves","Ocean waves","nature",false,"#3C87A6"],
+  ["forest","Forest","nature",true,"#B9CDB9"], ["triangles","Triangles","shapes",false,"#21485F"],
+  ["bauhaus","Bauhaus","shapes",true,"#F1E8D8"], ["terrazzo","Terrazzo","shapes",true,"#F2EDE4"],
+  ["autumn","Autumn leaves","seasons",false,"#E6A56B"], ["snow","Snowy night","seasons",false,"#22325A"],
+  ["blossom","Spring blossoms","seasons",true,"#F8E1E7"], ["mural","Paint wall","art",false,"#2B2D42"]
+];
+const BG_GROUPS = [["calm","Calm"],["nature","Nature"],["shapes","Shapes and patterns"],["seasons","Seasons"],["art","Street art"]];
+const BG_GRADS = {
+  sunrise:["Sunrise","linear-gradient(135deg,#FFD3A5 0%,#FD9F8F 55%,#E97B9A 100%)",true],
+  peach:["Peach","linear-gradient(135deg,#FFF1E0 0%,#FFD0B5 100%)",true],
+  mint:["Mint","linear-gradient(135deg,#D4F3E4 0%,#9ED9C3 100%)",true],
+  lavender:["Lavender","linear-gradient(135deg,#ECE6FB 0%,#B9A8EC 100%)",true],
+  sky:["Clear sky","linear-gradient(180deg,#8EC5FC 0%,#E0F0FF 100%)",true],
+  ocean:["Ocean","linear-gradient(160deg,#2E8BA8 0%,#1B4F72 60%,#14304A 100%)",false],
+  aurora:["Aurora","linear-gradient(135deg,#0F2027 0%,#1F5E5B 50%,#6FBF92 100%)",false],
+  dusk:["Dusk","linear-gradient(180deg,#2D2A5A 0%,#7A4A86 55%,#E58C6E 100%)",false],
+  forest:["Deep forest","linear-gradient(160deg,#2F6B4F 0%,#173A2B 100%)",false],
+  charcoal:["Charcoal","radial-gradient(ellipse at 50% 40%,#3A4552 0%,#161C22 100%)",false]
+};
+const BG_COLORS = ["#1E2A35","#173A55","#23392F","#3B2F4A","#5A2E2E","#4A4F55","#F1F3F4","#FFF8E7","#FDE2E4","#E3F2FD","#E8F5E9","#F3E5F5"];
+const SHOW_EVERY = [[60,"Every minute"],[300,"Every 5 minutes"],[900,"Every 15 minutes"],[3600,"Every hour"]];
+const bgFile = k => new URL("assets/backgrounds/" + encodeURIComponent(k) + ".svg", location.href).href;
+const lum = hex => { const v = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+const cssURL = s => !/["'()\\\s]/.test(s) && safeURL(s);
+function bgInfo(v){
+  v = String(v || "");
+  if (BGS[v]) return { cls:"bg-" + v, light:v === "white" || v === "cork", name:BGS[v], sw:BG_SWATCH[v] };
+  const k = v.slice(0, 2), x = v.slice(2);
+  if (k === "c:" && /^#[0-9a-f]{6}$/i.test(x)) return { css:x, light:lum(x) > 0.55, name:"Color " + x.toUpperCase(), sw:x };
+  if (k === "g:" && BG_GRADS[x]) return { css:BG_GRADS[x][1], light:BG_GRADS[x][2], name:BG_GRADS[x][0] };
+  if (k === "p:"){ const L = BG_LIB.find(s => s[0] === x); if (L) return { css:`${L[4]} url("${L[5] || bgFile(L[0])}") center/cover no-repeat`, light:L[3], name:L[1], sw:L[4] }; }
+  if (k === "u:" && cssURL(x)) return { css:`#173A55 url("${x}") center/cover no-repeat`, light:false, photo:true, name:"Your picture", sw:"#173A55" };
+  return { cls:"bg-slate", light:false, name:BGS.slate, sw:BG_SWATCH.slate };
+}
+function bgApply(el, v){
+  const I = bgInfo(v);
+  [...el.classList].forEach(c => { if (/^bg-/.test(c)) el.classList.remove(c); });
+  if (I.cls) el.classList.add(I.cls);
+  el.style.background = I.css || "";
+  if (I.light) el.classList.add("bg-light");
+  if (I.photo) el.classList.add("bg-photo");
+}
+const bgSwatch = v => { const I = bgInfo(v); return I.css || I.sw || BG_SWATCH.slate; };
+function showOf(b){ const s = b && b.bgShow; return s && s.on && Array.isArray(s.list) && s.list.length >= 2 ? s : null; }
+function bgNow(b){
+  const s = showOf(b); if (!s) return b.bg;
+  return s.list[Math.floor(Date.now() / ((+s.every || 300) * 1000)) % s.list.length];
+}
+let bgShown = null;
+function paintBg(fade){
+  const v = bgNow(board());
+  if (fade && bgShown !== null && v !== bgShown && !reduceMotion()){
+    const f = document.createElement("div");
+    f.className = "bgfade"; bgApply(f, bgShown);
+    boardEl.insertBefore(f, boardEl.firstChild);
+    requestAnimationFrame(() => requestAnimationFrame(() => { f.style.opacity = "0"; }));
+    setTimeout(() => f.remove(), 1700);
+  }
+  bgApply(boardEl, v); bgShown = v;
+}
+setInterval(() => { if (state && showOf(board()) && bgNow(board()) !== bgShown) paintBg(true); }, 1000);
+function setBg(v){
+  const b = board(); b.bg = v;
+  const s = showOf(b);
+  if (s){ b.bgShow.on = false; toast("Slideshow turned off. This background stays put now.", undo); }
+  paintBg(false); save();
+}
+
+/* the Background panel */
+let bgTab = "scenes", bgBusy = false;
+function openBg(tab){ if (tab) bgTab = tab; renderBgPanel(); $("bgWrap").hidden = false; setTimeout(() => $("bgClose").focus(), 30); }
+function closeBg(){ $("bgWrap").hidden = true; renderSettings(); }
+function bgOptHTML(v, label, show){
+  const b = board(), I = bgInfo(v), list = (b.bgShow && b.bgShow.list) || [];
+  const on = show ? list.includes(v) : (b.bg === v && !showOf(b));
+  const num = show && on ? `<span class="num">${list.indexOf(v) + 1}</span>` : "";
+  return `<button class="bg-opt" data-bgv="${esc(v)}" aria-pressed="${on}"><span class="th ${I.cls || ""}" style="${I.css ? "background:" + esc(I.css) : ""}"></span>${num}${esc(label == null ? I.name : label)}</button>`;
+}
+function scenesHTML(show){
+  return `<div class="bg-sec">Floatle classics</div><div class="bg-grid">${Object.keys(BGS).map(k => bgOptHTML(k, null, show)).join("")}</div>`
+    + BG_GROUPS.map(([g, t]) => `<div class="bg-sec">${t}</div><div class="bg-grid">${BG_LIB.filter(L => L[2] === g).map(L => bgOptHTML("p:" + L[0], null, show)).join("")}</div>`).join("");
+}
+function gradsHTML(show){ return `<div class="bg-sec">Gradients</div><div class="bg-grid">${Object.keys(BG_GRADS).map(k => bgOptHTML("g:" + k, null, show)).join("")}</div>`; }
+function minesHTML(show, del){
+  const ups = state.bgUploads || [];
+  return ups.map(u => del
+      ? `<div class="bg-opt-wrap" style="position:relative">${bgOptHTML("u:" + u.url, "", show)}<button class="del" data-bgdel="${esc(u.url)}" title="Remove from My pictures" aria-label="Remove this picture">${ICON.x}</button></div>`
+      : bgOptHTML("u:" + u.url, "Your picture", show)).join("");
+}
+function renderBgPanel(){
+  const b = board(), s = b.bgShow || {}, signedIn = !!(sb && userId);
+  const tabs = [["scenes","Scenes"],["colors","Colors"],["mine","My pictures",1],["show","Slideshow",1],["slides","Slides or video"]];
+  let body = "";
+  if (bgTab === "scenes") body = scenesHTML(false);
+  else if (bgTab === "colors"){
+    const cur = /^c:#[0-9a-f]{6}$/i.test(b.bg || "") ? b.bg.slice(2) : "#2D6A8E";
+    body = `<div class="bg-sec">Solid colors</div><div class="bg-colors">${BG_COLORS.map(c => bgOptHTML("c:" + c, "", false)).join("")}</div>
+      <label class="bg-custom">Any color <input type="color" id="bgColorIn" value="${cur}" aria-label="Pick any color"></label>` + gradsHTML(false);
+  }
+  else if (bgTab === "mine"){
+    body = !signedIn ? `<p class="bg-note">Sign in to use your own pictures. They're saved to your account, so they show on every device and for subs.</p><button class="btn primary" data-bgact="signin">Sign in or create an account</button>`
+      : `<p class="bg-note">Use a photo of your classroom, your school's logo, or student art. Wide pictures work best (1920 &times; 1080 or larger).${isPro() ? "" : " Your own pictures come with Floatle Pro."}</p>
+        <div class="bg-grid"><button class="bg-up" data-bgact="upload"${bgBusy ? " disabled" : ""}>${bgBusy ? "Uploading&hellip;" : `${ICON.plus.replace("<svg", '<svg style="width:1.6rem;height:1.6rem"')}Add a picture<small>JPG or PNG, up to 25 MB</small>`}</button>${minesHTML(false, true)}</div>`;
+  }
+  else if (bgTab === "show"){
+    const list = s.list || [];
+    body = `<p class="bg-note">Rotate through backgrounds on their own, like a calm screen saver behind your notes. Pick two or more below, in the order you want them.${isPro() ? "" : " Slideshows come with Floatle Pro."}</p>
+      <div class="bg-row-act"><button class="btn${s.on ? "" : " primary"}" data-bgact="showtoggle">${s.on ? "Turn slideshow off" : "Turn slideshow on"}</button>
+        <select id="bgEvery" aria-label="How often it changes">${SHOW_EVERY.map(([sec, l]) => `<option value="${sec}"${(+s.every || 300) === sec ? " selected" : ""}>${l}</option>`).join("")}</select>
+        <span class="bg-note" style="margin:0">${list.length} picked${s.on && list.length < 2 ? " (pick at least 2)" : ""}</span>
+        ${list.length ? `<button class="btn" data-bgact="showclear">Clear picks</button>` : ""}</div>`
+      + (state.bgUploads && state.bgUploads.length ? `<div class="bg-sec">My pictures</div><div class="bg-grid">${minesHTML(true, false)}</div>` : "")
+      + scenesHTML(true) + gradsHTML(true);
+  }
+  else {
+    const bd = b.backdrop;
+    body = `<p class="bg-note">Show Google Slides, Canva, PowerPoint, a YouTube video or another page across the whole board. Your notes float on top, and subs see it too.</p>`
+      + (bd ? `<div class="bg-cur"><b>${esc(bd.prov)} fills this board</b><button class="btn" data-bgact="bdnote">Make it a note</button><button class="btn danger-btn" data-bgact="bdremove">Remove</button></div>` : "")
+      + `<div class="bg-link"><input id="bgEmbIn" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a link or embed code" aria-label="Link or embed code"><button class="btn primary" data-bgact="bdgo">${bd ? "Show this instead" : "Show it"}</button></div>
+        <div class="bg-err" id="bgEmbErr" role="alert"></div>
+        <p class="bg-note">For PowerPoint, open the file online and choose File, Share, Embed, then paste that code. For Google Slides, set sharing to "anyone with the link can view" so subs can see it.</p>`;
+  }
+  $("bgBody").innerHTML = `<div class="bg-tabs" role="tablist" aria-label="Kinds of background">${tabs.map(([k, l, pro]) =>
+      `<button role="tab" data-bgtab="${k}" aria-selected="${bgTab === k}">${l}${pro ? ' <span class="pro-tag">PRO</span>' : ""}</button>`).join("")}</div>${body}`;
+}
+function bgTabFocus(sel){ const el = $("bgBody").querySelector(sel); if (el) el.focus(); }
+$("bgClose").addEventListener("click", closeBg);
+$("bgWrap").addEventListener("click", async e => {
+  if (e.target === $("bgWrap")){ closeBg(); return; }
+  const b = board();
+  const tab = e.target.closest("[data-bgtab]");
+  if (tab){ bgTab = tab.dataset.bgtab; renderBgPanel(); bgTabFocus(`[data-bgtab="${bgTab}"]`); return; }
+  const del = e.target.closest("[data-bgdel]");
+  if (del){
+    state.bgUploads = (state.bgUploads || []).filter(u => u.url !== del.dataset.bgdel);
+    save(); renderBgPanel(); toast("Removed from My pictures.", undo); return;
+  }
+  const opt = e.target.closest("[data-bgv]");
+  if (opt){
+    const v = opt.dataset.bgv;
+    if (bgTab === "show"){
+      if (!isPro()){ proToast("Slideshows"); return; }
+      const s = b.bgShow || (b.bgShow = { on:false, every:300, list:[] });
+      const i = s.list.indexOf(v);
+      if (i >= 0) s.list.splice(i, 1); else s.list.push(v);
+      if (s.list.length >= 2 && !s.on && i < 0 && s.list.length === 2) s.on = true;
+      save(); paintBg(false);
+    } else setBg(v);
+    renderBgPanel(); bgTabFocus(`[data-bgv="${CSS.escape(v)}"]`);
+    return;
+  }
+  const a = e.target.closest("[data-bgact]")?.dataset.bgact; if (!a) return;
+  if (a === "signin"){ closeBg(); try { localStorage.removeItem("swbats.skipLogin"); } catch(err){} showAuth("signin"); return; }
+  if (a === "upload"){
+    if (!sb || !userId){ docSignInToast(); return; }
+    if (!isPro()){ proToast("Your own background pictures"); return; }
+    $("bgFile").click(); return;
+  }
+  if (a === "showtoggle"){
+    if (!isPro()){ proToast("Slideshows"); return; }
+    const s = b.bgShow || (b.bgShow = { on:false, every:300, list:[] });
+    s.on = !s.on;
+    if (s.on && s.list.length < 2) toast("Pick at least two backgrounds below to start the slideshow.");
+    save(); paintBg(false); renderBgPanel(); bgTabFocus('[data-bgact="showtoggle"]'); return;
+  }
+  if (a === "showclear"){ if (b.bgShow){ b.bgShow.list = []; b.bgShow.on = false; } save(); paintBg(false); renderBgPanel(); return; }
+  if (a === "bdremove"){ delete b.backdrop; renderBoard(); save(); renderBgPanel(); toast("Removed from the board.", undo); return; }
+  if (a === "bdnote"){ backdropToNote(); renderBgPanel(); toast("It's a note on the board now."); return; }
+  if (a === "bdgo"){
+    const r = parseEmbed($("bgEmbIn").value);
+    if (r.err){ $("bgEmbErr").textContent = r.err; $("bgEmbIn").focus(); return; }
+    b.backdrop = { ...r, title:r.prov };
+    renderBoard(); save(); renderBgPanel();
+    toast(r.prov + " now fills this board." + (r.site ? " If it stays blank, that site doesn't allow it." : ""));
+  }
+});
+$("bgWrap").addEventListener("input", e => {
+  if (e.target.id === "bgColorIn"){ const b = board(); b.bg = "c:" + e.target.value; if (b.bgShow) b.bgShow.on = false; paintBg(false); save("typing"); }
+});
+$("bgWrap").addEventListener("change", e => {
+  if (e.target.id === "bgColorIn") renderBgPanel();
+  if (e.target.id === "bgEvery"){ const b = board(); (b.bgShow || (b.bgShow = { on:false, every:300, list:[] })).every = +e.target.value; save(); paintBg(false); }
+});
+$("bgWrap").addEventListener("keydown", e => {
+  if (e.target.id === "bgEmbIn" && e.key === "Enter"){ e.preventDefault(); $("bgBody").querySelector('[data-bgact="bdgo"]').click(); }
+});
+$("bgFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f || !sb || !userId) return;
+  if (!/^image\//.test(f.type || "")){ toast("That isn't a picture Floatle can use. Try a JPG or PNG."); return; }
+  if (f.size > IMG_MAX_BYTES){ toast("That picture is over 25 MB. Try a smaller copy."); return; }
+  bgBusy = true; renderBgPanel();
+  try {
+    const shr = await shrinkImage(f, 2560, 0.86);
+    const url = await uploadImageBlob(shr.blob);
+    await preload(url);
+    state.bgUploads = [{ url, at:Date.now() }, ...(state.bgUploads || [])].slice(0, 40);
+    bgBusy = false;
+    setBg("u:" + url);
+    toast("Your picture is this board's background now.");
+  } catch(err){
+    bgBusy = false;
+    console.warn("Floatle: background upload failed", err);
+    toast("The picture didn't upload. Check your connection and try again.");
+  }
+  if (!$("bgWrap").hidden) renderBgPanel();
+});
+
 var CRAWL_READY = true;
 
 render();
