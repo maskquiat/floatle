@@ -959,6 +959,23 @@ body.present .bd-chip,body.viewing .bd-chip{display:none}
 .draw-btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 body.viewing .draw-btn{display:none !important}
 @media (max-width:700px){ .draw-btn,.ink{display:none !important} }
+
+/* ---------- Settings menu: icons, sections, status tags ---------- */
+@media (min-width:701px){ #setMenu{width:19.5rem} }
+.menu .set-item{gap:.7rem;padding:.5rem .6rem}
+.menu .set-item .si{width:1.15rem;height:1.15rem;flex:0 0 auto;color:var(--muted)}
+.set-t{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.set-t small{color:var(--muted);font-size:.8rem}
+.set-tag{flex:0 0 auto;font-size:.72rem;font-weight:700;padding:.1rem .5rem;border-radius:999px;background:var(--chrome-2);color:var(--muted);border:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+.set-tag.on{background:#E3F4EA;color:#1F6B45;border-color:#B5DEC4}
+.set-sec{margin:.7rem .6rem .2rem;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.menu .set-item.c-sh .si{color:#C63F77} .menu .set-item.c-rp .si{color:#1F7A50} .menu .set-item.c-sc .si{color:#6E56CF}
+.menu .set-item.c-cr .si{color:#E8663D} .menu .set-item.c-la .si{color:#B7791F} .menu .set-item.c-bg .si{color:#1E9CC8}
+.menu .set-item.danger .si{color:var(--danger)}
+.menu .set-item:disabled{opacity:.45;cursor:default}
+.menu .set-item:disabled:hover{background:none}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .set-tag.on{background:#173A28;color:#8FD9AE;border-color:#25553A} }
+:root[data-theme="dark"] .set-tag.on{background:#173A28;color:#8FD9AE;border-color:#25553A}
 </style>
 </head>
 <body>
@@ -2503,35 +2520,65 @@ function renderAddMenu(){
     + (g === "tools" ? `<button class="item draw-btn" role="menuitem" data-ink="1"><span class="ico pen">${ICON.pen}</span>Draw on the board</button>` : "")
   ).join("");
 }
+/* Settings menu: an icon on every line, grouped under short headings. Status ("On", the bell time,
+   the Trash count) shows as a small tag on the right so names stay on one line. */
+const SET_ICON = {
+  share:'<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h3v-3"/>',
+  reports:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>',
+  sched:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',
+  crawl:'<rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M6 17h7M16 17h2M3 9h18M3 5h12"/>',
+  late:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M4 4l3 3M20 4l-3 3"/>',
+  bg:'<path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1.3-1.2-1.6-1.2-2.8 0-1 .8-1.6 1.8-1.6H17a4 4 0 0 0 4-4C21 6.4 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/>',
+  ink:'<path d="M3 21c2.5-.4 4-1.5 4.6-3.2"/><path d="M14.5 5.5l4 4L9 19l-4.6.6L5 15z"/><path d="M4 4l16 16"/>',
+  dup:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  expand:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+  collapse:'<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',
+  export:'<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',
+  import:'<path d="M12 21V9M7 14l5-5 5 5M4 3h16"/>',
+  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+  feedback:'<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/>',
+  del:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
+  signout:'<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H4"/>',
+  signin:'<path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M14 17l5-5-5-5M19 12H8"/>'
+};
+const setIco = k => `<svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SET_ICON[k]}</svg>`;
+function setItem(act, label, o){
+  o = o || {};
+  const tag = o.tag ? `<span class="set-tag${o.tagOn ? " on" : ""}">${o.tag}</span>` : "";
+  return `<button class="item set-item${o.cls ? " " + o.cls : ""}" data-set="${act}"${o.dis ? " disabled" : ""}>${setIco(o.ico || act)}<span class="set-t"><span class="set-n">${label}</span>${o.hint ? `<small>${o.hint}</small>` : ""}</span>${tag}</button>`;
+}
 function renderSettings(){
   const b = board();
+  const unread = sb && userId && reports.length ? unreadCount() : 0;
+  const bgNote = b.backdrop ? esc(b.backdrop.prov) : showOf(b) ? "Slideshow" : BGS[b.bg] ? "" : esc(bgInfo(b.bg).name);
   $("setMenu").innerHTML = `
     <label for="className">Board name</label>
     <div style="padding:0 .6rem .4rem"><input type="text" id="className" value="${esc(b.name)}" maxlength="40"></div>
     <h3>Background</h3>
     <div class="bg-row">${Object.keys(BGS).map(k => `<button data-bg="${k}" aria-pressed="${b.bg===k && !showOf(b) && !b.backdrop}" title="${BGS[k]}" aria-label="${BGS[k]}" style="background:${BG_SWATCH[k]}"></button>`).join("")}</div>
-    <button class="item" data-set="bg"><span class="ico">${ICON.palette}</span>More backgrounds${b.backdrop ? " &bull; " + esc(b.backdrop.prov) : showOf(b) ? " &bull; slideshow" : BGS[b.bg] ? "" : " &bull; " + esc(bgInfo(b.bg).name)}</button>
+    ${setItem("bg", "More backgrounds", { cls:"c-bg", hint:bgNote ? "Now: " + bgNote : "" })}
+    <div class="set-sec">Subs and class time</div>
+    ${setItem("share", "Share with a sub", { cls:"c-sh", hint:"Link and QR code", tag:b.shareCode ? "On" : "", tagOn:true })}
+    ${sb && userId ? setItem("reports", "Sub reports", { cls:"c-rp", hint:"Notes your subs left", tag:unread ? unread + " new" : "", tagOn:true }) : ""}
+    ${setItem("sched", "Schedule boards", { cls:"c-sc", hint:"Switch by class period", tag:b.sched && b.sched.on ? fmtTime(b.sched.t) : "" })}
+    ${setItem("crawl", "Screen crawler", { cls:"c-cr", hint:"Ticker along the bottom", tag:CRAWL_READY && crawlCfg(b).on ? "On" : "", tagOn:true })}
+    ${setItem("late", "Running late", { cls:"c-la", hint:"Start class without me", tag:lateActive(b) ? "On" : "", tagOn:true })}
+    <div class="set-sec">This board</div>
+    ${setItem("dup", "Duplicate")}
+    ${setItem("expand", "Expand all notes")}
+    ${setItem("collapse", "Minimize all notes")}
+    ${b.ink && b.ink.length ? setItem("inkclear", "Clear the drawing", { ico:"ink" }) : ""}
+    <div class="set-sec">Backup and more</div>
+    ${setItem("export", "Export all boards", { hint:"Saves a backup file" })}
+    ${setItem("import", "Import boards", { hint:"From a backup file" })}
+    ${setItem("trash", "Trash", { tag:state.trash.length ? String(state.trash.length) : "" })}
+    ${setItem("feedback", "Send feedback", { hint:"2&ndash;3 minutes, anonymous" })}
     <hr>
-    <button class="item" data-set="share">Share with a sub (link + QR code)${b.shareCode ? " &bull; on" : ""}</button>
-    ${sb && userId ? `<button class="item" data-set="reports">Sub reports${reports.length && unreadCount() ? " (" + unreadCount() + " new)" : ""}</button>` : ""}
-    <button class="item" data-set="sched">Schedule boards by class period${b.sched && b.sched.on ? " &bull; " + fmtTime(b.sched.t) : ""}</button>
-    <button class="item" data-set="crawl">Screen crawler (bottom ticker)${CRAWL_READY && crawlCfg(b).on ? " &bull; on" : ""}</button>
-    <button class="item" data-set="late">Running late? Start class without me${lateActive(b) ? " &bull; on" : ""}</button>
-    ${b.ink && b.ink.length ? `<button class="item" data-set="inkclear">Clear the drawing on this board</button>` : ""}
-    <button class="item" data-set="dup">Duplicate this board</button>
-    <button class="item" data-set="expand">Expand all notes</button>
-    <button class="item" data-set="collapse">Minimize all notes</button>
-    <button class="item" data-set="export">Export all boards (backup file)</button>
-    <button class="item" data-set="import">Import boards from a file</button>
-    <button class="item" data-set="trash">Trash${state.trash.length ? " (" + state.trash.length + ")" : ""}</button>
-    <hr>
-    <button class="item" data-set="feedback">Send feedback (2&ndash;3 min, anonymous)</button>
-    <hr>
-    <button class="item danger" data-set="del" ${state.boards.length<2?"disabled":""}>Delete this board</button>
+    ${setItem("del", "Delete this board", { cls:"danger", dis:state.boards.length < 2 })}
     <hr>
     ${sb ? (userId
-      ? `<div class="acct" id="syncLine">${esc(syncLabel)}</div><button class="item" data-set="signout">Sign out</button>`
-      : `<div class="acct" id="syncLine">${esc(syncLabel)}</div><button class="item" data-set="signin">Sign in or create an account</button>`)
+      ? `<div class="acct" id="syncLine">${esc(syncLabel)}</div>${setItem("signout", "Sign out")}`
+      : `<div class="acct" id="syncLine">${esc(syncLabel)}</div>${setItem("signin", "Sign in or create an account")}`)
       : `<div class="sync" id="syncLine">${esc(syncLabel)}</div>`}`;
 }
 function render(){ renderTabs(); renderBoard(); renderAddMenu(); renderSettings(); }
@@ -2702,7 +2749,7 @@ $("setMenu").addEventListener("click", e => {
   } else if (act === "expand" || act === "collapse"){
     b.notes.forEach(n => n.min = act === "collapse"); renderBoard(); save();
   } else if (act === "del"){
-    if (!delArm){ delArm = true; e.target.textContent = "Tap again to delete " + b.name; setTimeout(()=>{ delArm=false; renderSettings(); }, 3000); return; }
+    if (!delArm){ delArm = true; const lb = e.target.closest("[data-set]").querySelector(".set-n"); if (lb) lb.textContent = "Tap again to delete " + b.name; setTimeout(()=>{ delArm=false; renderSettings(); }, 3000); return; }
     delArm = false;
     if (b.shareCode){   // deleting a board also turns off its share link
       const c = b.shareCode; delete b.shareCode;
