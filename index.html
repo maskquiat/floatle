@@ -790,6 +790,9 @@ textarea.cw-in{resize:vertical;line-height:1.4}
 .opt-row .mini{width:2.2rem;height:1.1rem;border-radius:.25rem;border-top:3px solid}
 .late-status{background:#FFF4D6;color:#4A3B08;border-radius:.7rem;padding:.75rem .9rem;display:flex;flex-direction:column;gap:.55rem;line-height:1.45;margin-top:.6rem}
 .late-status .acts{display:flex;flex-wrap:wrap;gap:.45rem}
+.hp-err{color:#b3261e;font-weight:700;margin:0}
+.hp-done{text-align:center;padding:1.2rem 0 .4rem}
+.hp-done h3{margin:.2rem 0 .4rem;font-size:1.2rem}
 .late-go{width:100%;justify-content:center;min-height:3.2rem;font-size:1.08rem;font-weight:700;margin-top:.4rem}
 
 /* ---------- running late: start-of-class screen over the board ---------- */
@@ -1148,6 +1151,13 @@ body.viewing .draw-btn{display:none !important}
     <div class="trash-head"><h2 id="lateTitle">Running late?</h2><button class="btn" id="lateClose">Close</button></div>
     <p class="trash-sub">Let class start without you. Whoever is covering opens your board with the code in your sub binder and sees a start-of-class screen: the first activity, a timer, and a few steps for them.</p>
     <div id="lateBody"></div>
+  </div>
+</div>
+<div class="trash-wrap" id="helpWrap" hidden>
+  <div class="trash-panel cw-panel" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="trash-head"><h2 id="helpTitle">Questions, problems and ideas</h2><button class="btn" id="helpClose">Close</button></div>
+    <p class="trash-sub">Something not working, a question, or an idea for Floatle? Send it here. Every note is read, and it helps decide what gets fixed and built next.</p>
+    <div id="helpBody"></div>
   </div>
 </div>
 <div class="upnext late-chip" id="lateChip" role="status" aria-live="polite" hidden>
@@ -2572,6 +2582,7 @@ function renderSettings(){
     ${setItem("export", "Export all boards", { hint:"Saves a backup file" })}
     ${setItem("import", "Import boards", { hint:"From a backup file" })}
     ${setItem("trash", "Trash", { tag:state.trash.length ? String(state.trash.length) : "" })}
+    ${setItem("help", "Questions, problems and ideas", { hint:"Send a note to the Floatle team" })}
     ${setItem("feedback", "Send feedback", { hint:"2&ndash;3 minutes, anonymous" })}
     <hr>
     ${setItem("del", "Delete this board", { cls:"danger", dis:state.boards.length < 2 })}
@@ -2723,6 +2734,7 @@ $("setMenu").addEventListener("click", e => {
   if (act === "crawl"){ toggleMenu($("setBtn"), $("setMenu"), false); openCrawlSet(); return; }
   if (act === "late"){ toggleMenu($("setBtn"), $("setMenu"), false); openLate(b.id); return; }
   if (act === "reports"){ toggleMenu($("setBtn"), $("setMenu"), false); openReports(); return; }
+  if (act === "help"){ toggleMenu($("setBtn"), $("setMenu"), false); openHelp(); return; }
   if (act === "feedback"){ window.open(FEEDBACK_URL, "_blank", "noopener"); toggleMenu($("setBtn"), $("setMenu"), false); return; }
   if (act === "import"){ $("importFile").click(); toggleMenu($("setBtn"), $("setMenu"), false); return; }
   if (act === "dup"){
@@ -5156,6 +5168,81 @@ $("lateWrap").addEventListener("click", async e => {
     b.lateMsg = f.msg; b.lateSteps = f.steps;   // remembered for next time
     save(); renderBoard(); renderLateChip(); closeLate();
     toast("Late start is on for " + b.name + ". Whoever covers opens it with code " + b.shareCode + ".");
+  }
+});
+/* ====================================================================================
+   Questions, problems and ideas (added Oct 2026)
+   A short form for pilot teachers. Messages go into the Supabase "feedback" table
+   (see floatle-feedback.sql). Anyone can send one; nobody can read them from the site.
+   Read them in Supabase: Table Editor → feedback.
+   ==================================================================================== */
+const HELP_KINDS = { problem:"Something isn't working", question:"I have a question", idea:"I have an idea", other:"Something else" };
+let helpForm = null;   // kept while the page is open, so closing the form doesn't lose a draft
+function renderHelp(){
+  const box = $("helpBody"), f = helpForm;
+  if (f.sent){
+    box.innerHTML = `<div class="hp-done"><h3>Thank you, it's sent.</h3>
+      <p class="cw-help">${f.email ? "If it needs a reply, it will go to " + esc(f.email) + "." : "You didn't leave an email, so there won't be a reply, but it will be read."}</p></div>
+      <button type="button" class="btn primary late-go" data-hp="again">Send another</button>`;
+    return;
+  }
+  const pill = (v, l) => `<button type="button" data-hp="kind" data-v="${v}" aria-pressed="${f.kind === v}">${l}</button>`;
+  const ph = { problem:"What were you trying to do, and what happened instead?", question:"What would you like to know?",
+               idea:"What would make Floatle more useful in your classroom?", other:"What's on your mind?" }[f.kind] || "Write your note here.";
+  box.innerHTML = `
+    <div class="cw-sec"><h3>What is this about?</h3><div class="opt-row">${Object.entries(HELP_KINDS).map(([v, l]) => pill(v, l)).join("")}</div></div>
+    <div class="cw-sec"><h3><label for="hpMsg">Your note</label></h3>
+      <textarea class="cw-in" id="hpMsg" rows="5" maxlength="2000" placeholder="${esc(ph)}">${esc(f.msg)}</textarea>
+      <p class="cw-help">Please don't include student names or other student information.</p></div>
+    <div class="cw-sec"><h3><label for="hpEmail">Email for a reply (optional)</label></h3>
+      <input class="cw-in" id="hpEmail" type="email" maxlength="200" autocomplete="email" value="${esc(f.email)}">
+      <p class="cw-help">Floatle also sends the name of the board you're on and your browser and screen size, to help track down problems. It doesn't send what's on your notes.</p></div>
+    ${f.err ? `<p class="hp-err" role="alert">${esc(f.err)}</p>` : ""}
+    <button type="button" class="btn primary late-go" data-hp="send" ${f.busy ? "disabled" : ""}>${f.busy ? "Sending…" : "Send"}</button>`;
+}
+function readHelpText(){
+  const m = $("hpMsg"), e = $("hpEmail");
+  if (m) helpForm.msg = m.value;
+  if (e) helpForm.email = e.value.trim();
+}
+function openHelp(){
+  closeMenus();
+  if (!helpForm || helpForm.sent) helpForm = { kind:"", msg:"", email:userEmail || "", err:"", busy:false, sent:false };
+  else if (!helpForm.email) helpForm.email = userEmail || "";
+  renderHelp(); $("helpWrap").hidden = false;
+  setTimeout(() => ($("hpMsg") || $("helpClose")).focus(), 30);
+}
+function closeHelp(){ if (helpForm && !helpForm.sent) readHelpText(); $("helpWrap").hidden = true; }
+$("helpClose").addEventListener("click", closeHelp);
+$("helpWrap").addEventListener("keydown", e => { if (e.key === "Escape") closeHelp(); });
+$("helpWrap").addEventListener("click", async e => {
+  if (e.target === $("helpWrap")){ closeHelp(); return; }
+  const btn = e.target.closest("[data-hp]"); if (!btn) return;
+  const a = btn.dataset.hp, f = helpForm;
+  if (a === "again"){ helpForm = null; openHelp(); return; }
+  readHelpText();
+  if (a === "kind"){ f.kind = btn.dataset.v; renderHelp(); $("helpBody").querySelector(`[data-hp="kind"][data-v="${f.kind}"]`)?.focus(); return; }
+  if (a !== "send" || f.busy) return;
+  f.err = "";
+  if (!f.msg.trim()){ f.err = "Please write a short note first."; renderHelp(); $("hpMsg").focus(); return; }
+  if (f.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)){ f.err = "That email doesn't look right. Fix it or leave it blank."; renderHelp(); $("hpEmail").focus(); return; }
+  if (!sb){ f.err = "Floatle can't reach its server right now. Your note is saved here, so try again in a minute."; renderHelp(); return; }
+  f.busy = true; renderHelp();
+  let b = null; try { b = board(); } catch(err){}
+  const row = {
+    kind: f.kind || "other", message: f.msg.trim().slice(0, 2000), email: f.email || null,
+    user_id: userId || null, board_name: b ? String(b.name || "").slice(0, 120) : null,
+    page: location.pathname + location.search.replace(/[?&](code|c)=[^&]*/gi, ""),
+    client: (navigator.userAgent || "").slice(0, 300) + " | " + screen.width + "x" + screen.height + " | window " + innerWidth + "x" + innerHeight
+  };
+  try {
+    const { error } = await sb.from("feedback").insert(row);
+    if (error) throw error;
+    f.busy = false; f.sent = true; renderHelp();
+    setTimeout(() => $("helpBody").querySelector('[data-hp="again"]')?.focus(), 30);
+  } catch(err){
+    f.busy = false; f.err = "That didn't go through. Check your connection and try again. Your note is still here.";
+    renderHelp();
   }
 });
 /* ====================================================================================
