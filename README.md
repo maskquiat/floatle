@@ -61,6 +61,7 @@ Name	Kind	Used for
 boards	table	One row per teacher holding all of their boards
 shared_boards	table	A copy of each board shared with a sub, keyed by its 6-character code
 sub_reports	table	End-of-day reports from subs
+feedback	table	Notes from the in-app "Questions, problems and ideas" form (send-only from the site; read in Table Editor). Setup: floatle-feedback.sql
 note-images	storage bucket	Images and slides pasted into Image notes
 get_shared_board(code)	function	Lets a sub open one shared board without listing or guessing others
 submit_sub_report(...)	function	Lets a sub send a report (rate-limited, only for boards still shared)
