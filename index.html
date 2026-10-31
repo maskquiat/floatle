@@ -12,7 +12,7 @@
 </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Floatle — Keep what matters in view</title>
+<title>Floatle™ — Keep what matters in view</title>
 <meta name="description" content="Floatle: floating sticky notes that keep what matters in view. Write it. Float it. See it. Made by a teacher.">
 <meta name="theme-color" content="#173A55">
 <link rel="icon" type="image/png" href="assets/favicon.png">
@@ -83,6 +83,11 @@ body.tabs-tight:not(.present) .date{display:none}
 .btn.primary:hover{filter:brightness(1.07)}
 .btn svg{width:1.1em;height:1.1em;flex:0 0 auto}
 .present-title{display:none;font-weight:700;font-size:1.35rem}
+/* the small ™ beside the Floatle name */
+.tm{font-family:var(--font);font-weight:700;font-size:.34em;letter-spacing:0;vertical-align:top;line-height:1;margin-left:.12em;position:relative;top:.15em;opacity:.7;color:var(--muted)}
+.brand .tm{font-size:.46em;opacity:.85;top:.05em}
+.auth-brand .tm{color:#FFFFFF;opacity:.75}
+.auth-card h1 .tm{color:#2F3040;opacity:.6}
 .brand{font-family:var(--brand-font);font-weight:900;font-size:1.45rem;line-height:1;letter-spacing:-.01em;padding:0 .35rem 0 .15rem;white-space:nowrap;flex:0 0 auto;user-select:none}
 .brand .c1,.wordmark .c1{color:var(--koi-pink)} .brand .c2,.wordmark .c2{color:var(--lily-green)} .brand .c3,.wordmark .c3{color:var(--pond-blue)}
 .menu-wrap{position:relative}
@@ -947,7 +952,7 @@ body.present .bd-chip,body.viewing .bd-chip{display:none}
 .dt .sw[aria-pressed="true"]{box-shadow:0 0 0 2px #fff,0 0 0 4px #1D1A14;background:inherit}
 .dt .sz i{display:block;border-radius:50%;background:currentColor}
 .dt .sep{width:1px;align-self:stretch;margin:.15em .2em;background:rgba(0,0,0,.18)}
-.pip .dt,body.viewing .kind-draw .dt{display:none}
+.pip .dt,body.viewing:not(.sub-draw) .kind-draw .dt{display:none}
 .pip .dp{min-height:8em;cursor:default}
 @media (max-width:700px){ .dp{min-height:14em;flex:0 0 auto} }
 .ink{position:absolute;inset:0;z-index:99990;pointer-events:none}
@@ -960,7 +965,11 @@ body.present .bd-chip,body.viewing .bd-chip{display:none}
 .ink-bar .dt button[aria-pressed="true"]{background:var(--ink);color:var(--chrome)}
 .ink-bar .ink-done{background:var(--accent) !important;color:var(--accent-ink) !important;padding:0 .9em !important}
 .draw-btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-body.viewing .draw-btn{display:none !important}
+body.viewing:not(.sub-draw) .draw-btn{display:none !important}
+.dt .dt-clear{display:inline-flex;gap:.35em;padding:0 .7em !important;white-space:nowrap}
+.share-opt{display:flex;gap:.6rem;align-items:flex-start;margin:.9rem 0 0;line-height:1.4;cursor:pointer}
+.share-opt input{width:1.2rem;height:1.2rem;margin-top:.15rem;accent-color:var(--accent);flex:0 0 auto}
+.share-opt small{color:var(--muted)}
 @media (max-width:700px){ .draw-btn,.ink{display:none !important} }
 
 /* ---------- Settings menu: icons, sections, status tags ---------- */
@@ -983,7 +992,7 @@ body.viewing .draw-btn{display:none !important}
 </head>
 <body>
 <header class="bar" id="bar">
-  <span class="brand" aria-label="Floatle"><span class="c1">F</span><span class="c2">l</span><span class="c3">o</span><span class="c1">a</span><span class="c2">t</span><span class="c3">l</span><span class="c1">e</span></span>
+  <span class="brand" aria-label="Floatle"><span class="c1">F</span><span class="c2">l</span><span class="c3">o</span><span class="c1">a</span><span class="c2">t</span><span class="c3">l</span><span class="c1">e</span><sup class="tm" aria-hidden="true">™</sup></span>
   <div class="present-title" id="presentTitle"></div>
   <div class="tabs-wrap" id="tabsWrap">
     <button class="tab-arrow left" id="tabsLeft" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span class="more" aria-hidden="true"></span></button>
@@ -1075,12 +1084,12 @@ body.viewing .draw-btn{display:none !important}
     <img class="lotus l3" src="assets/lotus.svg?v=3" alt="">
     <img class="pad p4" src="assets/lilypad.svg?v=3" alt="">
   </div>
-  <div class="auth-brand wordmark" aria-hidden="true"><span class="c1">F</span><span class="c2">l</span><span class="c3">o</span><span class="c1">a</span><span class="c2">t</span><span class="c3">l</span><span class="c1">e</span></div>
+  <div class="auth-brand wordmark" aria-hidden="true"><span class="c1">F</span><span class="c2">l</span><span class="c3">o</span><span class="c1">a</span><span class="c2">t</span><span class="c3">l</span><span class="c1">e</span><sup class="tm" aria-hidden="true">™</sup></div>
   <div class="auth-stage">
   <img class="under-pad" src="assets/lilypad.svg?v=3" alt="" aria-hidden="true">
   <div class="auth-stack" aria-hidden="true"><span class="s-green">HOMEWORK</span><span class="s-blue">AGENDA</span><span class="s-pink">OBJECTIVE</span></div>
   <form class="auth-card" id="authForm" novalidate>
-    <h1 aria-label="Floatle"><span class="c1">F</span><span class="c2">l</span><span class="c3">o</span><span class="c1">a</span><span class="c2">t</span><span class="c3">l</span><span class="c1">e</span></h1>
+    <h1 aria-label="Floatle"><span class="c1">F</span><span class="c2">l</span><span class="c3">o</span><span class="c1">a</span><span class="c2">t</span><span class="c3">l</span><span class="c1">e</span><sup class="tm" aria-hidden="true">™</sup></h1>
     <p class="auth-sub" id="authSub">Sign in to see your boards on any device.</p>
     <label for="authEmail" id="emailWrap">Email</label>
     <input type="email" id="authEmail" autocomplete="email" required>
@@ -1288,6 +1297,11 @@ const cleanCode = s => String(s || "").toUpperCase().replace(/[^A-Z0-9]/g, "").s
 const VIEW_CODE = cleanCode(new URLSearchParams(location.search).get("s"));
 const viewing = VIEW_CODE.length === 6;
 let viewMsg = "";
+/* Sub drawing: unless the teacher turns it off in Share (b.subDraw === false), a sub can draw on the board
+   and on Draw notes. Their lines live only on their screen: never saved, gone when they reload the page. */
+let subInk = [];          // the sub's lines on the board
+const subNoteInk = {};    // the sub's lines on each Draw note, by note id
+function viewerDraw(){ return viewing && board().subDraw !== false; }
 const placeholderState = () => ({ v:1, active:"shared", boards:[{ id:"shared", name:"Floatle", bg:"pond", notes:[] }], updatedAt:0, trash:[] });
 
 let state = null;
@@ -2475,6 +2489,8 @@ tabsEl.addEventListener("wheel", e => {
 new ResizeObserver(updateTabArrows).observe(tabsEl);
 function renderBoard(){
   const b = board();
+  document.body.classList.toggle("sub-draw", viewerDraw());
+  if (inkMode && viewing && !viewerDraw()) setInk(false);   // the teacher turned drawing off
   boardEl.className = "board";
   paintBg(false);
   // Embedded videos and slides (in notes, or filling the board) keep playing while the board redraws:
@@ -2827,7 +2843,7 @@ function handleNoteAction(n, e, noteNode, inPip){
   if (n.kind === "materials" && MAT_ACTS.has(act)){ if (!inPip && !presenting && !viewing) matAct(n, act, btn); return; }
   if (n.kind === "embed" && EMB_ACTS.has(act)){ embAct(n, act, noteNode, inPip); return; }
   if (n.kind === "links" && LINK_ACTS.has(act)){ if (!inPip && !presenting && !viewing) linkAct(n, act, btn); return; }
-  if (n.kind === "draw" && DRAW_ACTS.has(act)){ if (!inPip && !viewing) drawToolAct(act, btn, n); return; }
+  if (n.kind === "draw" && DRAW_ACTS.has(act)){ if (!inPip && (!viewing || viewerDraw())) drawToolAct(act, btn, n); return; }
   if (act === "min"){ n.min = !n.min; }
   else if (act === "color"){ n.color = COLOR_KEYS[(COLOR_KEYS.indexOf(n.color)+1) % COLOR_KEYS.length]; }
   else if ((act === "smaller" || act === "bigger") && n.kind === "image"){
@@ -4072,7 +4088,7 @@ function qrCard(code, name){
   do { g.font = `700 ${fs}px "Atkinson Hyperlegible", Arial, sans-serif`; fs -= 2; } while (g.measureText(title).width > W - 60 && fs > 16);
   g.fillText(title, W / 2, 66);
   g.font = `400 20px "Atkinson Hyperlegible", Arial, sans-serif`; g.fillStyle = "#5B6874";
-  g.fillText("Class board on Floatle", W / 2, 100);
+  g.fillText("Class board on Floatle™", W / 2, 100);
   const x0 = (W - size) / 2 + cell * 4, y0 = top + cell * 4;
   g.fillStyle = "#000000";
   for (let r = 0; r < n; r++) for (let q = 0; q < n; q++) if (qr.isDark(r, q)) g.fillRect(x0 + q * cell, y0 + r * cell, cell, cell);
@@ -4095,9 +4111,9 @@ function copyText(text, msg){
 // Copies the QR picture + link together, ready to paste into a lesson plan (Google Docs, Word, email)
 async function copyForPlan(b){
   const code = b.shareCode, url = shareURL(code), short = shortLink(code);
-  const text = `Class board (Floatle): ${url}   Board code: ${code}`;
+  const text = `Class board (Floatle™): ${url}   Board code: ${code}`;
   const dataUrl = shareCanvas ? shareCanvas.toDataURL("image/png") : "";
-  const html = `<p>${dataUrl ? `<img src="${dataUrl}" width="240" alt="QR code for the class board"><br>` : ""}<b>Class board:</b> <a href="${url}">${esc(short)}</a><br>Board code: <b>${code}</b> (go to ${esc(location.host)} and type it in)</p>`;
+  const html = `<p>${dataUrl ? `<img src="${dataUrl}" width="240" alt="QR code for the class board"><br>` : ""}<b>Class board on Floatle™:</b> <a href="${url}">${esc(short)}</a><br>Board code: <b>${code}</b> (go to ${esc(location.host)} and type it in)</p>`;
   try {
     const item = { "text/html": new Blob([html], { type:"text/html" }), "text/plain": new Blob([text], { type:"text/plain" }) };
     await navigator.clipboard.write([new ClipboardItem(item)]);
@@ -4141,6 +4157,8 @@ async function renderShare(){
     </div>
     <p class="share-help">Anyone with this code can view this board, but only you can edit it. A sub can also go to <b>${esc(location.host)}</b> and type the code on the sign-in screen.</p>
     <p class="share-help">Subs can also tap <b>Note for the teacher</b> on the board to tell you what got done, any drills or interruptions, and how the class did. Their notes show up under <b>Sub reports</b>.</p>
+    <label class="share-opt"><input type="checkbox" data-sh="subdraw" ${b.subDraw !== false ? "checked" : ""}>
+      <span><b>Let subs draw on this board</b><br><small>They can use the pen, highlighter and eraser on the board and on Draw notes to model a problem. What they draw stays on their screen and is never saved. They can't change your notes.</small></span></label>
     <div class="share-foot">
       <button class="btn" data-sh="preview">Preview as a sub</button>
       <span><button class="btn" data-sh="newcode">New code</button><button class="btn danger-btn" data-sh="stop">Stop sharing</button></span>
@@ -4185,6 +4203,7 @@ body{margin:0;font-family:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;co
 .logo{display:flex;align-items:center}
 .logo img.k{height:62px}.logo img.k.flip{transform:scaleX(-1)}
 .logo img.w{height:40px;margin:0 -.2rem}
+.logo .tm{align-self:flex-start;margin:.35rem .25rem 0 .1rem;font-size:.85rem;font-weight:700;color:#5B6874;line-height:1}
 .top-r{text-align:right}.top-r h1{margin:0;font-size:1.65rem}.top-r p{margin:.15rem 0 0;color:#5B6874}
 .card{display:flex;gap:1.2rem;align-items:center;justify-content:space-between;margin-top:.7rem;padding:.7rem 1.1rem;background:#E3F1FA;border-radius:4px}
 .fill{flex:1 1 auto}
@@ -4218,7 +4237,7 @@ body{margin:0;font-family:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;co
 <div class="tools"><button type="button" onclick="print()">Print or save as PDF</button><span>To save a PDF, choose <b>Save as PDF</b> as the printer.</span></div>
 <main class="sheet">
   <header class="top">
-    <div class="logo"><img class="k flip" src="${asset("koi.png")}" alt=""><img class="w" src="${asset("logo.png")}" alt="Floatle"><img class="k" src="${asset("koi.png")}" alt=""></div>
+    <div class="logo"><img class="k flip" src="${asset("koi.png")}" alt=""><img class="w" src="${asset("logo.png")}" alt="Floatle"><sup class="tm" aria-hidden="true">™</sup><img class="k" src="${asset("koi.png")}" alt=""></div>
     <div class="top-r"><h1>Substitute Teacher Guide</h1><p>How to open today's class board on the screen</p></div>
   </header>
   <section class="card">
@@ -4278,6 +4297,11 @@ $("shareWrap").addEventListener("click", async e => {
     try { await startSharing(b); renderShare(); }
     catch(err){ btn.disabled = false; btn.textContent = "Create link and QR code"; toast("Couldn't create a link. Check your connection and try again."); }
   }
+  else if (a === "subdraw"){
+    b.subDraw = btn.checked; save();
+    toast(btn.checked ? "Subs can draw on this board. Their drawings stay on their screen and are never saved."
+                      : "Drawing is off for subs on this board.");
+  }
   else if (a === "copylink") copyText(shareURL(b.shareCode), "Link copied.");
   else if (a === "copyplan") copyForPlan(b);
   else if (a === "download"){
@@ -4320,6 +4344,7 @@ async function loadShared(first){
   if (error){ if (first) showMissing(true); return; }
   if (!row || !row.data){ showMissing(false); return; }       // also covers "teacher stopped sharing"
   if (!first && !viewMsg && (row.updated_ms || 0) <= sharedUpdated) return;
+  if (!first && pen) return;   // a sub is mid-stroke: pick up the teacher's changes on the next check
   sharedUpdated = row.updated_ms || 0;
   const bd = row.data, prev = (first || viewMsg) ? null : board();
   if (!bd.id) bd.id = "shared";
@@ -4338,7 +4363,7 @@ async function loadShared(first){
   });
   viewMsg = "";
   setState({ v:1, active:bd.id, boards:[bd], updatedAt:0, trash:[] });
-  document.title = (bd.name || "Class board") + " · Floatle";
+  document.title = (bd.name || "Class board") + " · Floatle™";
   render(); renderPip(); resetHistory();
 }
 function openCode(val, onBad){
@@ -5587,17 +5612,25 @@ function drawToolsHTML(where, paper){
   return `<div class="dt">${tool("pen", ICON.pen, "Pen")}${tool("hl", ICON.marker, "Highlighter")}${tool("erase", ICON.eraser, "Eraser: touch a line to remove it")}<span class="sep"></span>
     ${DRAW_COLORS.map(([c, l]) => `<button class="sw" data-act="dcolor" data-v="${c}" style="background:${c}" aria-pressed="${DRAW.color === c}" title="${l}" aria-label="${l}"></button>`).join("")}<span class="sep"></span>
     ${DRAW_SIZES.map(([z, l], i) => `<button class="sz" data-act="dsize" data-v="${z}" aria-pressed="${DRAW.size === z}" title="${l} line" aria-label="${l} line"><i style="width:${.3 + i * .28}em;height:${.3 + i * .28}em"></i></button>`).join("")}<span class="sep"></span>
-    ${where === "note" ? `<button data-act="dpaper" title="Paper: ${pName}. Click for the next kind." aria-label="Change paper (now ${pName})">${ICON.grid}</button>` : ""}
-    <button data-act="dundo" title="Take back the last line" aria-label="Take back the last line">${ICON.undo1}</button>
-    <button data-act="dclear" title="${where === "note" ? "Clear this drawing" : "Clear everything drawn on this board"}" aria-label="${where === "note" ? "Clear this drawing" : "Clear the drawing on this board"}">${ICON.trash}</button>
+    ${where === "note" && !viewing ? `<button data-act="dpaper" title="Paper: ${pName}. Click for the next kind." aria-label="Change paper (now ${pName})">${ICON.grid}</button>` : ""}
+    <button data-act="dundo" title="Take back ${viewing ? "your" : "the"} last line" aria-label="Take back ${viewing ? "your" : "the"} last line">${ICON.undo1}</button>
+    ${viewing
+      ? `<button class="dt-clear" data-act="dclear" title="Clear what you drew. The teacher's drawing stays." aria-label="Clear my drawing">${ICON.trash}Clear my drawing</button>`
+      : `<button data-act="dclear" title="${where === "note" ? "Clear this drawing" : "Clear everything drawn on this board"}" aria-label="${where === "note" ? "Clear this drawing" : "Clear the drawing on this board"}">${ICON.trash}</button>`}
     ${where === "ink" ? `<button class="ink-done" data-act="dinkdone">Done</button>` : ""}</div>`;
+}
+// what a drawing shows: the teacher's lines, plus the sub's own lines on a shared board
+function surfaceStrokes(where, n){
+  if (where === "ink"){ const own = board().ink || []; return viewing ? own.concat(subInk) : own; }
+  const own = (n && n.draw && n.draw.strokes) || [];
+  return viewing ? own.concat(subNoteInk[n.id] || []) : own;
 }
 function drawBodyHTML(n, forPip){
   const d = n.draw || (n.draw = { paper:"blank", strokes:[] });
   const paper = PAPERS.some(x => x[0] === d.paper) ? d.paper : "blank";
-  const ro = forPip || viewing;
+  const ro = forPip || (viewing && !viewerDraw());
   return (ro ? "" : drawToolsHTML("note", paper))
-    + `<div class="dp paper-${paper}${ro ? " ro" : ""}" role="img" aria-label="Drawing">${drawSVG(d.strokes, "note")}</div>`;
+    + `<div class="dp paper-${paper}${ro ? " ro" : ""}" role="img" aria-label="Drawing">${drawSVG(surfaceStrokes("note", n), "note")}</div>`;
 }
 function refreshDrawTools(){
   boardEl.querySelectorAll(".note.kind-draw").forEach(el => {
@@ -5611,6 +5644,16 @@ function drawToolAct(act, btn, n){
   if (act === "dcolor"){ setDraw("color", btn.dataset.v); if (DRAW.tool === "erase") setDraw("tool", "pen"); refreshDrawTools(); return; }
   if (act === "dsize"){ setDraw("size", +btn.dataset.v); if (DRAW.tool === "erase") setDraw("tool", "pen"); refreshDrawTools(); return; }
   if (act === "dinkdone"){ setInk(false); return; }
+  if (n && viewing){
+    const mine = subNoteInk[n.id] || [];
+    if (!mine.length) return;
+    if (act === "dundo") mine.pop();
+    else if (act === "dclear"){ mine.length = 0; toast("Your drawing is cleared."); }
+    else return;
+    const pad = boardEl.querySelector(`.note[data-id="${n.id}"] .dp`);
+    if (pad) pad.innerHTML = drawSVG(surfaceStrokes("note", n), "note");
+    return;
+  }
   if (n){
     const d = n.draw || (n.draw = { paper:"blank", strokes:[] });
     if (act === "dpaper"){
@@ -5630,6 +5673,13 @@ function drawToolAct(act, btn, n){
     if (pad) pad.innerHTML = drawSVG(d.strokes, "note");
     return;
   }
+  if (viewing){
+    if (!subInk.length) return;
+    if (act === "dundo") subInk.pop();
+    else if (act === "dclear"){ subInk.length = 0; toast("Your drawing is cleared."); }
+    renderInkLayer();
+    return;
+  }
   const b = board(), ink = b.ink || [];
   if (!ink.length) return;
   if (act === "dundo") ink.pop();
@@ -5645,10 +5695,11 @@ function inkSurface(target){
     const nn = pad.closest(".note"), n = nn && findNote(nn.dataset.id);
     if (!n) return null;
     if (!n.draw) n.draw = { paper:"blank", strokes:[] };
-    return { host:pad, n, list:n.draw.strokes, where:"note" };
+    const list = viewing ? (subNoteInk[n.id] || (subNoteInk[n.id] = [])) : n.draw.strokes;
+    return { host:pad, n, list, where:"note" };
   }
   const ink = target.closest && target.closest(".ink.on");
-  if (ink){ const b = board(); if (!b.ink) b.ink = []; return { host:ink, list:b.ink, where:"ink" }; }
+  if (ink){ const b = board(); if (!b.ink) b.ink = []; return { host:ink, list: viewing ? subInk : b.ink, where:"ink" }; }
   return null;
 }
 boardEl.addEventListener("pointerdown", e => {
@@ -5688,7 +5739,7 @@ function eraseAt(x, y){
       const t = L ? clamp(((px - ax) * dx + (py - ay) * dy) / L, 0, 1) : 0;
       if (Math.hypot(px - (ax + t * dx), py - (ay + t * dy)) <= tol){
         pen.list.splice(k, 1); pen.removed = true;
-        pen.host.querySelector("svg").innerHTML = strokesSVG(pen.list, pen.where);
+        pen.host.querySelector("svg").innerHTML = strokesSVG(surfaceStrokes(pen.where, pen.n), pen.where);
         return;
       }
     }
@@ -5702,12 +5753,12 @@ boardEl.addEventListener("pointermove", e => {
 function endPen(e){
   if (!pen || (e && e.pointerId !== pen.pid)) return;
   const P = pen; pen = null;
-  if (P.erase){ if (P.removed) save(); return; }
+  if (P.erase){ if (P.removed && !viewing) save(); return; }
   if (!P.s.p.length){ P.path.remove(); return; }
   P.path.setAttribute("d", strokeD(P.s.p));
   P.list.push(P.s);
   if (P.where === "note"){ const nn = P.host.closest(".note"); if (nn) nn.querySelector(".preview").textContent = firstLine(P.n); }
-  save();
+  if (!viewing) save();
 }
 boardEl.addEventListener("pointerup", endPen);
 boardEl.addEventListener("pointercancel", endPen);
@@ -5715,18 +5766,18 @@ boardEl.addEventListener("pointercancel", endPen);
 /* drawing on the board itself: a see-through layer over the board and its notes */
 let inkMode = false;
 function setInk(on){
-  inkMode = !!on && !narrow() && !viewing;
+  inkMode = !!on && !narrow() && (!viewing || viewerDraw());
   $("drawBtn").setAttribute("aria-pressed", String(inkMode));
   if (inkMode){ closeMenus(); if (DRAW.color === "#FFFFFF" && /white|light/.test(boardEl.className)) setDraw("color", "#1B2530"); }
   renderInkLayer(); renderInkBar();
 }
 function renderInkLayer(){
-  const b = board(), has = Array.isArray(b.ink) && b.ink.length;
+  const lines = surfaceStrokes("ink");
   let el = boardEl.querySelector(":scope > .ink");
-  if (!has && !inkMode){ if (el) el.remove(); return; }
+  if (!lines.length && !inkMode){ if (el) el.remove(); return; }
   if (!el){ el = document.createElement("div"); el.className = "ink"; boardEl.appendChild(el); }
   el.classList.toggle("on", inkMode);
-  el.innerHTML = drawSVG(b.ink || [], "ink");
+  el.innerHTML = drawSVG(lines, "ink");
 }
 function renderInkBar(){
   const bar = $("inkBar");
