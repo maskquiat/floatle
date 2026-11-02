@@ -10,6 +10,21 @@
 
   gtag('config', 'G-NQ3SSGYQ8H');
 </script>
+<!-- PostHog -->
+<script>
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  posthog.init('phc_Dftx2VMkqZRaVLuwxFUtVPhwd8fjwW3ZaotViiadcHuT', {
+    api_host: 'https://us.i.posthog.com',
+    person_profiles: 'identified_only',
+    autocapture: true,
+    mask_all_text: true,
+    mask_all_element_attributes: true,
+    capture_pageview: true,
+    capture_pageleave: true,
+    disable_session_recording: true,
+    session_recording: { maskAllInputs: true, maskTextSelector: '*' }
+  });
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Floatle™ — Keep what matters in view</title>
@@ -1291,6 +1306,8 @@ const SUPABASE_KEY = "sb_publishable_XDqCiU9aNwO2sO9KuLm_7Q_tEw6y59Y";   // the 
 const cloudReady = !!(SUPABASE_URL && SUPABASE_KEY && window.supabase && window.supabase.createClient);
 const sb = cloudReady ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 const redirectURL = location.origin + location.pathname;
+// analytics must never break the app; never pass note text, file names, board names, emails or report content
+const track = (name, props) => { try { window.posthog && posthog.capture(name, props || {}); } catch(e){} };
 
 const LOCAL_KEY = "swbats.local.v1";
 let userId = null, userEmail = "";
@@ -1458,7 +1475,16 @@ async function onSignedIn(user){
   schedCheck(true);   // signing in on a classroom computer opens the board scheduled for right now
   syncShares();
   loadReports();
-  loadPlan();         // Pro raises the document limits
+  loadPlan().then(() => {   // Pro raises the document limits
+    // analytics: Supabase user id only (never the email); replay only in edit mode, never a shared view or Present
+    try {
+      posthog.identify(user.id, {
+        plan: isPro() ? (/@wpcsd\.k12\.ny\.us$/i.test(user.email || "") ? "pilot" : "pro") : "free",
+        boards: state.boards.length
+      });
+      if (!viewing && !presenting) posthog.startSessionRecording();
+    } catch(e){}
+  });
   uploadPendingImages();
 }
 async function pullRemote(){
@@ -1479,6 +1505,8 @@ async function signOut(){
   userId = null; userEmail = ""; proUntil = 0;
   reports = []; repExpanded = {}; repToasted = false; repPurged = false; updateRepBadge();
   try { await sb.auth.signOut(); } catch(e){}
+  // the next person on a shared classroom computer starts as a new anonymous visitor
+  try { posthog.stopSessionRecording(); posthog.reset(); } catch(e){}
   setState(readCache(LOCAL_KEY) || seed());
   setSync("Not signed in. Boards save in this browser only.");
   render(); renderPip(); resetHistory(); showAuth("signin");
@@ -2826,6 +2854,11 @@ tabsEl.addEventListener("click", e => {
 function setPresent(on){
   presenting = on;
   document.body.classList.toggle("present", on);
+  // session replay: off in Present and on shared views; back on only for a signed-in teacher returning to edit mode
+  try {
+    if (on || viewing) posthog.stopSessionRecording();
+    else if (userId) posthog.startSessionRecording();
+  } catch(e){}
   renderBoard(); renderTabs();
   if (on){
     const el = document.documentElement;
