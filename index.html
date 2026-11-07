@@ -30,6 +30,8 @@
 <title>Floatle™ — Keep what matters in view</title>
 <meta name="description" content="Floatle: floating sticky notes that keep what matters in view. Write it. Float it. See it. Made by a teacher.">
 <meta name="theme-color" content="#173A55">
+<meta name="author" content="Kenneth Muigai">
+<meta name="copyright" content="© 2026 Kenneth Muigai. All rights reserved.">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1015,12 +1017,33 @@ body.viewing:not(.sub-draw) .draw-btn{display:none !important}
 .set-tag.on{background:#E3F4EA;color:#1F6B45;border-color:#B5DEC4}
 .set-sec{margin:.7rem .6rem .2rem;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .menu .set-item.c-sh .si{color:#C63F77} .menu .set-item.c-rp .si{color:#1F7A50} .menu .set-item.c-sc .si{color:#6E56CF}
-.menu .set-item.c-cr .si{color:#E8663D} .menu .set-item.c-la .si{color:#B7791F} .menu .set-item.c-bg .si{color:#1E9CC8}
+.menu .set-item.c-ls .si{color:#2D7FB8} .menu .set-item.c-cr .si{color:#E8663D} .menu .set-item.c-la .si{color:#B7791F} .menu .set-item.c-bg .si{color:#1E9CC8}
 .menu .set-item.danger .si{color:var(--danger)}
 .menu .set-item:disabled{opacity:.45;cursor:default}
 .menu .set-item:disabled:hover{background:none}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .set-tag.on{background:#173A28;color:#8FD9AE;border-color:#25553A} }
 :root[data-theme="dark"] .set-tag.on{background:#173A28;color:#8FD9AE;border-color:#25553A}
+
+/* ---------- Saved lessons ---------- */
+.ls-panel{max-width:44rem}
+.ls-cur{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;padding:.7rem .85rem;border-radius:.7rem;background:var(--chrome-2);border:1px solid var(--line);margin:.4rem 0 .2rem}
+.ls-cur span{flex:1 1 14rem;min-width:0;overflow-wrap:anywhere}
+.ls-lbl{display:block;font-weight:700;margin:.8rem 0 0}
+.ls-head{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:1rem 0 .3rem}
+.ls-head b{margin-right:auto}
+.ls-head input{flex:1 1 12rem;min-width:0;font:inherit;padding:.5rem .7rem;border:1px solid var(--line);border-radius:.55rem;background:var(--chrome-2);color:var(--ink);min-height:2.6rem}
+.ls-item{flex-wrap:wrap}
+.ls-th{width:4.6rem;height:2.6rem;border-radius:.4rem;margin:0;background-size:cover !important;background-position:center !important}
+.ls-item .trash-acts{flex:1 0 100%;justify-content:flex-start;padding-left:5.3rem;gap:.35rem}
+.ls-item .trash-acts .btn{padding:.38rem .6rem;font-size:.9rem}
+.ls-ren{width:100%;font:inherit;font-weight:700;padding:.35rem .5rem;border:2px solid var(--accent);border-radius:.45rem;background:var(--chrome);color:var(--ink)}
+@media (max-width:700px){ .ls-item .trash-acts{padding-left:0} .ls-item .trash-acts .btn{min-height:44px} }
+
+/* ---------- copyright footer ---------- */
+.site-foot{flex:0 0 auto;display:flex;justify-content:center;flex-wrap:wrap;gap:.2rem .6rem;padding:.2rem .75rem calc(.2rem + env(safe-area-inset-bottom,0px));font-size:.72rem;line-height:1.3;color:var(--muted);background:var(--chrome);border-top:1px solid var(--line)}
+body.present .site-foot,body.viewing .site-foot{display:none}
+.auth-foot{align-self:end;position:relative;z-index:1;margin-top:1rem;font-size:.78rem;color:rgba(255,255,255,.72);text-align:center}
+.menu .set-copy{padding:.1rem .6rem .5rem;font-size:.72rem;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -1083,6 +1106,7 @@ body.viewing:not(.sub-draw) .draw-btn{display:none !important}
 </header>
 <main class="board" id="board" aria-label="Board"></main>
 <div class="crawl" id="crawl" role="marquee" aria-label="Class announcements" hidden></div>
+<footer class="site-foot" id="siteFoot"><span class="copy-line">&copy; 2026 Kenneth Muigai. All rights reserved.</span><span>Floatle&trade;</span></footer>
 <div class="auth" id="auth" hidden>
   <div class="pond" aria-hidden="true">
     <svg class="ripples" viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice">
@@ -1147,11 +1171,12 @@ body.viewing:not(.sub-draw) .draw-btn{display:none !important}
     </div>
   </form>
   </div>
+  <p class="auth-foot copy-line">&copy; 2026 Kenneth Muigai. All rights reserved.</p>
 </div>
 <div class="trash-wrap" id="trashWrap" hidden>
   <div class="trash-panel" role="dialog" aria-modal="true" aria-labelledby="trashTitle">
     <div class="trash-head"><h2 id="trashTitle">Trash</h2><button class="btn" id="trashClose">Done</button></div>
-    <p class="trash-sub">Deleted notes and boards stay here for 30 days, then are removed for good.</p>
+    <p class="trash-sub">Deleted notes, boards and saved lessons stay here for 30 days, then are removed for good.</p>
     <div id="trashList"></div>
   </div>
 </div>
@@ -1220,8 +1245,16 @@ body.viewing:not(.sub-draw) .draw-btn{display:none !important}
     <div id="bgBody"></div>
   </div>
 </div>
+<div class="trash-wrap" id="lessonWrap" hidden>
+  <div class="trash-panel ls-panel" role="dialog" aria-modal="true" aria-labelledby="lessonTitle">
+    <div class="trash-head"><h2 id="lessonTitle">Saved lessons</h2><button class="btn" id="lessonClose">Done</button></div>
+    <p class="trash-sub">Name and save everything on a board: notes, timers, documents, the background and your sub plans. Open it again on any board, any day. If the board is shared with a sub, they see the lesson right away.</p>
+    <div id="lessonBody"></div>
+  </div>
+</div>
 <div class="ink-bar" id="inkBar" role="toolbar" aria-label="Drawing tools"></div>
 <input type="file" id="bgFile" accept="image/*" hidden>
+<input type="file" id="lessonFile" accept=".json,application/json" hidden>
 <input type="file" id="importFile" accept=".json,application/json" hidden>
 <input type="file" id="imgFile" accept="image/*" hidden>
 <input type="file" id="docFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.gif,.webp" hidden>
@@ -1237,6 +1270,11 @@ body.viewing:not(.sub-draw) .draw-btn{display:none !important}
 "use strict";
 const LS_KEY = "classboard.v1";
 const FEEDBACK_URL = "https://forms.gle/3D2y6AEoCucB48sQ7";
+/* Copyright line shown in the footer, on the sign-in screen and in Settings. Once the LLC is set up,
+   change the owner here (for example "Floatle LLC"); the static copies in the HTML are filled from this. */
+const COPYRIGHT_OWNER = "Kenneth Muigai", COPYRIGHT_YEAR = "2026";
+const COPYRIGHT = "\u00A9 " + COPYRIGHT_YEAR + " " + COPYRIGHT_OWNER + ". All rights reserved.";
+document.querySelectorAll(".copy-line").forEach(el => { el.textContent = COPYRIGHT; });
 const COLORS = { lemon:"#FFE66B", mint:"#A6E8C6", sky:"#A9D8F7", rose:"#FFB8CB", tangerine:"#FFC98F", lilac:"#D9CCFF", paper:"#FBFAF6" };
 const COLOR_KEYS = Object.keys(COLORS);
 const BGS = { pond:"Koi pond", slate:"Slate", green:"Chalkboard", white:"Whiteboard", cork:"Corkboard" };
@@ -1317,6 +1355,7 @@ function readCache(key){ try { const s = JSON.parse(localStorage.getItem(key)); 
 const TRASH_DAYS = 30, DAY_MS = 86400000;
 function purgeTrash(){
   if (!Array.isArray(state.trash)) state.trash = [];
+  if (!Array.isArray(state.lessons)) state.lessons = [];   // Saved lessons (see "Saved lessons" below)
   state.trash = state.trash.filter(t => t && t.item && Date.now() - (t.deletedAt||0) < TRASH_DAYS * DAY_MS);
 }
 function setState(next){
@@ -1363,7 +1402,7 @@ function saveLocal(){
    boards looked, so any change (typing, deleting, moving, reordering) can be undone.
    Bursts of typing are grouped so one undo removes one pause-to-pause chunk. */
 const HISTORY_MAX = 100;
-const NO_UNDO = new Set(["updatedAt", "z", "active", "fx", "pipScale", "late"]);
+const NO_UNDO = new Set(["updatedAt", "z", "active", "fx", "pipScale", "late", "lessons"]);   // saved lessons have their own Trash, so Undo leaves them alone
 let undoStack = [], redoStack = [], lastSnap = null, lastKind = "", lastEditAt = 0;
 function snap(){
   // leave out things that shouldn't count as an edit: save time, stacking order, which tab is open,
@@ -1417,6 +1456,7 @@ function applySnapshot(json, pushTo){
     b.notes.forEach(n => { n.z = zs[n.id] ?? ++zTop; if (fxs[n.id]) n.fx = fxs[n.id]; });
   });
   next.active = cur.active;
+  next.lessons = cur.lessons;   // Undo changes boards, never the saved-lessons library
   setState(next);
   lastSnap = json; lastKind = "";
   persist(); render(); refocus(f);
@@ -2611,7 +2651,8 @@ const SET_ICON = {
   feedback:'<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/>',
   del:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
   signout:'<path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H4"/>',
-  signin:'<path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M14 17l5-5-5-5M19 12H8"/>'
+  signin:'<path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M14 17l5-5-5-5M19 12H8"/>',
+  lessons:'<path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/>'
 };
 const setIco = k => `<svg class="si" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SET_ICON[k]}</svg>`;
 function setItem(act, label, o){
@@ -2636,6 +2677,7 @@ function renderSettings(){
     ${setItem("crawl", "Screen crawler", { cls:"c-cr", hint:"Ticker along the bottom", tag:CRAWL_READY && crawlCfg(b).on ? "On" : "", tagOn:true })}
     ${setItem("late", "Running late", { cls:"c-la", hint:"Start class without me", tag:lateActive(b) ? "On" : "", tagOn:true })}
     <div class="set-sec">This board</div>
+    ${setItem("lessons", "Saved lessons", { cls:"c-ls", hint:lessonOf(b) ? "Opened: " + esc(lessonOf(b).name) : "Save, name and reopen boards", tag:state.lessons.length ? String(state.lessons.length) : "" })}
     ${setItem("dup", "Duplicate")}
     ${setItem("expand", "Expand all notes")}
     ${setItem("collapse", "Minimize all notes")}
@@ -2652,7 +2694,8 @@ function renderSettings(){
     ${sb ? (userId
       ? `<div class="acct" id="syncLine">${esc(syncLabel)}</div>${setItem("signout", "Sign out")}`
       : `<div class="acct" id="syncLine">${esc(syncLabel)}</div>${setItem("signin", "Sign in or create an account")}`)
-      : `<div class="sync" id="syncLine">${esc(syncLabel)}</div>`}`;
+      : `<div class="sync" id="syncLine">${esc(syncLabel)}</div>`}
+    <div class="set-copy">${esc(COPYRIGHT)}</div>`;
 }
 function render(){ renderTabs(); renderBoard(); renderAddMenu(); renderSettings(); }
 
@@ -2713,6 +2756,7 @@ document.addEventListener("keydown", e => {
     if (!$("crawlWrap").hidden){ closeCrawlSet(); return; }
     if (!$("lateWrap").hidden){ closeLate(); return; }
     if (!$("bgWrap").hidden){ closeBg(); return; }
+    if (!$("lessonWrap").hidden){ closeLessons(); return; }
     if (document.querySelector(".menu.open")){ closeMenus(); return; }
     if (inkMode){ setInk(false); return; }
     if (presenting && !viewing) setPresent(false);
@@ -2789,6 +2833,7 @@ $("setMenu").addEventListener("click", e => {
     toggleMenu($("setBtn"), $("setMenu"), false); return;
   }
   if (act === "trash"){ toggleMenu($("setBtn"), $("setMenu"), false); openTrash(); return; }
+  if (act === "lessons"){ toggleMenu($("setBtn"), $("setMenu"), false); openLessons(); return; }
   if (act === "bg"){ toggleMenu($("setBtn"), $("setMenu"), false); openBg(b.backdrop ? "slides" : null); return; }
   if (act === "inkclear"){ toggleMenu($("setBtn"), $("setMenu"), false); b.ink = []; save(); renderInkLayer(); toast("Drawing cleared from " + b.name + ".", undo); return; }
   if (act === "share"){ toggleMenu($("setBtn"), $("setMenu"), false); openShare(); return; }
@@ -2804,17 +2849,7 @@ $("setMenu").addEventListener("click", e => {
     copy.id = uid(); copy.name = b.name + " (copy)";
     delete copy.shareCode;   // a copy gets its own code only if the teacher shares it
     delete copy.sched;       // and its own schedule, so two boards don't claim the same class period
-    const idMap = {};
-    copy.notes.forEach(n => {
-      const old = n.id; n.id = uid(); idMap[old] = n.id;
-      (n.items||[]).forEach(i => { i.id = uid(); i.done = false; });
-      if (n.kind === "timed"){
-        (n.tasks||[]).forEach(x => { x.id = uid(); x.actual = null; });
-        n.cur = 0; n.timer = { running:false, endAt:0, rem:null };
-      }
-    });
-    if (Array.isArray(copy.pipOrder)) copy.pipOrder = copy.pipOrder.map(id => idMap[id]).filter(Boolean);
-    if (copy.crawl && Array.isArray(copy.crawl.ids)) copy.crawl.ids = copy.crawl.ids.map(id => idMap[id]).filter(Boolean);
+    renewIds(copy);
     delete copy.late;        // a late start belongs to the board it was set on
     state.boards.splice(state.boards.indexOf(b)+1, 0, copy);
     state.active = copy.id; render(); save();
@@ -3498,6 +3533,8 @@ function restoreFromTrash(tid){
       b.notes.splice(Math.min(t.index ?? b.notes.length, b.notes.length), 0, t.item);
     }
     state.active = b.id; where = " to " + b.name;
+  } else if (t.type === "lesson"){
+    if (!state.lessons.some(x => x.id === t.item.id)) state.lessons.splice(Math.min(t.index ?? state.lessons.length, state.lessons.length), 0, t.item);
   } else {
     if (!state.boards.some(x => x.id === t.item.id)) state.boards.splice(Math.min(t.index ?? state.boards.length, state.boards.length), 0, t.item);
     state.active = t.item.id;
@@ -3505,7 +3542,8 @@ function restoreFromTrash(tid){
   state.trash.splice(i, 1);
   render(); save();
   if (!$("trashWrap").hidden) renderTrash();
-  toast((t.type === "note" ? "Note restored" : "Board restored") + where + ".");
+  toast((t.type === "note" ? "Note restored" : t.type === "lesson" ? "Lesson restored to Saved lessons" : "Board restored") + where + ".");
+  if (t.type === "lesson" && !$("lessonWrap").hidden) renderLessons();
 }
 function relDays(ms){
   const d = Math.floor((Date.now() - ms) / DAY_MS);
@@ -3520,6 +3558,11 @@ function renderTrash(){
     const left = Math.max(1, TRASH_DAYS - Math.floor((Date.now() - t.deletedAt) / DAY_MS));
     const meta = `Deleted ${relDays(t.deletedAt)} &bull; removed for good in ${left} day${left > 1 ? "s" : ""}`;
     const acts = `<div class="trash-acts"><button class="btn" data-tact="restore">Restore</button><button class="btn danger-btn" data-tact="forever">Delete forever</button></div>`;
+    if (t.type === "lesson"){
+      const c = ((t.item.board && t.item.board.notes) || []).length;
+      return `<div class="trash-item" data-tid="${t.id}"><span class="swatch" style="background:${esc(bgSwatch(t.item.board && t.item.board.bg))};background-size:cover"></span>
+        <div class="trash-info"><b>${esc(t.item.name)} (saved lesson)</b><div class="pv">${c} note${c === 1 ? "" : "s"}</div><div class="meta">${meta}</div></div>${acts}</div>`;
+    }
     if (t.type === "board"){
       const c = (t.item.notes || []).length;
       return `<div class="trash-item" data-tid="${t.id}"><span class="swatch" style="background:${esc(bgSwatch(t.item.bg))};background-size:cover"></span>
@@ -3569,7 +3612,7 @@ let imgTarget = null;                      // an empty Image note the next paste
 let pickTarget = null;                     // the note "Choose an image" was clicked in
 
 function modalOpen(){
-  return !$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden || !$("leaveWrap").hidden || !$("repWrap").hidden || !$("imgView").hidden || !$("schedWrap").hidden || !$("crawlWrap").hidden || !$("lateWrap").hidden || !$("bgWrap").hidden;
+  return !$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden || !$("leaveWrap").hidden || !$("repWrap").hidden || !$("imgView").hidden || !$("schedWrap").hidden || !$("crawlWrap").hidden || !$("lateWrap").hidden || !$("bgWrap").hidden || !$("lessonWrap").hidden;
 }
 function imageBodyHTML(n, forPip){
   const tapZoom = !forPip && (presenting || viewing);
@@ -3626,7 +3669,8 @@ async function uploadImageBlob(blob){
 function swapImageSrc(from, to){
   const fix = n => { if (n && n.src === from) n.src = to; };
   state.boards.forEach(b => b.notes.forEach(fix));
-  (state.trash || []).forEach(t => { if (!t || !t.item) return; if (t.type === "note") fix(t.item); else (t.item.notes || []).forEach(fix); });
+  (state.lessons || []).forEach(L => ((L.board && L.board.notes) || []).forEach(fix));
+  (state.trash || []).forEach(t => { if (!t || !t.item) return; if (t.type === "note") fix(t.item); else if (t.type === "lesson") ((t.item.board && t.item.board.notes) || []).forEach(fix); else (t.item.notes || []).forEach(fix); });
   const rep = s => (typeof s === "string" && s.includes(from)) ? s.split(from).join(to) : s;
   undoStack = undoStack.map(rep); redoStack = redoStack.map(rep); lastSnap = rep(lastSnap);
   persist();
@@ -3714,7 +3758,8 @@ async function uploadPendingImages(){
   pendingRun = true;
   try {
     const seen = new Set();
-    for (const b of state.boards) for (const n of b.notes){
+    const all = [...state.boards, ...(state.lessons || []).map(L => L.board || { notes:[] })];
+    for (const b of all) for (const n of (b.notes || [])){
       if (n.kind !== "image" || !n.src || !n.src.startsWith("data:") || seen.has(n.src)) continue;
       seen.add(n.src);
       if (!await uploadOne(n.src, null, n.id, false)) return;   // offline: try again later
@@ -5842,12 +5887,227 @@ window.addEventListener("resize", () => { if (inkMode && narrow()) setInk(false)
 
 /* ---------- backgrounds ----------
    b.bg is one of: a classic key ("pond", "slate", "green", "white", "cork"), "c:#RRGGBB" (a color),
-   "g:<key>" (a gradient), "p:<key>" (an illustrated scene in assets/backgrounds/<key>.svg) or
+   "g:<key>" (a gradient), "p:<key>" (an illustrated scene: assets/<key>.svg, with a drawn copy in SCENES under it) or
    "u:<address>" (a picture the teacher uploaded; Pro). A board can also rotate through several:
    b.bgShow = { on, every (seconds), list:[values] } (Pro). Which one shows is worked out from the clock,
    so every screen showing the board (the teacher's, a sub's) changes at the same moment.
    A teacher's uploaded pictures are listed in state.bgUploads = [{ url, at }].
-   To add a scene: put a 16:9 picture in assets/backgrounds/ and add a line to BG_LIB (a .jpg works too). */
+   To add a scene: put a 16:9 picture in assets/ named <key>.svg and add a line to BG_LIB (for a .jpg or another
+   name, give its address as the line's 6th item). Adding a drawing to SCENES as well gives it a backup. */
+/* Illustrated scenes, drawn in code so they always show: no picture files to upload or lose.
+   Each one is an SVG at 1600 x 900 that covers the board (it crops, never stretches).
+   They're kept soft and low-contrast on purpose, so notes stay easy to read on top. */
+const SCENE_RNG = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const f1 = v => Math.round(v * 10) / 10;
+const svgWrap = (defs, body) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><defs>${defs}</defs>${body}</svg>`;
+const lin = (id, stops, x2, y2) => `<linearGradient id="${id}" x1="0" y1="0" x2="${x2 ?? 0}" y2="${y2 ?? 1}">${stops.map(([o, c, a]) => `<stop offset="${o}" stop-color="${c}"${a != null ? ` stop-opacity="${a}"` : ""}/>`).join("")}</linearGradient>`;
+const rad = (id, stops, cx, cy, r) => `<radialGradient id="${id}" cx="${cx ?? .5}" cy="${cy ?? .5}" r="${r ?? .5}">${stops.map(([o, c, a]) => `<stop offset="${o}" stop-color="${c}"${a != null ? ` stop-opacity="${a}"` : ""}/>`).join("")}</radialGradient>`;
+// a ridge line across the scene: y wobbles around "base" by up to "amp"
+function ridge(rnd, base, amp, steps, sharp){
+  let d = `M0 900 L0 ${f1(base)}`;
+  for (let i = 1; i <= steps; i++){
+    const x = 1600 * i / steps, y = base - rnd() * amp + amp * 0.35;
+    if (sharp) d += ` L${f1(x)} ${f1(y)}`;
+    else { const cx = x - 800 / steps; d += ` Q${f1(cx)} ${f1(y - amp * 0.5 * rnd())} ${f1(x)} ${f1(y)}`; }
+  }
+  return d + " L1600 900 Z";
+}
+const leafPath = (len, wid) => `M0 0 C${f1(wid)} ${f1(-len * .25)} ${f1(wid * .9)} ${f1(-len * .8)} 0 ${f1(-len)} C${f1(-wid * .9)} ${f1(-len * .8)} ${f1(-wid)} ${f1(-len * .25)} 0 0Z`;
+const SCENES = {
+  pond(){   // the Koi pond classic, used under assets/pond-bg.jpg (and instead of it if that file is missing)
+    const r = SCENE_RNG(7);
+    let pads = "";
+    [[230,190,92,-20],[1360,250,118,35],[1240,720,84,140],[300,700,130,80],[820,120,60,-60],[1500,560,56,10]].forEach(([x, y, s, a]) => {
+      pads += `<g transform="translate(${x} ${y}) rotate(${a})"><path d="M0 0 L${f1(s * .98)} ${f1(-s * .2)} A${s} ${s} 0 1 0 ${f1(s * .98)} ${f1(s * .2)} Z" fill="#3E8A4E" opacity=".85"/><path d="M0 0 L${f1(s * .98)} ${f1(-s * .2)} A${s} ${s} 0 1 0 ${f1(s * .98)} ${f1(s * .2)} Z" fill="none" stroke="#7FC47A" stroke-width="3" opacity=".55"/>`
+        + [0, 60, 120, 180, 240, 300].map(d => `<path d="M0 0 L${f1(Math.cos((d + 15) * Math.PI / 180) * s * .85)} ${f1(Math.sin((d + 15) * Math.PI / 180) * s * .85)}" stroke="#2F6E3C" stroke-width="2.5" opacity=".5"/>`).join("") + `</g>`;
+    });
+    let rings = "";
+    [[760,470,1],[1080,380,.6],[420,420,.55],[980,760,.7]].forEach(([x, y, k]) => {
+      [1, 1.7, 2.6].forEach((m, i) => { rings += `<ellipse cx="${x}" cy="${y}" rx="${f1(120 * k * m)}" ry="${f1(38 * k * m)}" fill="none" stroke="#9FE3F7" stroke-width="2.5" stroke-opacity="${[.22, .14, .08][i]}"/>`; });
+    });
+    let glints = "";
+    for (let i = 0; i < 40; i++) glints += `<ellipse cx="${f1(r() * 1600)}" cy="${f1(r() * 900)}" rx="${f1(20 + r() * 60)}" ry="${f1(3 + r() * 4)}" fill="#FFFFFF" opacity="${f1(.03 + r() * .05)}"/>`;
+    return svgWrap(rad("pg", [[0, "#2A6A88"], [.55, "#173A55"], [1, "#0D1C2E"]], .5, .45, .75),
+      `<rect width="1600" height="900" fill="url(#pg)"/>${glints}${rings}${pads}`);
+  },
+  mountains(){
+    const r = SCENE_RNG(11);
+    const sky = lin("ms", [[0, "#D7DEEF"], [.55, "#E9E3EE"], [1, "#F4E6DF"]]);
+    const fog = lin("mf", [[0, "#FFFFFF", 0], [1, "#FFFFFF", .75]]);
+    const layers = [[430, 170, "#B7C2DD"], [520, 150, "#9DABCC"], [610, 130, "#8394BC"], [700, 110, "#6C7FA9"], [790, 80, "#5A6C96"]];
+    let body = `<rect width="1600" height="900" fill="url(#ms)"/><circle cx="1180" cy="250" r="90" fill="#FFF3E6" opacity=".9"/><circle cx="1180" cy="250" r="150" fill="#FFF3E6" opacity=".25"/>`;
+    layers.forEach(([base, amp, c], i) => {
+      body += `<path d="${ridge(r, base, amp, 9 + i * 2, true)}" fill="${c}"/>`;
+      body += `<rect y="${base - 60}" width="1600" height="${120 + i * 10}" fill="url(#mf)" opacity="${f1(.55 - i * .08)}"/>`;
+    });
+    return svgWrap(sky + fog, body);
+  },
+  clouds(){
+    const r = SCENE_RNG(23);
+    const sky = lin("cs", [[0, "#A9CBEB"], [.6, "#CFE3F5"], [1, "#EEF5FB"]]);
+    let body = `<rect width="1600" height="900" fill="url(#cs)"/>`;
+    const cloud = (x, y, s, o) => {
+      let g = `<g transform="translate(${f1(x)} ${f1(y)}) scale(${f1(s)})" opacity="${o}"><ellipse cx="0" cy="40" rx="190" ry="40" fill="#FFFFFF"/>`;
+      [[-110, 15, 62], [-40, -15, 88], [55, -5, 74], [130, 22, 54]].forEach(([cx, cy, rr]) => { g += `<circle cx="${cx}" cy="${cy}" r="${rr}" fill="#FFFFFF"/>`; });
+      return g + `<ellipse cx="0" cy="62" rx="200" ry="16" fill="#C9D9EC" opacity=".55"/></g>`;
+    };
+    [[260, 170, 1.1, .95], [1250, 120, .9, .9], [820, 330, 1.35, .9], [180, 600, .85, .85], [1420, 520, 1.2, .9], [700, 720, .8, .8], [1100, 820, 1.1, .85]]
+      .forEach(([x, y, s, o]) => { body += cloud(x + (r() - .5) * 40, y, s, o); });
+    return svgWrap(sky, body);
+  },
+  sand(){
+    const rings = (x, y, n) => { let g = `<circle cx="${x}" cy="${y}" r="${60 + n * 26}" fill="#E8DDC8"/>`; for (let i = 0; i < n; i++) g += `<circle cx="${x}" cy="${y}" r="${74 + i * 26}" fill="none" stroke="#CDBE9F" stroke-width="3"/>`; return g; };
+    let lines = "";
+    for (let y = 20; y < 900; y += 26){
+      let d = `M-20 ${y}`;
+      for (let x = 0; x <= 1640; x += 160) d += ` Q${x + 80} ${y + (x / 160 % 2 ? 7 : -7)} ${x + 160} ${y}`;
+      lines += `<path d="${d}" fill="none" stroke="#D5C7A9" stroke-width="3"/>`;
+    }
+    const stone = (x, y, w, h, c) => `<ellipse cx="${x + 6}" cy="${y + h * .55}" rx="${w}" ry="${h * .5}" fill="#9C8D72" opacity=".35"/><ellipse cx="${x}" cy="${y}" rx="${w}" ry="${h}" fill="${c}"/><ellipse cx="${x - w * .3}" cy="${y - h * .4}" rx="${w * .35}" ry="${h * .22}" fill="#FFFFFF" opacity=".18"/>`;
+    return svgWrap("", `<rect width="1600" height="900" fill="#E8DDC8"/>${lines}${rings(1180, 300, 6)}${rings(420, 660, 5)}${rings(1320, 760, 3)}
+      ${stone(1180, 300, 70, 52, "#7D7466")}${stone(1140, 335, 34, 24, "#8E8577")}${stone(420, 660, 58, 44, "#6F675B")}${stone(1320, 760, 34, 26, "#857C6E")}
+      <path d="M0 0 H1600 V900 H0Z" fill="none" stroke="#C9B994" stroke-width="16" opacity=".5"/>`);
+  },
+  night(){
+    const r = SCENE_RNG(31);
+    const sky = lin("ns", [[0, "#0B1030"], [.6, "#1B2250"], [1, "#3A2F62"]]);
+    let stars = "";
+    for (let i = 0; i < 220; i++){ const s = r(); stars += `<circle cx="${f1(r() * 1600)}" cy="${f1(r() * 640)}" r="${f1(.6 + s * s * 2.4)}" fill="#FFFFFF" opacity="${f1(.35 + r() * .6)}"/>`; }
+    const glow = rad("ng", [[0, "#FFF6D8", .45], [1, "#FFF6D8", 0]]);
+    return svgWrap(sky + glow + `<mask id="nm"><rect width="1600" height="900" fill="#fff"/><circle cx="1262" cy="168" r="70" fill="#000"/></mask>`,
+      `<rect width="1600" height="900" fill="url(#ns)"/>${stars}<circle cx="1230" cy="190" r="220" fill="url(#ng)"/><circle cx="1230" cy="190" r="78" fill="#FFF3CF" mask="url(#nm)"/>
+      <path d="${ridge(r, 760, 90, 8, false)}" fill="#141A3A"/><path d="${ridge(r, 830, 60, 6, false)}" fill="#0C1128"/>`);
+  },
+  leaves(){
+    const r = SCENE_RNG(41);
+    const greens = ["#2F5E42", "#3A7050", "#28513A", "#447D59", "#21452F", "#356846"];
+    let body = `<rect width="1600" height="900" fill="#1D3729"/>`;
+    for (let i = 0; i < 34; i++){
+      const x = r() * 1700 - 50, y = r() * 1000, len = 260 + r() * 300, wid = len * (.3 + r() * .12), a = r() * 360, c = greens[i % greens.length];
+      body += `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)})"><path d="${leafPath(len, wid)}" fill="${c}"/><path d="M0 0 L0 ${f1(-len * .96)}" stroke="#5E9A70" stroke-width="4" opacity=".55"/>`;
+      for (let k = 1; k < 6; k++){ const yy = -len * k / 6.5, w = wid * .8 * Math.sin(Math.PI * k / 6.5); body += `<path d="M0 ${f1(yy)} Q${f1(w * .5)} ${f1(yy - 20)} ${f1(w)} ${f1(yy - 40)} M0 ${f1(yy)} Q${f1(-w * .5)} ${f1(yy - 20)} ${f1(-w)} ${f1(yy - 40)}" fill="none" stroke="#5E9A70" stroke-width="2.5" opacity=".35"/>`; }
+      body += `</g>`;
+    }
+    return svgWrap(rad("lv", [[0, "#000000", 0], [1, "#000000", .35]], .5, .5, .8), body + `<rect width="1600" height="900" fill="url(#lv)"/>`);
+  },
+  waves(){
+    const cols = ["#7CC3DA", "#5FAECB", "#4A9BBB", "#3C87A6", "#2F7392", "#255F7D", "#1C4C67", "#153B52"];
+    let body = `<rect width="1600" height="900" fill="${cols[0]}"/>`;
+    cols.forEach((c, i) => {
+      const y = 90 + i * 110, a = 34 + i * 4, ph = i % 2 ? 200 : 0;
+      let d = `M0 ${y}`;
+      for (let x = -400 + ph; x <= 1800; x += 400) d += ` C${x + 130} ${y - a} ${x + 270} ${y - a} ${x + 400} ${y} S${x + 670} ${y + a} ${x + 800} ${y}`;
+      body += `<path d="${d} L1800 900 L-400 900 Z" fill="${c}"/><path d="${d}" fill="none" stroke="#E7F7FB" stroke-width="3" opacity="${f1(.35 - i * .03)}"/>`;
+    });
+    return svgWrap("", body);
+  },
+  forest(){
+    const r = SCENE_RNG(53);
+    const sky = lin("fs", [[0, "#E4EEE2"], [1, "#C9DBC7"]]);
+    const fog = lin("ff", [[0, "#F2F7F0", 0], [1, "#F2F7F0", .8]]);
+    let body = `<rect width="1600" height="900" fill="url(#fs)"/>`;
+    const tree = (x, base, h, c) => { const w = h * .32; let p = ""; for (let k = 0; k < 3; k++){ const top = base - h + k * h * .22, bw = w * (.6 + k * .25); p += `M${f1(x)} ${f1(top)} L${f1(x + bw)} ${f1(top + h * .42)} L${f1(x - bw)} ${f1(top + h * .42)} Z `; } return `<path d="${p}" fill="${c}"/><rect x="${f1(x - h * .02)}" y="${f1(base - h * .1)}" width="${f1(h * .04)}" height="${f1(h * .12)}" fill="${c}"/>`; };
+    [[520, 150, "#A9C2A7"], [620, 200, "#8FAF8D"], [740, 260, "#729873"], [880, 330, "#567D58"]].forEach(([base, h, c], i) => {
+      for (let x = -40; x < 1660; x += h * (.42 + r() * .25)) body += tree(x, base + r() * 30, h * (.75 + r() * .4), c);
+      body += `<rect y="${base - 90}" width="1600" height="130" fill="url(#ff)" opacity="${f1(.9 - i * .18)}"/>`;
+    });
+    return svgWrap(sky + fog, body + `<rect y="860" width="1600" height="40" fill="#567D58"/>`);
+  },
+  triangles(){
+    const r = SCENE_RNG(61);
+    const pal = ["#21485F", "#1E4257", "#26526B", "#2B5C75", "#1A3B4F", "#2F6680", "#234D64", "#173446"];
+    const cw = 160, ch = 150, pts = [];
+    for (let j = -1; j <= 7; j++){ const row = []; for (let i = -1; i <= 11; i++) row.push([i * cw + (j % 2 ? cw / 2 : 0) + (r() - .5) * 60, j * ch + (r() - .5) * 50]); pts.push(row); }
+    let body = "";
+    for (let j = 0; j < pts.length - 1; j++) for (let i = 0; i < pts[j].length - 1; i++){
+      const a = pts[j][i], b = pts[j][i + 1], c = pts[j + 1][i], d = pts[j + 1][i + 1];
+      const t1 = j % 2 ? [a, d, c] : [a, b, c], t2 = j % 2 ? [a, b, d] : [b, d, c];
+      [t1, t2].forEach(t => { const shade = pal[Math.floor(r() * pal.length)]; body += `<path d="M${t.map(p => f1(p[0]) + " " + f1(p[1])).join(" L")}Z" fill="${shade}" stroke="${shade}" stroke-width="1"/>`; });
+    }
+    return svgWrap(rad("tg", [[0, "#5FB3C9", .22], [1, "#5FB3C9", 0]], .3, .25, .6), `<rect width="1600" height="900" fill="#21485F"/>${body}<rect width="1600" height="900" fill="url(#tg)"/>`);
+  },
+  bauhaus(){
+    return svgWrap("", `<rect width="1600" height="900" fill="#F1E8D8"/>
+      <rect x="0" y="560" width="520" height="340" fill="#E3B54A" opacity=".85"/>
+      <circle cx="1330" cy="230" r="210" fill="#C8553D" opacity=".82"/>
+      <path d="M520 900 A250 250 0 0 1 1020 900 Z" fill="#2E4A62" opacity=".85"/>
+      <rect x="1180" y="560" width="260" height="260" fill="#5B8E7D" opacity=".8"/>
+      <path d="M0 0 H360 A360 360 0 0 1 0 360 Z" fill="#2E4A62" opacity=".75"/>
+      <circle cx="760" cy="230" r="70" fill="none" stroke="#1D1A14" stroke-width="10" opacity=".55"/>
+      <path d="M420 120 L560 120 L490 240 Z" fill="#C8553D" opacity=".7"/>
+      <rect x="980" y="430" width="420" height="14" fill="#1D1A14" opacity=".55"/>
+      <rect x="140" y="420" width="14" height="300" fill="#1D1A14" opacity=".45"/>
+      <circle cx="1450" cy="690" r="36" fill="#E3B54A"/><circle cx="660" cy="520" r="22" fill="#5B8E7D"/>`);
+  },
+  terrazzo(){
+    const r = SCENE_RNG(71);
+    const cols = ["#D98C6A", "#7FA69A", "#E6C178", "#4F6E8A", "#B8B1A6", "#E3A8A0", "#2F3A40"];
+    let body = `<rect width="1600" height="900" fill="#F2EDE4"/>`;
+    for (let i = 0; i < 260; i++){
+      const x = r() * 1600, y = r() * 900, s = 4 + Math.pow(r(), 2.2) * 34, n = 4 + Math.floor(r() * 3), a0 = r() * 6.28;
+      let d = "";
+      for (let k = 0; k < n; k++){ const a = a0 + k * 6.28 / n + (r() - .5) * .6, rr = s * (.6 + r() * .5); d += (k ? " L" : "M") + f1(x + Math.cos(a) * rr) + " " + f1(y + Math.sin(a) * rr); }
+      body += `<path d="${d}Z" fill="${cols[Math.floor(r() * cols.length)]}" opacity="${f1(.55 + r() * .4)}"/>`;
+    }
+    return svgWrap("", body);
+  },
+  autumn(){
+    const r = SCENE_RNG(83);
+    const bg = lin("ag", [[0, "#F3C38F"], [.6, "#E6A56B"], [1, "#C9753F"]], 1, 1);
+    const cols = ["#B9471F", "#D9692A", "#8F3A1C", "#E89A3A", "#A85A22", "#C8922E"];
+    const maple = `M0 -60 L10 -30 L32 -42 L24 -14 L52 -14 L28 4 L38 22 L12 14 L4 40 L0 60 L-4 40 L-12 14 L-38 22 L-28 4 L-52 -14 L-24 -14 L-32 -42 L-10 -30 Z`;
+    let body = `<rect width="1600" height="900" fill="url(#ag)"/>`;
+    for (let i = 0; i < 46; i++){
+      const x = r() * 1600, y = r() * 900, s = .5 + r() * 1.3, a = r() * 360, c = cols[i % cols.length];
+      body += `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)}) scale(${f1(s)})" opacity="${f1(.55 + r() * .4)}">${i % 3 ? `<path d="${maple}" fill="${c}"/>` : `<path d="${leafPath(110, 40)}" transform="translate(0 55)" fill="${c}"/>`}<path d="M0 60 L0 -40" stroke="#6E2A12" stroke-width="2.5" opacity=".5"/></g>`;
+    }
+    return svgWrap(bg, body);
+  },
+  snow(){
+    const r = SCENE_RNG(97);
+    const sky = lin("sg", [[0, "#111C3D"], [.7, "#22325A"], [1, "#3B4D7A"]]);
+    let flakes = "";
+    for (let i = 0; i < 260; i++) flakes += `<circle cx="${f1(r() * 1600)}" cy="${f1(r() * 900)}" r="${f1(1 + r() * 3.6)}" fill="#FFFFFF" opacity="${f1(.35 + r() * .55)}"/>`;
+    const pine = (x, base, h, c) => { let p = ""; for (let k = 0; k < 4; k++){ const top = base - h + k * h * .18, bw = h * (.14 + k * .07); p += `M${f1(x)} ${f1(top)} L${f1(x + bw)} ${f1(top + h * .32)} L${f1(x - bw)} ${f1(top + h * .32)} Z `; } return `<path d="${p}" fill="${c}"/>`; };
+    let trees = "";
+    for (let x = 30; x < 1600; x += 90 + r() * 120) trees += pine(x, 760 + r() * 40, 160 + r() * 110, "#16223F");
+    return svgWrap(sky, `<rect width="1600" height="900" fill="url(#sg)"/><circle cx="300" cy="170" r="54" fill="#E9EEF8" opacity=".85"/>
+      <path d="${ridge(r, 700, 70, 6, false)}" fill="#C6D2EA" opacity=".55"/>${trees}<path d="${ridge(r, 800, 50, 5, false)}" fill="#E8EEF8"/><path d="${ridge(r, 860, 30, 4, false)}" fill="#FFFFFF"/>${flakes}`);
+  },
+  blossom(){
+    const r = SCENE_RNG(103);
+    const bg = lin("bg", [[0, "#FCEEF1"], [1, "#F4D3DC"]], 1, 1);
+    const flower = (x, y, s, c) => { let g = `<g transform="translate(${f1(x)} ${f1(y)}) scale(${f1(s)}) rotate(${f1(r() * 72)})">`; for (let k = 0; k < 5; k++) g += `<ellipse cx="0" cy="-15" rx="10" ry="16" transform="rotate(${k * 72})" fill="${c}"/>`; return g + `<circle r="6" fill="#E8A33A"/><circle r="3" fill="#B5432F"/></g>`; };
+    let body = `<rect width="1600" height="900" fill="url(#bg)"/>`;
+    const branches = [
+      "M-20 120 C220 150 380 230 560 210 C700 195 820 120 980 140",
+      "M300 175 C360 260 430 300 520 330", "M640 190 C690 120 760 90 820 60",
+      "M1640 760 C1420 720 1300 640 1140 650 C1020 660 940 720 820 700", "M1300 655 C1260 560 1220 520 1150 490"
+    ];
+    branches.forEach((d, i) => { body += `<path d="${d}" fill="none" stroke="#6B4A3E" stroke-width="${i % 3 ? 8 : 14}" stroke-linecap="round"/>`; });
+    const spots = [[160,140],[260,160],[420,205],[520,330],[470,300],[600,205],[700,160],[800,70],[760,95],[900,135],[980,140],[350,220],
+                   [1500,740],[1380,700],[1240,650],[1150,490],[1210,540],[1060,660],[940,710],[840,700],[1450,720]];
+    spots.forEach(([x, y]) => { body += flower(x + (r() - .5) * 30, y + (r() - .5) * 30, .9 + r() * .9, r() > .5 ? "#F7B6C8" : "#FBD3DE"); });
+    for (let i = 0; i < 60; i++) body += `<ellipse cx="${f1(r() * 1600)}" cy="${f1(r() * 900)}" rx="${f1(5 + r() * 5)}" ry="${f1(8 + r() * 6)}" transform="rotate(${f1(r() * 180)})" fill="#F7B6C8" opacity="${f1(.35 + r() * .45)}"/>`;
+    return svgWrap(bg, body);
+  },
+  mural(){
+    const r = SCENE_RNG(113);
+    let bricks = "";
+    for (let j = 0; j < 20; j++) for (let i = -1; i < 14; i++) bricks += `<rect x="${i * 130 + (j % 2 ? 65 : 0) + 3}" y="${j * 46 + 3}" width="124" height="40" rx="3" fill="#2F3248" opacity="${f1(.5 + r() * .5)}"/>`;
+    const cols = ["#F25F5C", "#FFE066", "#247BA0", "#70C1B3", "#B388EB", "#FF9F1C"];
+    let paint = "";
+    const blob = (x, y, s, c) => { let d = ""; const n = 10; for (let k = 0; k < n; k++){ const a = k / n * 6.283, rr = s * (.7 + r() * .5); d += (k ? " L" : "M") + f1(x + Math.cos(a) * rr) + " " + f1(y + Math.sin(a) * rr); } let drips = ""; for (let k = 0; k < 3; k++){ const dx = x + (r() - .5) * s, h = 40 + r() * 160; drips += `<rect x="${f1(dx)}" y="${f1(y)}" width="${f1(8 + r() * 8)}" height="${f1(s * .6 + h)}" rx="6" fill="${c}"/>`; } return `<g opacity=".88"><path d="${d}Z" fill="${c}" stroke="${c}" stroke-width="14" stroke-linejoin="round"/>${drips}</g>`; };
+    [[230, 230, 120], [1350, 190, 150], [820, 620, 130], [380, 690, 90], [1260, 640, 100], [760, 170, 70]].forEach(([x, y, s], i) => { paint += blob(x, y, s, cols[i % cols.length]); });
+    paint += `<path d="M80 470 C380 360 620 560 900 430 S1380 320 1560 450" fill="none" stroke="#FFE066" stroke-width="34" stroke-linecap="round" opacity=".8"/>
+      <path d="M120 520 C420 420 640 620 920 490 S1400 380 1540 500" fill="none" stroke="#F25F5C" stroke-width="16" stroke-linecap="round" opacity=".75"/>`;
+    for (let i = 0; i < 160; i++) paint += `<circle cx="${f1(r() * 1600)}" cy="${f1(r() * 900)}" r="${f1(1.5 + r() * 6)}" fill="${cols[i % cols.length]}" opacity="${f1(.4 + r() * .5)}"/>`;
+    return svgWrap("", `<rect width="1600" height="900" fill="#2B2D42"/>${bricks}${paint}`);
+  }
+};
+const sceneCache = {};
+const sceneURL = k => sceneCache[k] || (sceneCache[k] = SCENES[k] ? `url("data:image/svg+xml,${encodeURIComponent(SCENES[k]())}")` : "");
+
 const BG_LIB = [   // key, name, group, light (dark text reads better on it), color shown while it loads, file (optional)
   ["mountains","Misty mountains","calm",true,"#AEBBD2"], ["clouds","Soft clouds","calm",true,"#CFE0F2"],
   ["sand","Sand garden","calm",true,"#E8DDC8"], ["night","Night sky","calm",false,"#141A3A"],
@@ -5872,16 +6132,21 @@ const BG_GRADS = {
 };
 const BG_COLORS = ["#1E2A35","#173A55","#23392F","#3B2F4A","#5A2E2E","#4A4F55","#F1F3F4","#FFF8E7","#FDE2E4","#E3F2FD","#E8F5E9","#F3E5F5"];
 const SHOW_EVERY = [[60,"Every minute"],[300,"Every 5 minutes"],[900,"Every 15 minutes"],[3600,"Every hour"]];
-const bgFile = k => new URL("assets/backgrounds/" + encodeURIComponent(k) + ".svg", location.href).href;
+const bgFile = k => new URL("assets/" + encodeURIComponent(k) + ".svg", location.href).href;   // the scene artwork in assets/ (the drawn copy shows if a file is missing)
+const POND_PHOTO = new URL("assets/pond-bg.jpg", location.href).href;   // optional photo; the drawn pond shows under it (and instead of it if the file is missing)
 const lum = hex => { const v = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
 const cssURL = s => !/["'()\\\s]/.test(s) && safeURL(s);
 function bgInfo(v){
   v = String(v || "");
+  if (v === "pond") return { cls:"bg-pond", css:`url("${POND_PHOTO}") center/cover no-repeat, ${sceneURL("pond")} center/cover no-repeat #173A55`, light:false, name:BGS.pond, sw:BG_SWATCH.pond };
   if (BGS[v]) return { cls:"bg-" + v, light:v === "white" || v === "cork", name:BGS[v], sw:BG_SWATCH[v] };
   const k = v.slice(0, 2), x = v.slice(2);
   if (k === "c:" && /^#[0-9a-f]{6}$/i.test(x)) return { css:x, light:lum(x) > 0.55, name:"Color " + x.toUpperCase(), sw:x };
   if (k === "g:" && BG_GRADS[x]) return { css:BG_GRADS[x][1], light:BG_GRADS[x][2], name:BG_GRADS[x][0] };
-  if (k === "p:"){ const L = BG_LIB.find(s => s[0] === x); if (L) return { css:`${L[4]} url("${L[5] || bgFile(L[0])}") center/cover no-repeat`, light:L[3], name:L[1], sw:L[4] }; }
+  if (k === "p:"){
+    const L = BG_LIB.find(s => s[0] === x);
+    if (L) return { css:`url("${L[5] || bgFile(L[0])}") center/cover no-repeat, ${sceneURL(L[0])} center/cover no-repeat ${L[4]}`, light:L[3], name:L[1], sw:L[4] };
+  }
   if (k === "u:" && cssURL(x)) return { css:`#173A55 url("${x}") center/cover no-repeat`, light:false, photo:true, name:"Your picture", sw:"#173A55" };
   return { cls:"bg-slate", light:false, name:BGS.slate, sw:BG_SWATCH.slate };
 }
@@ -6057,6 +6322,222 @@ $("bgFile").addEventListener("change", async e => {
     toast("The picture didn't upload. Check your connection and try again.");
   }
   if (!$("bgWrap").hidden) renderBgPanel();
+});
+
+/* ---------- Saved lessons ----------
+   Like saving a whiteboard file: a teacher names a board's content and saves it, then opens it again
+   later on any board. Saved in state.lessons, so it syncs to the account with the boards (and lives in
+   this browser for guests), is part of Export, and never goes to a sub's shared view.
+   state.lessons = [{ id, name, savedAt, createdAt, from (board name when saved), board:{ LESSON_KEYS } }]
+   A board opened from (or saved to) a lesson remembers it in b.lessonId, so Ctrl+S saves changes back. */
+const LESSON_KEYS = ["bg", "bgShow", "backdrop", "notes", "ink", "crawl", "pipOrder", "lateMsg", "lateSteps", "subDraw"];
+const LESSON_MAX = 300;
+let lsRenaming = null, lsQuery = "";
+const lessonOf = b => (b && b.lessonId && state.lessons.find(L => L.id === b.lessonId)) || null;
+const lessonSnap = b => { const o = {}; LESSON_KEYS.forEach(k => { if (b[k] !== undefined) o[k] = b[k]; }); return JSON.parse(JSON.stringify(o)); };
+const cleanLessonName = v => String(v || "").replace(/\s+/g, " ").trim().slice(0, 60);
+const sameName = (a, c) => a.toLowerCase() === c.toLowerCase();
+function lessonWhen(ms){
+  const d = new Date(ms), now = new Date();
+  const day = d.toLocaleDateString(undefined, d.getFullYear() === now.getFullYear() ? { month:"short", day:"numeric" } : { month:"short", day:"numeric", year:"numeric" });
+  return (d.toDateString() === now.toDateString() ? "today" : day) + " at " + d.toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit" });
+}
+// new ids for every note (so the same lesson can be open on two boards), checklists unchecked, timers reset
+function renewIds(c){
+  const idMap = {};
+  (c.notes || []).forEach(n => {
+    const old = n.id; n.id = uid(); idMap[old] = n.id;
+    (n.items || []).forEach(i => { i.id = uid(); i.done = false; });
+    if (n.kind === "timed"){
+      (n.tasks || []).forEach(x => { x.id = uid(); x.actual = null; });
+      n.cur = 0; n.timer = { running:false, endAt:0, rem:null };
+    }
+  });
+  if (Array.isArray(c.pipOrder)) c.pipOrder = c.pipOrder.map(id => idMap[id]).filter(Boolean);
+  if (c.crawl && Array.isArray(c.crawl.ids)) c.crawl.ids = c.crawl.ids.map(id => idMap[id]).filter(Boolean);
+  return c;
+}
+function lessonSummary(L){
+  const ns = (L.board && L.board.notes) || [], docs = ns.filter(n => n.kind === "doc" && n.doc).length;
+  const parts = [ns.length + " note" + (ns.length === 1 ? "" : "s")];
+  if (docs) parts.push(docs + " document" + (docs === 1 ? "" : "s"));
+  if (L.board && (L.board.lateSteps || L.board.lateMsg)) parts.push("start-of-class plan for a sub");
+  return parts.join(" · ");
+}
+function saveLesson(name, overwrite){
+  const b = board(), now = Date.now();
+  let L = overwrite || null;
+  if (!L){
+    if (state.lessons.length >= LESSON_MAX){ toast(`You have ${LESSON_MAX} saved lessons. Delete a few old ones to save more.`); return null; }
+    L = { id:uid(), name, createdAt:now };
+    state.lessons.push(L);
+  }
+  if (name) L.name = name;
+  L.savedAt = now; L.from = b.name; L.board = lessonSnap(b);
+  b.lessonId = L.id;
+  save(); renderSettings();
+  track("lesson_saved", { replaced: !!overwrite, notes: L.board.notes ? L.board.notes.length : 0 });
+  return L;
+}
+function quickSaveLesson(){
+  const L = lessonOf(board());
+  if (!L){ openLessons(); return; }
+  saveLesson("", L);
+  toast("Saved changes to “" + L.name + "”.", () => openLessons(), "Saved lessons");
+}
+function openLesson(L, asNew){
+  const c = renewIds(JSON.parse(JSON.stringify(L.board || {})));
+  if (!Array.isArray(c.notes)) c.notes = [];
+  c.notes.forEach(n => { zTop = Math.max(zTop, n.z || 0); });
+  let b;
+  if (asNew){
+    b = { id:uid(), name:L.name.slice(0, 40) || "Lesson", bg:"pond", ...c, lessonId:L.id };
+    state.boards.splice(state.boards.indexOf(board()) + 1, 0, b);
+    state.active = b.id;
+  } else {
+    b = board();
+    LESSON_KEYS.forEach(k => { delete b[k]; });   // the board keeps its name, share code, schedule and Float size
+    Object.assign(b, { bg:"pond" }, c, { lessonId:L.id });
+  }
+  closeLessons(); render(); save();
+  track("lesson_opened", { as: asNew ? "new_board" : "this_board" });
+  toast(asNew ? "“" + L.name + "” is open on a new board." : "“" + L.name + "” is open on " + b.name + ".", undo);
+}
+function lessonFileName(L){ return "floatle-lesson-" + (L.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "untitled") + ".json"; }
+function downloadLesson(L){
+  try {
+    const data = { floatle:"lesson", v:1, name:L.name, savedAt:L.savedAt, owner:userId || "", board:L.board };
+    const blob = new Blob([JSON.stringify(data, null, 1)], { type:"application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = lessonFileName(L);
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    track("lesson_file_downloaded");
+    toast("Lesson file saved to your Downloads. Open it here, or send it to a colleague who uses Floatle.");
+  } catch(err){ toast("This browser blocked the download. Try again."); }
+}
+function renderLessons(){
+  const b = board(), cur = lessonOf(b), n = b.notes.length;
+  const q = lsQuery.trim().toLowerCase();
+  const all = state.lessons.slice().sort((x, y) => (y.savedAt || 0) - (x.savedAt || 0));
+  const list = q ? all.filter(L => (L.name || "").toLowerCase().includes(q) || (L.from || "").toLowerCase().includes(q)) : all;
+  const defName = cur ? "" : cleanLessonName(b.name + " · " + new Date().toLocaleDateString(undefined, { month:"short", day:"numeric" }));
+  const items = list.map(L => {
+    const ren = lsRenaming === L.id;
+    const isCur = cur && cur.id === L.id;
+    return `<div class="trash-item ls-item" data-lid="${L.id}">
+      <span class="swatch ls-th" style="background:${esc(bgSwatch(L.board && L.board.bg))}" aria-hidden="true"></span>
+      <div class="trash-info">${ren ? `<input class="ls-ren" type="text" maxlength="60" value="${esc(L.name)}" aria-label="Lesson name">` : `<b>${esc(L.name)}${isCur ? ' <span class="set-tag on">Open on this board</span>' : ""}</b>`}
+        <div class="pv">${esc(lessonSummary(L))}</div>
+        <div class="meta">Saved ${esc(lessonWhen(L.savedAt || L.createdAt || Date.now()))}${L.from ? " from " + esc(L.from) : ""}</div></div>
+      <div class="trash-acts">
+        <button class="btn primary" data-ls="open" title="Replace what's on ${esc(b.name)} with this lesson">Open on this board</button>
+        <button class="btn" data-ls="opennew">Open as a new board</button>
+        <button class="btn" data-ls="${ren ? "renamedone" : "rename"}">${ren ? "Save name" : "Rename"}</button>
+        <button class="btn" data-ls="download" title="Save a copy as a file">Download</button>
+        <button class="btn danger-btn" data-ls="delete">Delete</button>
+      </div></div>`;
+  }).join("");
+  $("lessonBody").innerHTML = (cur ? `<div class="ls-cur"><span>This board is the lesson <b>${esc(cur.name)}</b>, last saved ${esc(lessonWhen(cur.savedAt))}.</span><button class="btn primary" data-ls="update">Save changes</button></div>` : "")
+    + `<label class="ls-lbl" for="lsName">${cur ? "Or save it as a new lesson" : "Save " + esc(b.name) + " as a lesson"}</label>
+      <div class="bg-link"><input id="lsName" type="text" maxlength="60" autocomplete="off" placeholder="Lesson name, like Unit 3 Day 2: Central idea" value="${esc(defName)}"><button class="btn${cur ? "" : " primary"}" data-ls="save"${n ? "" : " disabled"}>Save lesson</button></div>
+      <p class="bg-note">${n ? `Saves the ${n} note${n === 1 ? "" : "s"} on this board with their documents, timers and drawings, plus the background and your Running late steps for a sub. Tip: press Ctrl+S (⌘S on a Mac) to save changes to an open lesson.` : "This board is empty. Add notes first, or open a saved lesson below."}${userId ? "" : " Without an account, lessons save in this browser only."}</p>
+      <div class="ls-head"><b>Your lessons${all.length ? " (" + all.length + ")" : ""}</b>
+        ${all.length > 5 ? `<input id="lsFind" type="search" placeholder="Find a lesson" aria-label="Find a lesson" value="${esc(lsQuery)}">` : ""}
+        <button class="btn" data-ls="openfile">Open a lesson file</button></div>
+      ${items || `<p class="trash-empty">${all.length ? "No lessons match “" + esc(lsQuery) + "”." : "No saved lessons yet. Name this board above and choose Save lesson."}</p>`}`;
+}
+function openLessons(){ lsRenaming = null; renderLessons(); $("lessonWrap").hidden = false; setTimeout(() => { const i = $("lsName"); if (i && !lessonOf(board())){ i.focus(); i.select(); } else $("lessonClose").focus(); }, 30); }
+function closeLessons(){ lsRenaming = null; $("lessonWrap").hidden = true; renderSettings(); }
+function lessonFocus(sel){ const el = $("lessonBody").querySelector(sel); if (el) el.focus(); }
+function commitRename(id){
+  const L = state.lessons.find(x => x.id === id), inp = $("lessonBody").querySelector(`[data-lid="${id}"] .ls-ren`);
+  lsRenaming = null;
+  if (L && inp){
+    const v = cleanLessonName(inp.value);
+    if (v && v !== L.name){ L.name = v; save(); toast("Renamed."); }
+  }
+  renderLessons(); lessonFocus(`[data-lid="${id}"] [data-ls="rename"]`);
+}
+function doSaveLesson(btn){
+  const name = cleanLessonName($("lsName").value);
+  if (!name){ toast("Give the lesson a name first."); $("lsName").focus(); return; }
+  const same = state.lessons.find(L => sameName(L.name, name));
+  const go = () => { const L = saveLesson(name, same || null); if (!L) return; renderLessons(); toast((same ? "Replaced" : "Saved") + " “" + L.name + "”."); lessonFocus('[data-ls="update"]'); };
+  if (same) armBtn(btn, "Replace it?", go); else go();
+}
+$("lessonClose").addEventListener("click", closeLessons);
+$("lessonWrap").addEventListener("click", e => {
+  if (e.target === $("lessonWrap")){ closeLessons(); return; }
+  const btn = e.target.closest("[data-ls]"); if (!btn) return;
+  const a = btn.dataset.ls, row = btn.closest("[data-lid]");
+  const L = row ? state.lessons.find(x => x.id === row.dataset.lid) : null;
+  if (a === "save") return doSaveLesson(btn);
+  if (a === "update"){ const c = lessonOf(board()); if (c){ saveLesson("", c); renderLessons(); toast("Saved changes to “" + c.name + "”."); lessonFocus('[data-ls="update"]'); } return; }
+  if (a === "openfile"){ $("lessonFile").click(); return; }
+  if (!L) return;
+  if (a === "open"){
+    const b = board();
+    // replacing a board that has notes not saved in this lesson asks for a second tap (Undo also brings it back)
+    if (b.notes.length && b.lessonId !== L.id) armBtn(btn, "Tap again to replace " + b.name, () => openLesson(L, false));
+    else openLesson(L, false);
+  }
+  else if (a === "opennew") openLesson(L, true);
+  else if (a === "rename"){ lsRenaming = L.id; renderLessons(); const i = $("lessonBody").querySelector(".ls-ren"); if (i){ i.focus(); i.select(); } }
+  else if (a === "renamedone") commitRename(L.id);
+  else if (a === "download") downloadLesson(L);
+  else if (a === "delete") armBtn(btn, "Tap again to delete", () => {
+    const i = state.lessons.indexOf(L);
+    state.lessons.splice(i, 1);
+    const t = trashItem("lesson", L, null, i);
+    save(); renderLessons(); track("lesson_deleted");
+    toast("“" + L.name + "” moved to Trash.", () => restoreFromTrash(t.id));
+  });
+});
+$("lessonWrap").addEventListener("keydown", e => {
+  if (e.target.id === "lsName" && e.key === "Enter"){ e.preventDefault(); const sv = $("lessonBody").querySelector('[data-ls="save"]'); if (sv && !sv.disabled) doSaveLesson(sv); }
+  if (e.target.classList.contains("ls-ren")){
+    const id = e.target.closest("[data-lid]").dataset.lid;
+    if (e.key === "Enter"){ e.preventDefault(); commitRename(id); }
+    if (e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); lsRenaming = null; renderLessons(); lessonFocus(`[data-lid="${id}"] [data-ls="rename"]`); }
+  }
+}, true);
+$("lessonWrap").addEventListener("focusout", e => {
+  // clicking away from the name box keeps the new name (unless it was a click on Save name, which does the same)
+  if (!e.target.classList.contains("ls-ren") || lsRenaming === null) return;
+  const id = e.target.closest("[data-lid]").dataset.lid;
+  setTimeout(() => { if (lsRenaming === id && !$("lessonWrap").hidden) commitRename(id); }, 120);
+});
+$("lessonWrap").addEventListener("input", e => {
+  if (e.target.id !== "lsFind") return;
+  lsQuery = e.target.value; const pos = e.target.selectionStart;
+  renderLessons(); const f = $("lsFind"); if (f){ f.focus(); try { f.setSelectionRange(pos, pos); } catch(err){} }
+});
+$("lessonFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    if (!data || data.floatle !== "lesson" || !data.board || !Array.isArray(data.board.notes)) throw 0;
+    let name = cleanLessonName(data.name) || "Imported lesson", k = 2;
+    const base = name;
+    while (state.lessons.some(L => sameName(L.name, name))) name = cleanLessonName(base + " (" + k++ + ")");
+    const board0 = {}; LESSON_KEYS.forEach(key => { if (data.board[key] !== undefined) board0[key] = data.board[key]; });
+    const L = { id:uid(), name, createdAt:Date.now(), savedAt:Date.now(), from:"a lesson file", board:board0 };
+    state.lessons.push(L); save(); renderLessons(); uploadPendingImages();
+    track("lesson_file_opened");
+    const foreignDocs = data.owner && data.owner !== userId && board0.notes.some(n => n.kind === "doc" && n.doc);
+    toast("Added “" + name + "” to your lessons." + (foreignDocs ? " Documents from someone else's account may not open; attach your own copy if they don't." : ""));
+    lessonFocus(`[data-lid="${L.id}"] [data-ls="open"]`);
+  } catch(err){ toast("That file isn't a Floatle lesson. Choose a file made with Download in Saved lessons."); }
+});
+// Ctrl+S / Cmd+S: save changes to the open lesson, or open Saved lessons to name a new one
+document.addEventListener("keydown", e => {
+  if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey || (e.key || "").toLowerCase() !== "s") return;
+  e.preventDefault();   // never the browser's "Save page as"
+  if (viewing || presenting) return;
+  if (!$("lessonWrap").hidden){ const c = lessonOf(board()); if (c) $("lessonBody").querySelector('[data-ls="update"]')?.click(); return; }
+  if (modalOpen()) return;
+  quickSaveLesson();
 });
 
 var CRAWL_READY = true;
