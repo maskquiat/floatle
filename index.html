@@ -968,6 +968,31 @@ body.present .bd-chip,body.viewing .bd-chip{display:none}
 .lk-bar .doc-btn{flex:0 0 auto}
 .lk-empty{flex:1 1 auto;display:grid;place-items:center;text-align:center;font-size:.7em;opacity:.7}
 
+/* ---------- Table notes ---------- */
+.kind-table .note-body{display:flex;flex-direction:column;gap:.35em}
+.tb-wrap{flex:1 1 auto;min-height:0;overflow:auto}
+.tb{border-collapse:collapse;width:100%;font-size:.8em;line-height:1.25}
+.tb.wide{font-size:.7em}
+.tb td{border:1px solid rgba(0,0,0,.3);background:rgba(255,255,255,.72);padding:0;vertical-align:top;min-width:2.6em}
+.tb .tb-cell{padding:.22em .45em;min-height:1.25em;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}
+.tb .tb-cell[contenteditable]:focus{box-shadow:inset 0 0 0 2px #1D1A14;background:#fff}
+.tb tr.hr td{background:rgba(0,0,0,.09);font-weight:700}
+.tb td.num{text-align:right;font-variant-numeric:tabular-nums}
+.tb td.editing{text-align:left}
+.tb td.fx{position:relative}
+.tb td.fx::after{content:"";position:absolute;top:0;right:0;border-style:solid;border-width:0 .4em .4em 0;border-color:transparent #3D6FD1 transparent transparent;pointer-events:none}
+.tb td.err .tb-cell{color:#A3271A;font-weight:700}
+.tb th.tb-g{font-size:.62em;font-weight:700;opacity:.55;padding:0 .35em;border:0;background:none;text-align:center;display:none;user-select:none;-webkit-user-select:none}
+.kind-table .note-body:focus-within .tb-g{display:table-cell}
+.tb-bar{display:flex;flex-wrap:wrap;align-items:center;gap:.35em;font-size:max(12px,.4em);opacity:0;transition:opacity .15s}
+.kind-table:hover .tb-bar,.kind-table:focus-within .tb-bar{opacity:1}
+.tb-bar .doc-btn{padding:.35em .6em}
+.tb-bar .doc-btn svg{width:1em;height:1em}
+.tb-bar label{display:flex;align-items:center;gap:.3em}
+.tb-tip{display:none;flex-basis:100%;opacity:.72;line-height:1.3}
+.kind-table:focus-within .tb-tip{display:block}
+@media (pointer:coarse){ .tb-bar{opacity:1} }
+
 /* ---------- drawing: Draw notes and drawing right on the board ---------- */
 .kind-draw .note-body{display:flex;flex-direction:column;gap:.3em;padding:.3em .4em .45em;overflow:hidden;container-type:inline-size}
 .dp{position:relative;flex:1 1 auto;min-height:0;border-radius:6px;overflow:hidden;touch-action:none;background-color:rgba(255,255,255,.55);cursor:crosshair}
@@ -1347,6 +1372,7 @@ const TYPES = {
   flashcards:{ label:"Flashcards", kind:"cards", color:"sky", w:40, h:54, g:"tools" },
   dictionary:{ label:"Dictionary", kind:"dict", color:"paper", w:30, h:58, g:"tools" },
   draw:{ label:"Draw", kind:"draw", color:"paper", w:36, h:46, g:"tools" },
+  table:{ label:"Table", kind:"table", color:"paper", w:42, h:38, g:"tools" },
   image:{ label:"Image or slide", title:"Image", kind:"image", color:"paper", w:44, h:46, g:"media" },
   document:{ label:"Document", kind:"doc", color:"paper", w:30, h:34, g:"media" },
   embed:{ label:"Embed slides or video", title:"Embed", kind:"embed", color:"paper", w:46, h:54, g:"media" },
@@ -1374,6 +1400,7 @@ function makeNote(type, pos){
   else if (t.kind === "draw") n.draw = { paper:"blank", strokes:[] };
   else if (t.kind === "embed") n.embed = null;    // { prov, src, open, raw } once a link is added
   else if (t.kind === "links") n.links = [];      // [{ id, t, u }], up to 10
+  else if (t.kind === "table") n.tbl = { c:[["","",""],["","",""],["","",""]], hr:true };   // c = rows of cell text (a formula starts with =); hr = bold first row
   else n.text = t.text;
   return n;
 }
@@ -1716,6 +1743,8 @@ const firstLine = n => n.kind === "list"
   ? (n.embed ? n.embed.prov + " · " + hostOf(n.embed.open) : "Nothing to show yet")
   : n.kind === "links"
   ? ((n.links || []).filter(l => normURL(l.u)).map(linkName).join(", ") || "No links yet")
+  : n.kind === "table"
+  ? tblLine(n)
   : (n.text || "").split("\n").find(l => l.trim()) || "";
 
 /* ---------- Timed notes: tasks with minutes + a linked timer ----------
@@ -2505,6 +2534,7 @@ function noteHTML(n, forPip){
     : n.kind === "draw" ? drawBodyHTML(n, forPip)
     : n.kind === "embed" ? embBodyHTML(n, forPip)
     : n.kind === "links" ? linksBodyHTML(n, forPip)
+    : n.kind === "table" ? tableBodyHTML(n, forPip)
     : `<div class="note-text rich${n.ps ? " ps" : ""}" contenteditable="${forPip ? "false" : richEditableAttr()}"${n.ls ? ` style="line-height:${+n.ls}"` : ""} data-ph="${esc(PH[n.type]||"Type here")}">${richBody(n)}</div>`;
   const img = n.kind === "image";
   return `<header class="note-head">${ICON.grip}<img class="koi-tag" src="${KOI_TAG}" alt="" aria-hidden="true" draggable="false">
@@ -2671,7 +2701,7 @@ function renderBoard(){
 }
 function renderAddMenu(){
   const item = ([k, t]) => {
-    const ico = { image:ICON.image, cards:ICON.cards, dict:ICON.book, doc:ICON.file, materials:ICON.bag, draw:ICON.pencil, embed:ICON.screen, links:ICON.link }[t.kind];
+    const ico = { image:ICON.image, cards:ICON.cards, dict:ICON.book, doc:ICON.file, materials:ICON.bag, draw:ICON.pencil, embed:ICON.screen, links:ICON.link, table:ICON.table }[t.kind];
     const mark = ico ? `<span class="ico">${ico}</span>` : `<span class="swatch" style="background:${COLORS[t.color]}"></span>`;
     const main = `<button class="item" role="menuitem" data-type="${k}">${mark}${t.label}</button>`;
     if (k !== "timed") return main;
@@ -2846,6 +2876,7 @@ $("addMenu").addEventListener("click", e => {
   if (n.kind === "materials"){ el.querySelector(".mat-opt")?.focus(); return; }
   if (n.kind === "embed"){ el.querySelector(".emb-in")?.focus(); return; }
   if (n.kind === "links"){ el.querySelector('.lk-in[data-lf="u"]')?.focus(); return; }
+  if (n.kind === "table"){ tblFocusCell(n, 0, 0); return; }
   if (n.kind === "draw") return;
   if (n.kind === "image"){
     imgTarget = n.id;   // the next paste fills this note
@@ -2986,6 +3017,7 @@ function handleNoteAction(n, e, noteNode, inPip){
   if (n.kind === "materials" && MAT_ACTS.has(act)){ if (!inPip && !presenting && !viewing) matAct(n, act, btn); return; }
   if (n.kind === "embed" && EMB_ACTS.has(act)){ embAct(n, act, noteNode, inPip); return; }
   if (n.kind === "links" && LINK_ACTS.has(act)){ if (!inPip && !presenting && !viewing) linkAct(n, act, btn); return; }
+  if (n.kind === "table" && TBL_ACTS.has(act)){ if (!inPip && !presenting && !viewing) tblAct(n, act, btn); return; }
   if (n.kind === "draw" && DRAW_ACTS.has(act)){ if (!inPip && (!viewing || viewerDraw())) drawToolAct(act, btn, n); return; }
   if (act === "min"){ n.min = !n.min; }
   else if (act === "color"){ n.color = COLOR_KEYS[(COLOR_KEYS.indexOf(n.color)+1) % COLOR_KEYS.length]; }
@@ -3052,6 +3084,11 @@ boardEl.addEventListener("input", e => {
     const x = (n.tasks || []).find(i => i.id === e.target.closest("[data-task]").dataset.task);
     if (x) x.t = txt(e.target).replace(/\n/g," ");
     if (!x?.t) e.target.innerHTML = "";
+  }
+  else if (e.target.classList.contains("tb-cell")){
+    const td = e.target.closest("td"), T = tblOf(n), row = T.c[+td.dataset.r];
+    if (row) row[+td.dataset.c] = txt(e.target).replace(/\n$/, "");
+    tblRefresh(n);
   }
   else if (e.target.classList.contains("mat-label")){
     const m = (n.mats || []).find(x => x.k === e.target.closest("[data-mat]").dataset.mat);
@@ -5113,6 +5150,7 @@ function spotHTML(n){
   if (n.kind === "materials") return `<ul>${(n.mats || []).map(m => `<li>${esc(matLabel(m))}</li>`).join("")}</ul>`;
   if (n.kind === "doc") return esc(n.doc && n.doc.name ? n.doc.name : "");
   if (n.kind === "links") return `<ul>${(n.links || []).filter(x => normURL(x.u)).map(x => `<li>${esc(linkName(x))}</li>`).join("")}</ul>`;
+  if (n.kind === "table") return tblPlainHTML(n, esc);
   return esc(n.text || "");
 }
 function renderLateLayer(){
@@ -5750,6 +5788,309 @@ boardEl.addEventListener("keydown", e => {
   if (links[i + 1]){ linkFocus(n, links[i + 1].id); return; }
   if (links.length < LINK_MAX && normURL(t.value)){ const l = { id:uid(), t:"", u:"" }; links.push(l); renderNote(n); linkFocus(n, l.id); }
   else linkAct(n, "lkdone", t);
+});
+
+/* ---------- Table notes: a small spreadsheet on the board ----------
+   n.tbl = { c:[[cell, ...], ...] (rows of what was typed), hr (first row is a bold header) }.
+   A cell that starts with = is a formula: + - * / ^ ( ), cell names like B2, and SUM, AVERAGE,
+   MIN, MAX, COUNT, MEDIAN and ROUND with ranges like B2:B6. Formulas are worked out here, with no eval.
+   Typed cells show exactly as typed; formula results show up to 2 decimal places. */
+Object.assign(ICON, {
+  table:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 15h18M9.5 9.5V20"/></svg>'
+});
+const TBL_MAXR = 40, TBL_MAXC = 12;
+const TBL_ACTS = new Set(["tbrow", "tbcol", "tbdelrow", "tbdelcol", "tbhr", "tbcsv"]);
+const TBL_ERR = {
+  "#REF!":"This formula points to a cell that isn't in the table.",
+  "#DIV/0!":"This divides by zero (or averages cells that are empty).",
+  "#LOOP!":"This formula uses its own answer. Point it at other cells.",
+  "#NAME?":"Unknown function. Try SUM, AVERAGE, MIN, MAX, COUNT, MEDIAN or ROUND.",
+  "#VALUE!":"A cell this formula uses has words in it, not a number.",
+  "#ERROR!":"Check this formula, for example =SUM(B2:B6) or =B2*C2."
+};
+let tblLast = null;   // the last cell typed in on this device { id, r, c }: where Add and Remove act
+const tblCol = c => String.fromCharCode(65 + c);
+function tblOf(n){
+  let T = n.tbl;
+  if (!T || !Array.isArray(T.c) || !T.c.length) T = n.tbl = { c:[["", ""], ["", ""]], hr:true };
+  const w = Math.max(1, ...T.c.map(r => Array.isArray(r) ? r.length : 0));
+  T.c = T.c.map(r => { r = Array.isArray(r) ? r.map(x => String(x ?? "")) : []; while (r.length < w) r.push(""); return r; });
+  return T;
+}
+const tblHasData = n => !!(n.tbl && Array.isArray(n.tbl.c) && n.tbl.c.some(r => (r || []).some(x => String(x ?? "").trim())));
+// "12", "-3.5", "$1,200", "85%" are numbers; anything else is words. A typed score of 85% counts as 85,
+// so a column of percentages averages to a percentage.
+function tblNum(s){
+  let m = String(s ?? "").trim().replace(/[$,\s]/g, "").replace(/%$/, ""); if (!m) return null;
+  if (!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(m)) return null;
+  return parseFloat(m);
+}
+const tblFmt = v => { if (!isFinite(v)) return "#DIV/0!"; const r = Math.round(v * 100) / 100; return String(Object.is(r, -0) ? 0 : r); };
+// works out every cell: [[{ d (what shows), num, fx (formula), err }]]
+function tblCompute(T){
+  const R = T.c.length, C = T.c[0].length, memo = {}, busy = {};
+  function cell(r, c){
+    if (r < 0 || c < 0 || r >= R || c >= C) throw "#REF!";
+    const k = r + "," + c, m = memo[k];
+    if (m){ if (m.e) throw m.e; return m.v; }
+    if (busy[k]) throw "#LOOP!";
+    busy[k] = 1;
+    try {
+      const raw = T.c[r][c].trim(); let v;
+      if (raw.startsWith("=") && raw.length > 1) v = formula(raw.slice(1));
+      else { const x = tblNum(raw); v = x === null ? raw : x; }
+      memo[k] = { v }; return v;
+    } catch(e){ memo[k] = { e: TBL_ERR[e] ? e : "#ERROR!" }; throw memo[k].e; }
+    finally { delete busy[k]; }
+  }
+  const toNum = v => typeof v === "number" ? v : !String(v).trim() ? 0 : (() => { throw "#VALUE!"; })();
+  function formula(src){
+    if (/#REF!/i.test(src)) throw "#REF!";
+    const s = src.replace(/\$/g, ""), toks = [];
+    for (let p = 0; p < s.length;){
+      const rest = s.slice(p); let m;
+      if (/^\s/.test(rest)){ p++; continue; }
+      if ((m = /^(\d+\.?\d*|\.\d+)/.exec(rest))){ toks.push({ t:"n", v:parseFloat(m[1]) }); p += m[0].length; continue; }
+      if ((m = /^([A-Za-z]+)(\d+)?/.exec(rest))){
+        p += m[0].length;
+        if (m[2]){ const L = m[1].toUpperCase(); let c = 0; for (const ch of L) c = c * 26 + ch.charCodeAt(0) - 64; toks.push({ t:"ref", r:+m[2] - 1, c:c - 1 }); }
+        else toks.push({ t:"fn", name:m[1].toUpperCase() });
+        continue;
+      }
+      if ("+-*/^(),:%;".includes(rest[0])){ toks.push({ t:"op", v:rest[0] === ";" ? "," : rest[0] }); p++; continue; }
+      throw "#ERROR!";
+    }
+    let i = 0;
+    const peek = v => toks[i] && toks[i].t === "op" && toks[i].v === v;
+    const need = v => { if (!peek(v)) throw "#ERROR!"; i++; };
+    function expr(){ let v = term(); while (peek("+") || peek("-")){ const o = toks[i++].v, b = term(); v = o === "+" ? v + b : v - b; } return v; }
+    function term(){ let v = power(); while (peek("*") || peek("/")){ const o = toks[i++].v, b = power(); if (o === "/"){ if (b === 0) throw "#DIV/0!"; v /= b; } else v *= b; } return v; }
+    function power(){ const v = unary(); if (peek("^")){ i++; return Math.pow(v, power()); } return v; }
+    function unary(){ if (peek("-")){ i++; return -unary(); } if (peek("+")){ i++; return unary(); } return pct(prim()); }
+    function pct(v){ while (peek("%")){ i++; v /= 100; } return v; }
+    function prim(){
+      const t = toks[i++]; if (!t) throw "#ERROR!";
+      if (t.t === "n") return t.v;
+      if (t.t === "ref"){ if (peek(":")) throw "#ERROR!"; return toNum(cell(t.r, t.c)); }
+      if (t.t === "fn"){
+        if (!peek("(")) throw "#NAME?";
+        i++;
+        const args = [];
+        if (!peek(")")){ do { args.push(arg()); } while (peek(",") && ++i); }
+        need(")");
+        return fn(t.name, args);
+      }
+      if (t.v === "("){ const v = expr(); need(")"); return v; }
+      throw "#ERROR!";
+    }
+    // a function's input: a range (only its numbers count) or a single value
+    function arg(){
+      const a = toks[i], b = toks[i + 1], c = toks[i + 2];
+      if (a && a.t === "ref" && b && b.t === "op" && b.v === ":" && c && c.t === "ref"){
+        i += 3;
+        const out = [];
+        for (let r = Math.min(a.r, c.r); r <= Math.max(a.r, c.r); r++)
+          for (let k = Math.min(a.c, c.c); k <= Math.max(a.c, c.c); k++){ const v = cell(r, k); if (typeof v === "number") out.push(v); }
+        return out;
+      }
+      return [expr()];
+    }
+    function fn(name, args){
+      const all = args.flat();
+      if (name === "SUM") return all.reduce((x, y) => x + y, 0);
+      if (name === "AVERAGE" || name === "AVG" || name === "MEAN"){ if (!all.length) throw "#DIV/0!"; return all.reduce((x, y) => x + y, 0) / all.length; }
+      if (name === "MIN") return all.length ? Math.min(...all) : 0;
+      if (name === "MAX") return all.length ? Math.max(...all) : 0;
+      if (name === "COUNT") return all.length;
+      if (name === "MEDIAN"){ if (!all.length) throw "#DIV/0!"; const s = [...all].sort((x, y) => x - y), h = s.length >> 1; return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2; }
+      if (name === "ROUND"){ const x = (args[0] || [])[0], d = Math.max(0, Math.min(6, Math.round((args[1] || [0])[0] || 0))); if (x === undefined) throw "#ERROR!"; return Math.round(x * 10 ** d) / 10 ** d; }
+      if (name === "ABS"){ const x = (args[0] || [])[0]; if (x === undefined) throw "#ERROR!"; return Math.abs(x); }
+      throw "#NAME?";
+    }
+    const v = expr();
+    if (i < toks.length) throw "#ERROR!";
+    return v;
+  }
+  return T.c.map((row, r) => row.map((raw, c) => {
+    const fx = raw.trim().startsWith("=") && raw.trim().length > 1;
+    try {
+      const v = cell(r, c);
+      if (!fx) return { d:raw, num:typeof v === "number" };
+      const d = typeof v === "number" ? tblFmt(v) : String(v);
+      return d.startsWith("#") ? { d, fx, err:d } : { d, num:typeof v === "number", fx };
+    } catch(e){ return { d:e, fx, err:e }; }
+  }));
+}
+function tblLine(n){
+  if (!tblHasData(n)) return "Empty table";
+  const T = tblOf(n), words = T.c.flat().map(x => x.trim()).filter(x => x && !x.startsWith("="));
+  return T.c.length + " × " + T.c[0].length + (words.length ? " · " + words.slice(0, 4).join(", ") : "");
+}
+function tableBodyHTML(n, forPip){
+  const T = tblOf(n), V = tblCompute(T), ed = !forPip && !presenting && !viewing, C = T.c[0].length;
+  const ce = ed ? ` contenteditable="${editableAttr()}" spellcheck="false"` : "";
+  const cellHTML = (v, r, c) => {
+    const cls = [v.num ? "num" : "", v.fx ? "fx" : "", v.err ? "err" : ""].filter(Boolean).join(" ");
+    return `<td data-r="${r}" data-c="${c}"${cls ? ` class="${cls}"` : ""}${v.err ? ` title="${esc(TBL_ERR[v.err] || "")}"` : ""}><div class="tb-cell"${ce}${ed ? ` aria-label="Cell ${tblCol(c)}${r + 1}"` : ""}>${esc(v.d)}</div></td>`;
+  };
+  const guide = ed ? `<tr class="tb-gr"><th class="tb-g"></th>${T.c[0].map((_, c) => `<th class="tb-g">${tblCol(c)}</th>`).join("")}</tr>` : "";
+  const rows = V.map((row, r) => `<tr${T.hr && r === 0 ? ' class="hr"' : ""}>${ed ? `<th class="tb-g">${r + 1}</th>` : ""}${row.map((v, c) => cellHTML(v, r, c)).join("")}</tr>`).join("");
+  const bar = !ed ? "" : `<div class="tb-bar">
+      <button class="doc-btn alt" data-act="tbrow" title="Add a row below the cell you're in">${ICON.plus}Row</button>
+      <button class="doc-btn alt" data-act="tbcol" title="Add a column to the right of the cell you're in">${ICON.plus}Column</button>
+      <button class="doc-btn alt" data-act="tbdelrow" title="Remove the row of the cell you're in">${ICON.x}Row</button>
+      <button class="doc-btn alt" data-act="tbdelcol" title="Remove the column of the cell you're in">${ICON.x}Column</button>
+      <label><input type="checkbox" data-act="tbhr" ${T.hr ? "checked" : ""}> Header row</label>
+      <button class="doc-btn alt" data-act="tbcsv" title="Download as a CSV file for Excel or Google Sheets">${ICON.download}CSV</button>
+      <span class="tb-tip">Tab and Enter move between cells. Paste from Excel or Google Sheets to fill it in. Start a cell with = to do math: =SUM(B2:B6), =AVERAGE(C2:C6), =B2*C2</span>
+    </div>`;
+  return `<div class="tb-wrap"><table class="tb${C > 6 ? " wide" : ""}">${guide}${rows}</table></div>${bar}`;
+}
+// the same table without editing, for the sub plan and the Running late screen (L = how text is escaped)
+function tblPlainHTML(n, L){
+  if (!tblHasData(n)) return "";
+  const T = tblOf(n), V = tblCompute(T);
+  const tr = (row, tag) => `<tr>${row.map(v => `<${tag}${v.num ? ' style="text-align:right"' : ""}>${L(v.d)}</${tag}>`).join("")}</tr>`;
+  return `<table>${T.hr ? `<thead>${tr(V[0], "th")}</thead>` : ""}<tbody>${V.slice(T.hr ? 1 : 0).map(r => tr(r, "td")).join("")}</tbody></table>`;
+}
+// shows fresh answers in every cell except the one being typed in
+function tblRefresh(n){
+  const nn = boardEl.querySelector(`.note[data-id="${n.id}"]`); if (!nn) return;
+  const V = tblCompute(tblOf(n));
+  nn.querySelectorAll("td[data-r]").forEach(td => {
+    const v = V[+td.dataset.r] && V[+td.dataset.r][+td.dataset.c]; if (!v) return;
+    const el = td.querySelector(".tb-cell");
+    td.classList.toggle("num", !!v.num); td.classList.toggle("fx", !!v.fx); td.classList.toggle("err", !!v.err);
+    if (v.err) td.title = TBL_ERR[v.err] || ""; else td.removeAttribute("title");
+    if (el && el !== document.activeElement && el.textContent !== v.d) el.textContent = v.d;
+  });
+}
+function tblFocusCell(n, r, c){
+  const el = boardEl.querySelector(`.note[data-id="${n.id}"] td[data-r="${r}"][data-c="${c}"] .tb-cell`);
+  if (el && el.isContentEditable){ el.focus(); placeCaretEnd(el); }
+}
+/* After a row or column is added or removed, formulas keep pointing at the same cells
+   (like a spreadsheet). A cell a formula used that was removed becomes #REF!. */
+function tblShift(T, axis, at, delta){
+  const mv = (i, end) => delta > 0 ? (i >= at ? i + 1 : i) : (i < at ? i : i > at ? i - 1 : end ? i - 1 : i);
+  const ref = (L, num) => { let c = 0; for (const ch of L.toUpperCase()) c = c * 26 + ch.charCodeAt(0) - 64; return [num - 1, c - 1]; };
+  const name = (r, c) => tblCol(c) + (r + 1);
+  T.c.forEach(row => row.forEach((raw, k) => {
+    if (!raw.trim().startsWith("=")) return;
+    row[k] = raw.replace(/\$?([A-Za-z]{1,2})\$?(\d+)(?::\$?([A-Za-z]{1,2})\$?(\d+))?(?![\w(])/g, (all, a1, a2, b1, b2) => {
+      let [r1, c1] = ref(a1, +a2);
+      if (!b1){
+        if (delta < 0 && (axis === "r" ? r1 : c1) === at) return "#REF!";
+        if (axis === "r") r1 = mv(r1); else c1 = mv(c1);
+        return name(r1, c1);
+      }
+      let [r2, c2] = ref(b1, +b2);
+      if (axis === "r"){ const lo = Math.min(r1, r2), hi = Math.max(r1, r2); r1 = mv(lo); r2 = mv(hi, true); if (r2 < r1) return "#REF!"; }
+      else { const lo = Math.min(c1, c2), hi = Math.max(c1, c2); c1 = mv(lo); c2 = mv(hi, true); if (c2 < c1) return "#REF!"; }
+      return name(r1, c1) + ":" + name(r2, c2);
+    });
+  }));
+}
+function tblAct(n, act, btn){
+  const T = tblOf(n), R = T.c.length, C = T.c[0].length;
+  const at = tblLast && tblLast.id === n.id ? tblLast : null;
+  const r = at ? Math.min(at.r, R - 1) : R - 1, c = at ? Math.min(at.c, C - 1) : C - 1;
+  let to = null;
+  if (act === "tbhr"){ T.hr = !!btn.checked; save(); renderNote(n); return; }
+  if (act === "tbcsv"){ tblCSV(n); return; }
+  if (act === "tbrow"){
+    if (R >= TBL_MAXR){ toast("A table holds up to " + TBL_MAXR + " rows."); return; }
+    tblShift(T, "r", r + 1, 1); T.c.splice(r + 1, 0, Array(C).fill("")); to = [r + 1, c];
+  }
+  else if (act === "tbcol"){
+    if (C >= TBL_MAXC){ toast("A table holds up to " + TBL_MAXC + " columns."); return; }
+    tblShift(T, "c", c + 1, 1); T.c.forEach(row => row.splice(c + 1, 0, "")); to = [r, c + 1];
+  }
+  else if (act === "tbdelrow"){
+    if (R <= 1){ toast("A table needs at least one row."); return; }
+    T.c.splice(r, 1); tblShift(T, "r", r, -1); to = [Math.min(r, R - 2), c];
+  }
+  else if (act === "tbdelcol"){
+    if (C <= 1){ toast("A table needs at least one column."); return; }
+    T.c.forEach(row => row.splice(c, 1)); tblShift(T, "c", c, -1); to = [r, Math.min(c, C - 2)];
+  }
+  save(); renderNote(n);
+  if (to){ tblLast = { id:n.id, r:to[0], c:to[1] }; tblFocusCell(n, to[0], to[1]); }
+}
+function tblCSV(n){
+  const V = tblCompute(tblOf(n));
+  const q = s => /[",\r\n]/.test(s) || /^[=+\-@]/.test(s) && isNaN(+s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  const blob = new Blob(["﻿" + V.map(row => row.map(v => q(v.d)).join(",")).join("\r\n")], { type:"text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = ((n.title || "Table").replace(/[\\/:*?"<>|]+/g, "").trim() || "Table") + ".csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+// text copied from Excel or Google Sheets: tabs between cells, a new line between rows (quoted cells may hold new lines)
+function tblParse(s){
+  s = String(s || "").replace(/\r\n?/g, "\n").replace(/\n+$/, "");
+  const tabs = s.includes("\t"), rows = [[""]];
+  let q = false;
+  for (let i = 0; i < s.length; i++){
+    const ch = s[i], row = rows[rows.length - 1];
+    if (q){ if (ch === '"'){ if (s[i + 1] === '"'){ row[row.length - 1] += '"'; i++; } else q = false; } else row[row.length - 1] += ch; continue; }
+    if (tabs && ch === '"' && row[row.length - 1] === ""){ q = true; continue; }
+    if (ch === "\t") row.push(""); else if (ch === "\n") rows.push([""]); else row[row.length - 1] += ch;
+  }
+  return rows;
+}
+boardEl.addEventListener("focusin", e => {
+  const t = e.target; if (!t.classList?.contains("tb-cell") || !t.isContentEditable) return;
+  const nn = t.closest(".note"), n = nn && findNote(nn.dataset.id); if (!n) return;
+  const td = t.closest("td"), r = +td.dataset.r, c = +td.dataset.c, raw = (tblOf(n).c[r] || [])[c] ?? "";
+  tblLast = { id:n.id, r, c };
+  td.classList.add("editing");
+  if (t.textContent !== raw){ t.textContent = raw; placeCaretEnd(t); }   // a formula shows as typed while you're in it
+});
+boardEl.addEventListener("focusout", e => {
+  const t = e.target; if (!t.classList?.contains("tb-cell")) return;
+  t.closest("td")?.classList.remove("editing");
+  const nn = t.closest(".note"), n = nn && findNote(nn.dataset.id); if (!n) return;
+  setTimeout(() => tblRefresh(n), 0);
+});
+boardEl.addEventListener("keydown", e => {
+  const t = e.target; if (!t.classList?.contains("tb-cell") || !t.isContentEditable) return;
+  const nn = t.closest(".note"), n = nn && findNote(nn.dataset.id); if (!n) return;
+  const T = tblOf(n), R = T.c.length, C = T.c[0].length, td = t.closest("td"), r = +td.dataset.r, c = +td.dataset.c;
+  const addRow = () => { if (R >= TBL_MAXR) return false; T.c.push(Array(C).fill("")); save(); renderNote(n); return true; };
+  let to = null;
+  if (e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); t.blur(); return; }
+  if (e.key === "Tab"){
+    e.preventDefault();
+    if (e.shiftKey) to = c > 0 ? [r, c - 1] : r > 0 ? [r - 1, C - 1] : null;
+    else to = c < C - 1 ? [r, c + 1] : r < R - 1 ? [r + 1, 0] : addRow() ? [r + 1, 0] : null;
+  }
+  else if (e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    to = r < R - 1 ? [r + 1, c] : addRow() ? [r + 1, c] : null;
+  }
+  else if ((e.key === "ArrowUp" || e.key === "ArrowDown") && !e.shiftKey && !e.altKey && !txt(t).includes("\n")){
+    to = e.key === "ArrowUp" ? (r > 0 ? [r - 1, c] : null) : (r < R - 1 ? [r + 1, c] : null);
+    if (to) e.preventDefault();
+  }
+  if (to) tblFocusCell(n, to[0], to[1]);
+});
+boardEl.addEventListener("paste", e => {
+  const t = e.target.closest ? e.target.closest(".tb-cell") : null; if (!t || !t.isContentEditable) return;
+  const nn = t.closest(".note"), n = nn && findNote(nn.dataset.id); if (!n) return;
+  const text = (e.clipboardData && e.clipboardData.getData("text/plain")) || "";
+  e.preventDefault();   // never paste formatting into a cell
+  const grid = tblParse(text);
+  if (grid.length === 1 && grid[0].length === 1){ document.execCommand("insertText", false, grid[0][0]); return; }
+  const T = tblOf(n), td = t.closest("td"), r0 = +td.dataset.r, c0 = +td.dataset.c;
+  const needR = Math.min(TBL_MAXR, r0 + grid.length), needC = Math.min(TBL_MAXC, c0 + Math.max(...grid.map(x => x.length)));
+  const cut = r0 + grid.length > TBL_MAXR || c0 + Math.max(...grid.map(x => x.length)) > TBL_MAXC;
+  while (T.c[0].length < needC) T.c.forEach(row => row.push(""));
+  while (T.c.length < needR) T.c.push(Array(T.c[0].length).fill(""));
+  grid.forEach((row, i) => row.forEach((v, k) => { if (r0 + i < TBL_MAXR && c0 + k < TBL_MAXC) T.c[r0 + i][c0 + k] = v; }));
+  save(); renderNote(n); tblFocusCell(n, r0, c0);
+  toast(cut ? "Pasted. A table holds up to " + TBL_MAXR + " rows and " + TBL_MAXC + " columns, so some was left out." : "Pasted " + grid.length + (grid.length === 1 ? " row." : " rows."));
 });
 
 /* ---------- drawing: Draw notes, and drawing right on the board ----------
@@ -6613,6 +6954,7 @@ function planBody(b, o){
       if (n.kind === "doc") return n.doc && n.doc.name ? "Document: " + n.doc.name : "";
       if (n.kind === "image") return n.src ? (n.title || "Image") : "";
       if (n.kind === "text" && !(n.text || "").trim()) return "";
+      if (n.kind === "table" && !tblHasData(n)) return "";
       return n.title || "";
     }).filter(Boolean);
     if (bits.length) h += `<div class="lp-also"><b>Also on the board:</b> ${L(bits.join(" · "))}</div>`;
@@ -6623,6 +6965,9 @@ function planBody(b, o){
     if (pics.length) h += `<section class="lp-sec"><div class="lp-sec-h"><h2>Pictures on the board</h2></div><div class="lp-pics">${pics.map(n => `<figure><img src="${L(n.src)}" alt=""><figcaption>${L(n.title || "Image")}</figcaption></figure>`).join("")}</div></section>`;
     const docs = others.filter(n => n.kind === "doc" && n.doc && n.doc.name), links = others.filter(n => n.kind === "links").flatMap(n => (n.links || []).filter(l => normURL(l.u)));
     if (docs.length || links.length) h += `<section class="lp-sec"><div class="lp-sec-h"><h2>Documents and links on the board</h2><span>Open them from the board to view or print</span></div><ul class="lp-list">${docs.map(n => `<li>${L(n.doc.name)}</li>`).join("")}${links.map(l => `<li>${L(linkName(l))}: ${L(normURL(l.u))}</li>`).join("")}</ul></section>`;
+    others.filter(n => n.kind === "table" && tblHasData(n)).forEach(n => {
+      h += `<section class="lp-sec"><div class="lp-sec-h"><h2>${L(n.title || "Table")}</h2><span>Table on the board</span></div>${tblPlainHTML(n, L)}</section>`;
+    });
     const texts = others.filter(n => (n.kind === "text" && (n.text || "").trim()) || (n.kind === "list" && (n.items || []).some(i => (i.t || "").trim())));
     if (texts.length) h += `<section class="lp-sec lp-other"><div class="lp-sec-h"><h2>Other notes on the board</h2></div>${texts.map(n => `<div><h3>${L(n.title || "Note")}</h3><p>${L(n.kind === "list" ? n.items.filter(i => (i.t || "").trim()).map(i => "• " + i.t).join("\n") : n.text.trim())}</p></div>`).join("")}</section>`;
   }
