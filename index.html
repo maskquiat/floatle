@@ -4592,6 +4592,7 @@ function renderLeave(){
           <div><label class="lb" for="lvEmail">Your email <small style="font-weight:400;color:var(--muted)">(optional)</small></label><input type="email" id="lvEmail" maxlength="120" autocomplete="email" value="${esc(lsGet("floatle.subEmail"))}"></div>
         </div>
         <p class="rep-hint">Add your email only if you'd like the teacher to be able to follow up with you.</p>
+        <label class="lb" for="lvPeriod" style="margin-top:.8rem">Period you covered</label><input type="text" id="lvPeriod" maxlength="40" placeholder="e.g. 3, or 2 and 5" value="${esc(L.period != null ? L.period : (board().plan && board().plan.period) || "")}" style="max-width:14rem">
       </fieldset>
       <fieldset><legend>How much of the plan did the class finish?</legend>
         ${chipsHTML("coverage", COVERAGE, k => L.coverage === k)}
@@ -4621,7 +4622,7 @@ function openLeave(){
   $("leaveWrap").hidden = false;
   setTimeout(() => { const n = $("lvName"); (n && !n.value ? n : $("leaveClose")).focus(); }, 30);
 }
-function closeLeave(){ $("leaveWrap").hidden = true; }
+function closeLeave(){ if (leave && $("lvPeriod")) leave.period = $("lvPeriod").value; $("leaveWrap").hidden = true; }
 $("leaveBtn").addEventListener("click", openLeave);
 $("leaveClose").addEventListener("click", closeLeave);
 $("leaveWrap").addEventListener("click", e => {
@@ -4646,7 +4647,7 @@ $("leaveWrap").addEventListener("click", e => {
 $("leaveWrap").addEventListener("submit", async e => {
   e.preventDefault();
   const L = leave, v = id => ($(id)?.value || "").trim(), msg = t => { $("lvMsg").textContent = t; };
-  const name = v("lvName"), email = v("lvEmail");
+  const name = v("lvName"), email = v("lvEmail"), period = v("lvPeriod");
   if (!name){ msg("Add your name so the teacher knows who covered the class."); $("lvName").focus(); return; }
   if (email && !/^\S+@\S+\.\S+$/.test(email)){ msg("That email doesn't look right. Fix it or leave it blank."); $("lvEmail").focus(); return; }
   const texts = ["lvCoverage","lvInterrupt","lvBehavior","lvAttend","lvOther"].map(v);
@@ -4655,13 +4656,18 @@ $("leaveWrap").addEventListener("submit", async e => {
   const btn = $("lvSend"); btn.disabled = true; btn.textContent = "Sending…"; msg("");
   lsSet("floatle.subName", name); lsSet("floatle.subEmail", email);
   try {
-    const { error } = await sb.rpc("submit_sub_report", {
+    const args = {
       p_code: VIEW_CODE, p_sub_name: name, p_sub_email: email,
       p_coverage: L.coverage, p_coverage_notes: texts[0],
       p_interruptions: [...L.interruptions].filter(x => x !== "none"), p_interruption_notes: texts[1],
       p_behavior: L.behavior, p_behavior_notes: texts[2],
       p_attendance_notes: texts[3], p_other_notes: texts[4]
-    });
+    };
+    let { error } = await sb.rpc("submit_sub_report", period ? { ...args, p_period: period } : args);
+    // database not updated for p_period yet (floatle-sub-report-period.sql): send the period at the top of "Anything else"
+    if (error && period && (error.code === "PGRST202" || /could not find the function/i.test(error.message || ""))){
+      ({ error } = await sb.rpc("submit_sub_report", { ...args, p_other_notes: ("Period: " + period + "\n" + texts[4]).trim() }));
+    }
     if (error) throw error;
     L.sent = true; renderLeave();
   } catch(err){
@@ -4695,17 +4701,25 @@ async function loadReports(){
   const n = unreadCount();
   if (n && !repToasted){ repToasted = true; toast(`You have ${n} new sub report${n > 1 ? "s" : ""}.`, openReports, "Open"); }
 }
+// the period the sub covered: its own column, or the "Period: …" first line older databases fold into other_notes
+function repPeriod(r){
+  const clean = x => String(x).replace(/^period\s*/i, "").trim();   // "Period 3" typed by the sub shows as "Period 3", not "Period Period 3"
+  if (r.period) return { period:clean(r.period), other:r.other_notes };
+  const m = /^Period: (.{1,40})(?:\n|$)/.exec(r.other_notes || "");
+  return m ? { period:clean(m[1]), other:(r.other_notes || "").slice(m[0].length).trim() } : { period:"", other:r.other_notes };
+}
 function repDate(iso){
   const d = new Date(iso);
   return d.toLocaleDateString(undefined, { weekday:"short", month:"short", day:"numeric" }) + ", " + clockText(d.getTime());
 }
 function repText(r){
   const lines = [`Sub report: ${r.board_name || "Class board"} (${repDate(r.created_at)})`, `Substitute: ${r.sub_name}${r.sub_email ? " <" + r.sub_email + ">" : ""}`];
-  const add = (k, v) => { if (v) lines.push(k + ": " + v); };
+  const add = (k, v) => { if (v) lines.push(k + ": " + v); }, rp = repPeriod(r);
+  add("Period", rp.period);
   add("Plan covered", COVERAGE[r.coverage]); add("Notes", r.coverage_notes);
   add("Interruptions", (r.interruptions || []).map(x => INTERRUPT[x] || x).join(", ")); add("Details", r.interruption_notes);
   add("Class", BEHAVIOR[r.behavior]); add("Notes", r.behavior_notes);
-  add("Attendance", r.attendance_notes); add("Other", r.other_notes);
+  add("Attendance", r.attendance_notes); add("Other", rp.other);
   return lines.join("\n");
 }
 function renderReports(){
@@ -4715,7 +4729,7 @@ function renderReports(){
     return;
   }
   list.innerHTML = reports.map(r => {
-    const open = !!repExpanded[r.id];
+    const open = !!repExpanded[r.id], rp = repPeriod(r);
     const tags = [];
     if (r.coverage) tags.push(`<span class="ri-tag${r.coverage === "all" ? " ok" : ""}">${COVERAGE[r.coverage]}</span>`);
     if ((r.interruptions || []).length) tags.push(`<span class="ri-tag warn">${r.interruptions.map(x => INTERRUPT[x] || x).join(", ")}</span>`);
@@ -4723,13 +4737,13 @@ function renderReports(){
     const row = (k, v) => v ? `<dt>${k}</dt><dd>${esc(v)}</dd>` : "";
     const body = open ? `<dl class="ri-body">
         ${row("Plan covered", r.coverage_notes)}${row("Interruptions", r.interruption_notes)}${row("How the class did", r.behavior_notes)}
-        ${row("Absences, late arrivals, early dismissals", r.attendance_notes)}${row("Anything else", r.other_notes)}
+        ${row("Absences, late arrivals, early dismissals", r.attendance_notes)}${row("Anything else", rp.other)}
         ${r.sub_email ? `<dt>Contact the sub</dt><dd><a href="mailto:${esc(r.sub_email)}?subject=${encodeURIComponent("Thanks for covering " + (r.board_name || "my class"))}">${esc(r.sub_email)}</a></dd>` : ""}
         <div class="ri-acts"><button class="btn" data-ra="copy">Copy as text</button><button class="btn danger-btn" data-ra="delete">Delete</button></div>
       </dl>` : "";
     return `<div class="ri" data-rid="${r.id}">
       <button class="ri-head" data-ra="toggle" aria-expanded="${open}"><span class="ri-new${r.read_at ? " read" : ""}" aria-label="${r.read_at ? "" : "New"}"></span>
-        <span class="ri-main"><b>${esc(r.board_name || "Class board")} &middot; ${esc(r.sub_name)}</b><span class="ri-sum">${repDate(r.created_at)}</span><span class="ri-tags">${tags.join("")}</span></span></button>
+        <span class="ri-main"><b>${esc(r.board_name || "Class board")}${rp.period ? " &middot; Period " + esc(rp.period) : ""} &middot; ${esc(r.sub_name)}</b><span class="ri-sum">${repDate(r.created_at)}</span><span class="ri-tags">${tags.join("")}</span></span></button>
       ${body}</div>`;
   }).join("");
 }
