@@ -262,7 +262,7 @@ body.present .exit-present{display:inline-flex}
   .date{display:none}
   .brand{display:none}
   .btn .lbl{display:none}
-  #leaveBtn .lbl{display:inline}
+  #leaveBtn .lbl,#planBtn .lbl{display:inline}
   body.viewing .view-badge{display:none !important}
   body.present .present-title{flex:1 1 auto;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:1.1rem}
   .board{overflow-y:auto;padding:.75rem;display:flex;flex-direction:column;gap:.6rem}
@@ -1005,6 +1005,7 @@ body.viewing:not(.sub-draw) .draw-btn{display:none !important}
 .share-opt input{width:1.2rem;height:1.2rem;margin-top:.1rem;accent-color:var(--accent);flex:0 0 auto}
 .share-opt span{display:flex;flex-direction:column;gap:.1rem}
 .share-opt small{color:var(--muted);font-size:.85rem}
+.linklike{border:0;background:none;padding:0;font:inherit;color:var(--accent);text-decoration:underline;font-weight:700}
 @media (max-width:700px){ .draw-btn,.ink{display:none !important} }
 
 /* ---------- Settings menu: icons, sections, status tags ---------- */
@@ -1017,7 +1018,7 @@ body.viewing:not(.sub-draw) .draw-btn{display:none !important}
 .set-tag.on{background:#E3F4EA;color:#1F6B45;border-color:#B5DEC4}
 .set-sec{margin:.7rem .6rem .2rem;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .menu .set-item.c-sh .si{color:#C63F77} .menu .set-item.c-rp .si{color:#1F7A50} .menu .set-item.c-sc .si{color:#6E56CF}
-.menu .set-item.c-ls .si{color:#2D7FB8} .menu .set-item.c-cr .si{color:#E8663D} .menu .set-item.c-la .si{color:#B7791F} .menu .set-item.c-bg .si{color:#1E9CC8}
+.menu .set-item.c-ls .si{color:#2D7FB8} .menu .set-item.c-lp .si{color:#C63F77} .menu .set-item.c-cr .si{color:#E8663D} .menu .set-item.c-la .si{color:#B7791F} .menu .set-item.c-bg .si{color:#1E9CC8}
 .menu .set-item.danger .si{color:var(--danger)}
 .menu .set-item:disabled{opacity:.45;cursor:default}
 .menu .set-item:disabled:hover{background:none}
@@ -1038,6 +1039,41 @@ body.viewing:not(.sub-draw) .draw-btn{display:none !important}
 .ls-item .trash-acts .btn{padding:.38rem .6rem;font-size:.9rem}
 .ls-ren{width:100%;font:inherit;font-weight:700;padding:.35rem .5rem;border:2px solid var(--accent);border-radius:.45rem;background:var(--chrome);color:var(--ink)}
 @media (max-width:700px){ .ls-item .trash-acts{padding-left:0} .ls-item .trash-acts .btn{min-height:44px} }
+
+/* ---------- Sub lesson plan (the plan page's own styles are in PLAN_CSS) ---------- */
+.lp-panel{max-width:44rem}
+.lp-f{display:flex;flex-direction:column;gap:.3rem;font-weight:700;font-size:.92rem;min-width:0}
+.lp-f input,.lp-f textarea,.lp-step input{font:inherit;font-weight:400;padding:.55rem .7rem;border:1px solid var(--line);border-radius:.55rem;background:var(--chrome-2);color:var(--ink);min-height:2.6rem;width:100%;box-sizing:border-box}
+.lp-f textarea{resize:vertical;line-height:1.4}
+.lp-row3{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr);gap:.6rem;margin:.6rem 0}
+.lp-row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem;margin-top:.6rem}
+.lp-h3{margin:1rem 0 .1rem;font-size:1.05rem}
+.lp-steps{display:flex;flex-direction:column;gap:.55rem;margin:.4rem 0 .9rem}
+.lp-step{display:flex;flex-direction:column;gap:.3rem}
+.lp-step-h{display:flex;justify-content:space-between;gap:.6rem;font-size:.92rem}
+.lp-step-h span{color:var(--muted);white-space:nowrap}
+.lp-school{margin:.9rem 0;padding:.6rem .8rem;border:1px solid var(--line);border-radius:.6rem}
+.lp-school summary{cursor:pointer;font-weight:700}
+.lp-school summary small{font-weight:400;color:var(--muted)}
+.lp-len{border:0;padding:0;margin:.4rem 0 .6rem;display:flex;flex-direction:column;gap:.45rem}
+.lp-len legend{font-weight:700;margin-bottom:.4rem}
+.lp-panel .share-opt{margin-bottom:.45rem}
+.lp-fit{margin:.6rem 0;padding:.55rem .8rem;border-radius:.55rem;background:var(--chrome-2);font-weight:700;font-size:.92rem}
+.lp-fit.ok{background:#E3F4EA;color:#1F6B45}
+.lp-fit.over{background:#FFF4D6;color:#5A4200}
+.lp-acts{display:flex;justify-content:flex-end;gap:.5rem;flex-wrap:wrap}
+.lp-measure{position:absolute;left:-20000px;top:0;width:7.5in;visibility:hidden;pointer-events:none}
+@media (max-width:700px){ .lp-row3,.lp-row2{grid-template-columns:minmax(0,1fr)} }
+body.viewing .plan-btn[hidden]{display:none !important}
+.lp-side{position:fixed;top:0;right:0;bottom:0;width:min(36rem,100%);z-index:2100;background:var(--chrome);color:var(--ink);box-shadow:-18px 0 40px rgba(0,0,0,.35);display:flex;flex-direction:column}
+.lp-side[hidden]{display:none}
+.lp-side-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem;padding:1rem 1.1rem .5rem}
+.lp-side-head h2{margin:0;font-size:1.3rem}
+.lp-side-sub{color:var(--muted);font-size:.9rem;margin-top:.15rem}
+.lp-side-acts{display:flex;gap:.5rem;flex-wrap:wrap;padding:0 1.1rem .6rem}
+.lp-warn{margin:0 1.1rem .8rem;padding:.5rem .7rem;border-radius:.5rem;background:#FFF4D6;color:#5A4200;font-size:.85rem;line-height:1.4}
+.lp-side-body{flex:1 1 auto;overflow:auto;padding:1rem;background:var(--chrome-2);border-top:1px solid var(--line)}
+.lp-side-body .lp{padding:1rem;border-radius:.4rem;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 
 /* ---------- copyright footer ---------- */
 .site-foot{flex:0 0 auto;display:flex;justify-content:center;flex-wrap:wrap;gap:.2rem .6rem;padding:.2rem .75rem calc(.2rem + env(safe-area-inset-bottom,0px));font-size:.72rem;line-height:1.3;color:var(--muted);background:var(--chrome);border-top:1px solid var(--line)}
@@ -1089,7 +1125,10 @@ body.present .site-foot,body.viewing .site-foot{display:none}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="lbl">Sub reports</span><span class="rep-dot" id="repDot" hidden></span>
   </button>
   <span class="view-badge">View only</span>
-  <button class="btn primary viewer-only" id="leaveBtn" title="Tell the teacher how the class went">
+  <button class="btn primary viewer-only plan-btn" id="planBtn" title="Read or print today's lesson plan" aria-expanded="false" aria-controls="lpSide" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg><span class="lbl">Lesson plan</span>
+  </button>
+  <button class="btn viewer-only" id="leaveBtn" title="Tell the teacher how the class went">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="lbl">Note for the teacher</span>
   </button>
   <button class="btn viewer-only" id="fullBtn" aria-label="Full screen">
@@ -1245,6 +1284,20 @@ body.present .site-foot,body.viewing .site-foot{display:none}
     <div id="bgBody"></div>
   </div>
 </div>
+<div class="trash-wrap" id="planWrap" hidden>
+  <div class="trash-panel lp-panel" role="dialog" aria-modal="true" aria-labelledby="planTitle">
+    <div class="trash-head"><h2 id="planTitle">Sub lesson plan</h2><button class="btn" id="planClose">Done</button></div>
+    <p class="trash-sub">A one-page plan made from this board's notes. Add what the notes don't say, then print it or save it as a PDF. Everything here saves as you type.</p>
+    <div id="planBody"></div>
+  </div>
+</div>
+<aside class="lp-side" id="lpSide" aria-labelledby="lpSideTitle" hidden>
+  <div class="lp-side-head"><div><h2 id="lpSideTitle">Today's lesson plan</h2><div class="lp-side-sub" id="lpSideSub"></div></div><button class="btn" id="lpSideClose">Close</button></div>
+  <div class="lp-side-acts"><button class="btn primary" id="lpPrint">Print or save as PDF</button><button class="btn" id="lpWin">Open in a new window</button></div>
+  <p class="lp-warn">If this screen is on the projector, students can see this panel. Print it, or open it in a new window on your own screen.</p>
+  <div class="lp-side-body" id="lpSideBody"></div>
+</aside>
+<div class="lp-measure" id="lpMeasure" aria-hidden="true"></div>
 <div class="trash-wrap" id="lessonWrap" hidden>
   <div class="trash-panel ls-panel" role="dialog" aria-modal="true" aria-labelledby="lessonTitle">
     <div class="trash-head"><h2 id="lessonTitle">Saved lessons</h2><button class="btn" id="lessonClose">Done</button></div>
@@ -2671,6 +2724,7 @@ function renderSettings(){
     <div class="bg-row">${Object.keys(BGS).map(k => `<button data-bg="${k}" aria-pressed="${b.bg===k && !showOf(b) && !b.backdrop}" title="${BGS[k]}" aria-label="${BGS[k]}" style="background:${BG_SWATCH[k]}"></button>`).join("")}</div>
     ${setItem("bg", "More backgrounds", { cls:"c-bg", hint:bgNote ? "Now: " + bgNote : "" })}
     <div class="set-sec">Subs and class time</div>
+    ${setItem("plan", "Sub lesson plan", { cls:"c-lp", ico:"lessons", hint:"One page to print or share" })}
     ${setItem("share", "Share with a sub", { cls:"c-sh", hint:"Link and QR code", tag:b.shareCode ? "On" : "", tagOn:true })}
     ${sb && userId ? setItem("reports", "Sub reports", { cls:"c-rp", hint:"Notes your subs left", tag:unread ? unread + " new" : "", tagOn:true }) : ""}
     ${setItem("sched", "Schedule boards", { cls:"c-sc", hint:"Switch by class period", tag:b.sched && b.sched.on ? fmtTime(b.sched.t) : "" })}
@@ -2697,7 +2751,7 @@ function renderSettings(){
       : `<div class="sync" id="syncLine">${esc(syncLabel)}</div>`}
     <div class="set-copy">${esc(COPYRIGHT)}</div>`;
 }
-function render(){ renderTabs(); renderBoard(); renderAddMenu(); renderSettings(); }
+function render(){ renderTabs(); renderBoard(); renderAddMenu(); renderSettings(); updatePlanBtn(); }
 
 /* scale type to board width so layouts look the same on laptop, iPad and projector */
 function sizeUnit(){
@@ -2757,6 +2811,8 @@ document.addEventListener("keydown", e => {
     if (!$("lateWrap").hidden){ closeLate(); return; }
     if (!$("bgWrap").hidden){ closeBg(); return; }
     if (!$("lessonWrap").hidden){ closeLessons(); return; }
+    if (!$("planWrap").hidden){ closePlan(); return; }
+    if (!$("lpSide").hidden){ closeLpSide(); $("planBtn").focus(); return; }
     if (document.querySelector(".menu.open")){ closeMenus(); return; }
     if (inkMode){ setInk(false); return; }
     if (presenting && !viewing) setPresent(false);
@@ -2834,6 +2890,7 @@ $("setMenu").addEventListener("click", e => {
   }
   if (act === "trash"){ toggleMenu($("setBtn"), $("setMenu"), false); openTrash(); return; }
   if (act === "lessons"){ toggleMenu($("setBtn"), $("setMenu"), false); openLessons(); return; }
+  if (act === "plan"){ toggleMenu($("setBtn"), $("setMenu"), false); openPlan(); return; }
   if (act === "bg"){ toggleMenu($("setBtn"), $("setMenu"), false); openBg(b.backdrop ? "slides" : null); return; }
   if (act === "inkclear"){ toggleMenu($("setBtn"), $("setMenu"), false); b.ink = []; save(); renderInkLayer(); toast("Drawing cleared from " + b.name + ".", undo); return; }
   if (act === "share"){ toggleMenu($("setBtn"), $("setMenu"), false); openShare(); return; }
@@ -3612,7 +3669,7 @@ let imgTarget = null;                      // an empty Image note the next paste
 let pickTarget = null;                     // the note "Choose an image" was clicked in
 
 function modalOpen(){
-  return !$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden || !$("leaveWrap").hidden || !$("repWrap").hidden || !$("imgView").hidden || !$("schedWrap").hidden || !$("crawlWrap").hidden || !$("lateWrap").hidden || !$("bgWrap").hidden || !$("lessonWrap").hidden;
+  return !$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden || !$("leaveWrap").hidden || !$("repWrap").hidden || !$("imgView").hidden || !$("schedWrap").hidden || !$("crawlWrap").hidden || !$("lateWrap").hidden || !$("bgWrap").hidden || !$("lessonWrap").hidden || !$("planWrap").hidden;
 }
 function imageBodyHTML(n, forPip){
   const tapZoom = !forPip && (presenting || viewing);
@@ -4121,7 +4178,15 @@ function pipPointerUp(e){
    through the get_shared_board() function, so codes can't be listed or guessed in bulk. */
 const lastShared = {};
 let shareCanvas = null;
-const shareData = b => { const c = JSON.parse(JSON.stringify(b)); delete c.shareCode; return c; };
+const shareData = b => {
+  const c = JSON.parse(JSON.stringify(b)); delete c.shareCode;
+  if (planOn(c)) c.planInfo = schoolInfo();   // the teacher's name and school numbers for the sub's copy of the plan
+  else {                                      // plan off for subs: its notes and step directions stay private
+    if (c.plan) delete c.plan.notes;
+    (c.notes || []).forEach(n => { (n.items || []).forEach(i => { delete i.sub; }); (n.tasks || []).forEach(t => { delete t.sub; }); });
+  }
+  return c;
+};
 const shareURL = code => location.origin + "/?s=" + code;
 const shortLink = code => location.host + "/" + code;
 function newCode(){
@@ -4251,6 +4316,8 @@ async function renderShare(){
           <button class="btn" data-sh="download">Download QR card</button>
           <button class="btn" data-sh="copylink">Copy link</button>
         </div>
+        <label class="share-opt"><input type="checkbox" data-sh="subplan" ${planOn(b) ? "checked" : ""}>
+          <span><b>Let the sub see the lesson plan</b><small>A Lesson plan button on their view, to read or print the plan. <button type="button" class="linklike" data-sh="planopen">Edit the plan</button></small></span></label>
         <label class="share-opt"><input type="checkbox" data-sh="subdraw" ${b.subDraw !== false ? "checked" : ""}>
           <span><b>Let subs draw on this board</b><small>Pen, highlighter and eraser on the board and on Draw notes. Never saved, and your notes stay locked.</small></span></label>
       </div>
@@ -4356,7 +4423,7 @@ body{margin:0;font-family:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;co
         <p class="red" style="margin-top:.3rem">No email or password needed.</p>
         <p style="margin-top:.3rem;font-style:italic;color:#5B6874">See the picture →</p></div></div>
       <div class="arrow" aria-hidden="true">▼</div>
-      <div class="txt done"><span class="num">✓</span><div><h3>You're in!</h3><p>The class notes open. Leave them on the screen for students. When you're done, tap <b>Note for the teacher</b> to say how class went.</p></div></div>
+      <div class="txt done"><span class="num">✓</span><div><h3>You're in!</h3><p>The class notes open. Leave them on the screen for students.${planOn(b) ? " Choose <b>Lesson plan</b> at the top to read or print today's plan." : ""} When you're done, tap <b>Note for the teacher</b> to say how class went.</p></div></div>
       <div class="stuck"><b class="t">Stuck?</b>Shortcut: type <b>${esc(shortLink(code))}</b> in the top bar to open the board directly.<br>Check each letter and number in the code, and make sure <b>${esc(host)}</b> is in the top bar.<br>No computer? Scan the QR code with a phone.</div>
     </div>
     <div class="pic"><img src="${asset("step4-code.jpg")}" alt="The Floatle sign-in page with the board code box at the bottom"></div></div>
@@ -4394,6 +4461,11 @@ $("shareWrap").addEventListener("click", async e => {
     try { await startSharing(b); renderShare(); }
     catch(err){ btn.disabled = false; btn.textContent = "Create link and QR code"; toast("Couldn't create a link. Check your connection and try again."); }
   }
+  else if (a === "subplan"){
+    planOf(b).forSub = btn.checked; save();
+    toast(btn.checked ? "Subs can open the lesson plan from this board." : "The Lesson plan button is off for subs on this board.");
+  }
+  else if (a === "planopen"){ e.preventDefault(); closeShare(); openPlan(); }
   else if (a === "subdraw"){
     b.subDraw = btn.checked; save();
     toast(btn.checked ? "Subs can draw on this board. Their drawings stay on their screen and are never saved."
@@ -4462,6 +4534,10 @@ async function loadShared(first){
   setState({ v:1, active:bd.id, boards:[bd], updatedAt:0, trash:[] });
   document.title = (bd.name || "Class board") + " · Floatle™";
   render(); renderPip(); resetHistory();
+  if (first && planOn(bd) && !lsGet("floatle.planTip." + VIEW_CODE)){
+    lsSet("floatle.planTip." + VIEW_CODE, "1");
+    setTimeout(() => toast("Your lesson plan is here: choose Lesson plan at the top.", () => openLpSide(), "Open it"), 900);
+  }
 }
 function openCode(val, onBad){
   const c = cleanCode(val);
@@ -6324,13 +6400,297 @@ $("bgFile").addEventListener("change", async e => {
   if (!$("bgWrap").hidden) renderBgPanel();
 });
 
+/* ---------- Sub lesson plan: a one-page, sub-friendly plan made from the board ----------
+   Built from the board's own notes: the Objective, a Do Now note and Homework at the top, then the
+   lesson flow from the Timed note (matched to the Agenda for fuller names) or, without one, the Agenda.
+   What the notes don't say goes in:
+   - a "For the sub" line on each step: saved on the step itself (task.sub or item.sub), so it stays with
+     the board, its copies and Saved lessons
+   - b.plan = { period, room, notes, length:"one"|"full", code (print the board code; off by default),
+                forSub (the sub can open the plan on the shared board; on by default) }
+   - state.school = { teacher, office, nurse, door }: the teacher's name and school numbers, typed once.
+   The teacher prints it or saves a PDF from Settings > Sub lesson plan (or Share). A sub who opens the
+   shared board gets a Lesson plan button to read and print the same page, unless the teacher turns it off. */
+const planOf = b => b.plan || (b.plan = {});
+const planOn = b => !!b && !(b.plan && b.plan.forSub === false);
+const planNorm = s => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+function schoolInfo(){ const s = state.school || {}; return { teacher:s.teacher || "", office:s.office || "", nurse:s.nurse || "", door:s.door || "" }; }
+// the lesson's steps: [{ src (the task or item the sub line is saved on), name, min }]
+function planSteps(b){
+  const notes = b.notes || [];
+  const timed = notes.find(n => n.kind === "timed" && (n.tasks || []).some(t => (t.t || "").trim()));
+  const agenda = notes.find(n => n.kind === "list" && n.type === "agenda") || notes.find(n => n.kind === "list" && /agenda/i.test(n.title || ""));
+  const aItems = agenda ? (agenda.items || []).filter(i => (i.t || "").trim()) : [];
+  if (timed) return timed.tasks.filter(t => (t.t || "").trim()).map(t => {
+    const k = planNorm(t.t), a = k && aItems.find(i => planNorm(i.t).startsWith(k));
+    return { src:t, name:a && a.t.length > t.t.length ? a.t : t.t, min:+t.min || 0, alt:a || null };
+  });
+  return aItems.map(i => ({ src:i, name:i.t, min:0, alt:null }));
+}
+const stepSub = s => ((s.src.sub || "") || (s.alt && s.alt.sub) || "").trim();
+function planGlance(b){
+  const text = n => n && n.kind === "text" && (n.text || "").trim() ? n : null;
+  const notes = b.notes || [];
+  return [
+    ["OBJECTIVE", "obj", text(notes.find(n => n.type === "objective" && (n.text || "").trim()))],
+    ["DO NOW", "now", text(notes.find(n => n.kind === "text" && /do\s*now|warm[\s-]*up/i.test(n.title || "") && (n.text || "").trim()))],
+    ["HOMEWORK", "hw", text(notes.find(n => n.type === "homework" && (n.text || "").trim()))]
+  ].filter(g => g[2]);
+}
+const PLAN_CSS = `
+.lp{font-family:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;color:#1B2530;background:#fff;font-size:14px;line-height:1.38;display:flex;flex-direction:column;gap:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.lp *{box-sizing:border-box}
+.lp h1,.lp h2,.lp h3,.lp p{margin:0}
+.lp-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;padding-bottom:8px;border-bottom:3px solid #1B2530}
+.lp-brand{display:flex;align-items:baseline;gap:9px}
+.lp-logo{font-family:Nunito,"Atkinson Hyperlegible",sans-serif;font-weight:900;font-size:18px}
+.lp-logo .a{color:#C63F77}.lp-logo .b{color:#3E8A2E}.lp-logo .c{color:#1E6F9C}
+.lp-kick{font-size:11px;font-weight:700;letter-spacing:.14em;color:#5B6874}
+.lp h1{font-size:26px;line-height:1.12;margin-top:2px;overflow-wrap:anywhere}
+.lp-meta{display:grid;grid-template-columns:auto auto;column-gap:10px;row-gap:1px;font-size:13px;margin:0;flex:0 0 auto}
+.lp-meta dt{color:#5B6874}.lp-meta dd{margin:0;font-weight:700}
+.lp-code{display:flex;gap:14px;align-items:center;padding:8px 12px;border:2px solid #1E6F9C;border-radius:9px;background:#EEF6FB}
+.lp-code div{flex:1 1 auto}.lp-code b.k{letter-spacing:.12em;padding:0 6px;border:1.5px solid #1B2530;border-radius:5px;background:#fff}
+.lp-code svg{width:70px;height:70px;flex:0 0 auto}
+.lp-code .t{font-size:12px;font-weight:700;color:#8A2414}
+.lp-glance{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:9px}
+.lp-card{padding:8px 11px;border-radius:4px 4px 10px 4px;border:1px solid}
+.lp-card .l{font-size:11px;font-weight:700;letter-spacing:.1em}
+.lp-card p{font-size:15px;line-height:1.35;margin-top:2px;white-space:pre-wrap;overflow-wrap:anywhere}
+.lp-card.obj{background:#FFF3B0;border-color:#E3CF5C}.lp-card.obj .l{color:#5A4800}
+.lp-card.now{background:#D6F3E3;border-color:#8FCFAD}.lp-card.now .l{color:#1F5C3C}
+.lp-card.hw{background:#FFDCE6;border-color:#EDA3B9}.lp-card.hw .l{color:#7A2442}
+.lp-sec{display:flex;flex-direction:column;gap:5px}
+.lp-sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.lp-sec-h h2{font-size:16px}.lp-sec-h span{font-size:12px;color:#5B6874}
+.lp table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.33}
+.lp th{background:#ECE5FF;border:1px solid #B9AEDB;font-size:12px;text-align:left;padding:4px 7px}
+.lp td{border:1px solid #C9CED4;padding:4px 7px;vertical-align:top;overflow-wrap:anywhere}
+.lp td.ck{width:30px;text-align:center}.lp td.ck span{display:inline-block;width:13px;height:13px;border:2px solid #1B2530;border-radius:3px;margin-top:2px}
+.lp td.mn{width:64px;white-space:nowrap}.lp td.mn small{color:#5B6874;font-size:12px}
+.lp td.ac{width:36%;font-weight:700}
+.lp td.di{white-space:pre-wrap}
+.lp .blank{display:block;height:17px;border-bottom:1px solid #9AA4AE}
+.lp-also{font-size:13px}
+.lp-notes{padding:8px 12px;border:2px solid #C63F77;border-radius:9px;background:#FFF6F9}
+.lp-notes h2{font-size:15px;color:#8F2254}
+.lp-notes p{white-space:pre-wrap;margin-top:3px;overflow-wrap:anywhere}
+.lp-notes .blank{height:24px}
+.lp-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;font-size:13px;line-height:1.5}
+.lp-two section{padding:8px 11px;border-radius:8px}
+.lp-two .em{border:1.5px solid #8A2414}.lp-two .em b.h{color:#8A2414}
+.lp-two .wr{border:1px solid #D8DDE2;background:#F3F5F7}
+.lp-two b.h{font-size:14px;display:block}
+.lp-foot{display:flex;justify-content:space-between;gap:12px;padding-top:5px;border-top:1px solid #D8DDE2;font-size:11px;color:#5B6874;margin-top:4px}
+.lp-pics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.lp-pics figure{margin:0}.lp-pics img{width:100%;max-height:2.4in;object-fit:contain;border:1px solid #C9CED4;border-radius:6px;background:#fff}
+.lp-pics figcaption{font-size:12px;color:#5B6874}
+.lp-list{margin:0;padding-left:18px}
+.lp-other h3{font-size:14px}.lp-other p{white-space:pre-wrap;overflow-wrap:anywhere}
+.lp-report div{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:3px}.lp-report div b{width:140px}
+.lp.tight{gap:7px;font-size:13px}.lp.tight .lp-card p{font-size:14px}.lp.tight table{font-size:13px}.lp.tight td{padding:3px 6px}.lp.tight h1{font-size:23px}
+`;
+function planBody(b, o){
+  const L = s => esc(s);
+  const full = o.length === "full";
+  const steps = planSteps(b), glance = planGlance(b);
+  const total = steps.reduce((a, s) => a + s.min, 0);
+  const dateStr = o.date.toLocaleDateString(undefined, { weekday:"long", month:"long", day:"numeric", year:"numeric" });
+  const p = b.plan || {}, sc = o.school || {};
+  const logo = "Floatle".split("").map((ch, i) => `<span class="${"abc"[i % 3]}">${ch}</span>`).join("");
+  let h = `<header class="lp-head"><div><div class="lp-brand"><span class="lp-logo">${logo}</span><span class="lp-kick">SUBSTITUTE LESSON PLAN</span></div><h1>${L(b.name || "Class")}</h1></div>
+    <dl class="lp-meta"><dt>Date</dt><dd>${L(dateStr)}</dd>${sc.teacher ? `<dt>Teacher</dt><dd>${L(sc.teacher)}</dd>` : ""}
+      <dt>Period / room</dt><dd>${L(p.period || "_____")} / ${L(p.room || "_____")}</dd>${total ? `<dt>Class</dt><dd>${total} min</dd>` : ""}</dl></header>`;
+  if (o.code && b.shareCode) h += `<section class="lp-code"><div><b>Put the class board on the screen:</b> go to <b>${L(location.host)}</b>, enter board code <b class="k">${L(b.shareCode)}</b>, then choose <b>Full screen</b>.<br><span class="t">Teachers only: keep this code out of students' view.</span></div>${o.qr || ""}</section>`;
+  if (glance.length) h += `<div class="lp-glance" style="--n:${glance.length}">${glance.map(([l, c, n]) => `<div class="lp-card ${c}"><div class="l">${l}</div><p>${L(n.text.trim())}</p></div>`).join("")}</div>`;
+  if (steps.length){
+    let at = 0;
+    const rows = steps.map(s => {
+      const from = at; at += s.min; const d = stepSub(s);
+      return `<tr><td class="ck"><span></span></td><td class="mn">${s.min ? `<b>${from}–${at}</b><br><small>${s.min} min</small>` : "&nbsp;"}</td><td class="ac">${L(s.name)}</td><td class="di">${d ? L(d) : '<span class="blank"></span>'}</td></tr>`;
+    }).join("");
+    h += `<section class="lp-sec"><div class="lp-sec-h"><h2>Lesson flow</h2><span>${steps.some(s => s.min) ? "The purple timer on the board runs these steps" : "Check off each step as you go"}</span></div>
+      <table><thead><tr><th>Done</th><th>Minutes</th><th>Activity</th><th>Directions for the sub</th></tr></thead><tbody>${rows}</tbody></table></section>`;
+  }
+  // everything else on the board: named in one line on one page, shown in full on the full plan
+  const used = new Set(glance.map(g => g[2]));
+  const others = (b.notes || []).filter(n => !used.has(n) && n.kind !== "timed" && !(n.kind === "list" && (n.type === "agenda" || /agenda/i.test(n.title || ""))));
+  if (!full){
+    const bits = others.map(n => {
+      if (n.kind === "cards"){ const t = (n.cards || []).map(c => (c.f || "").trim()).filter(Boolean); return t.length ? `${n.title || "Flashcards"} (${t.slice(0, 8).join(", ")}${t.length > 8 ? "…" : ""})` : ""; }
+      if (n.kind === "doc") return n.doc && n.doc.name ? "Document: " + n.doc.name : "";
+      if (n.kind === "image") return n.src ? (n.title || "Image") : "";
+      if (n.kind === "text" && !(n.text || "").trim()) return "";
+      return n.title || "";
+    }).filter(Boolean);
+    if (bits.length) h += `<div class="lp-also"><b>Also on the board:</b> ${L(bits.join(" · "))}</div>`;
+  } else {
+    const cards = others.filter(n => n.kind === "cards").flatMap(n => (n.cards || []).filter(c => (c.f || "").trim()));
+    if (cards.length) h += `<section class="lp-sec"><div class="lp-sec-h"><h2>Vocabulary</h2><span>From the flashcards on the board</span></div><table><thead><tr><th style="width:36%">Term</th><th>Meaning</th></tr></thead><tbody>${cards.map(c => `<tr><td style="font-weight:700">${L(c.f)}</td><td>${L(c.b || "")}</td></tr>`).join("")}</tbody></table></section>`;
+    const pics = others.filter(n => n.kind === "image" && n.src);
+    if (pics.length) h += `<section class="lp-sec"><div class="lp-sec-h"><h2>Pictures on the board</h2></div><div class="lp-pics">${pics.map(n => `<figure><img src="${L(n.src)}" alt=""><figcaption>${L(n.title || "Image")}</figcaption></figure>`).join("")}</div></section>`;
+    const docs = others.filter(n => n.kind === "doc" && n.doc && n.doc.name), links = others.filter(n => n.kind === "links").flatMap(n => (n.links || []).filter(l => normURL(l.u)));
+    if (docs.length || links.length) h += `<section class="lp-sec"><div class="lp-sec-h"><h2>Documents and links on the board</h2><span>Open them from the board to view or print</span></div><ul class="lp-list">${docs.map(n => `<li>${L(n.doc.name)}</li>`).join("")}${links.map(l => `<li>${L(linkName(l))}: ${L(normURL(l.u))}</li>`).join("")}</ul></section>`;
+    const texts = others.filter(n => (n.kind === "text" && (n.text || "").trim()) || (n.kind === "list" && (n.items || []).some(i => (i.t || "").trim())));
+    if (texts.length) h += `<section class="lp-sec lp-other"><div class="lp-sec-h"><h2>Other notes on the board</h2></div>${texts.map(n => `<div><h3>${L(n.title || "Note")}</h3><p>${L(n.kind === "list" ? n.items.filter(i => (i.t || "").trim()).map(i => "• " + i.t).join("\n") : n.text.trim())}</p></div>`).join("")}</section>`;
+  }
+  h += `<section class="lp-notes"><h2>Notes for the sub</h2>${(p.notes || "").trim() ? `<p>${L(p.notes.trim())}</p>` : '<span class="blank"></span><span class="blank"></span>'}</section>`;
+  const em = `<section class="em"><b class="h">If something comes up</b>Emergency procedures and the class list are in the <b>sub binder</b>.<br>Office ext. ${L(sc.office || "_____")} · Nurse ext. ${L(sc.nurse || "_____")}<br>Teacher next door: ${L(sc.door || "____________________")}</section>`;
+  if (!full) h += `<div class="lp-two">${em}<section class="wr"><b class="h">Before you leave</b>Done: ☐ All ☐ Most ☐ Some ☐ None<br>Class: ☐ Great ☐ A few concerns ☐ Needs follow-up<br>Add details on the back, or on the board choose <b>Note for the teacher</b>.</section></div>`;
+  else h += `<div class="lp-two">${em}<section class="wr lp-report"><b class="h">Before you leave: a note for the teacher</b>
+      <div><b>How much got done</b><span>☐ All</span><span>☐ Most</span><span>☐ Some</span><span>☐ Didn't get to it</span></div>
+      <div><b>Interruptions</b><span>☐ None</span><span>☐ Fire drill</span><span>☐ Lockdown drill</span><span>☐ Shelter-in-place</span><span>☐ Assembly</span><span>☐ Other</span></div>
+      <div><b>How the class did</b><span>☐ Great day</span><span>☐ A few concerns</span><span>☐ Needs follow-up</span></div>
+      <span class="blank" style="height:26px"></span><span class="blank" style="height:26px"></span>Your name: ______________________</section></div>`;
+  h += `<footer class="lp-foot"><span>Notes about students: first names or initials only.</span><span>${L(COPYRIGHT)} · Floatle™</span></footer>`;
+  return `<div class="lp${o.tight ? " tight" : ""}">${h}</div>`;
+}
+const PLAN_PAGE_H = 10 * 96;   // Letter with half-inch margins: 10 inches of room, at 96 px per inch
+// does the one-page plan fit on one sheet? measured off-screen at the printed width
+function planFit(b, o){
+  const m = $("lpMeasure");
+  m.innerHTML = planBody(b, { ...o, tight:false });
+  if (m.firstChild.offsetHeight <= PLAN_PAGE_H){ m.innerHTML = ""; return { fits:true, tight:false }; }
+  m.innerHTML = planBody(b, { ...o, tight:true });
+  const hgt = m.firstChild.offsetHeight; m.innerHTML = "";
+  return { fits:hgt <= PLAN_PAGE_H, tight:true, over:Math.max(0, Math.ceil((hgt - PLAN_PAGE_H) / 20)) };
+}
+function planDocHTML(b, o){
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sub plan · ${esc(b.name || "Class")} · ${esc(o.date.toLocaleDateString(undefined, { month:"short", day:"numeric" }))}</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Nunito:wght@900&display=swap">
+<style>
+@page{size:letter;margin:.5in}
+body{margin:0;background:#E9EDF1;font-family:"Atkinson Hyperlegible",Arial,sans-serif}
+.tools{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;justify-content:center;padding:.7rem 1rem;background:#173A55;color:#fff;font-size:.95rem}
+.tools button{font:inherit;font-weight:700;border:0;border-radius:.6rem;padding:.6rem 1.1rem;background:#C63F77;color:#fff;cursor:pointer}
+.tools .warn{flex-basis:100%;text-align:center;background:#FFF4D6;color:#5A4200;border-radius:.5rem;padding:.4rem .8rem}
+.sheet{width:7.5in;margin:1rem auto;background:#fff;padding:.5in;box-sizing:content-box;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+@media print{body{background:#fff}.tools{display:none}.sheet{width:auto;margin:0;padding:0;box-shadow:none}}
+@media (max-width:8.6in){.sheet{width:auto;margin:0;padding:1rem}}
+${PLAN_CSS}
+</style></head><body>
+<div class="tools"><button type="button" onclick="print()">Print or save as PDF</button><span>To save a PDF, choose <b>Save as PDF</b> as the printer.</span>${o.warn ? `<span class="warn">${o.warn}</span>` : ""}</div>
+<main class="sheet">${planBody(b, o)}</main>
+${o.autoPrint ? `<script>addEventListener("load",function(){setTimeout(function(){print()},400)})<\/script>` : ""}
+</body></html>`;
+}
+// opens the plan in its own tab (ready to print or save as a PDF)
+async function openPlanWindow(b, o){
+  const w = window.open("", "_blank");
+  if (!w){ toast("Your browser blocked the new tab. Allow pop-ups for this site and try again."); return; }
+  try { w.document.title = "Sub plan"; w.document.body.textContent = "Making the lesson plan…"; } catch(e){}
+  if (o.code && b.shareCode){ try { await loadQR(); o.qr = qrSVG(shareURL(b.shareCode)); } catch(e){} }
+  if (o.length !== "full"){
+    const f = planFit(b, o); o.tight = f.tight;
+    if (!f.fits) o.warn = "This plan runs onto a second page. Shorten the notes or directions in Floatle, or choose Full plan.";
+  }
+  if (w.closed) return;
+  w.document.open(); w.document.write(planDocHTML(b, o)); w.document.close();
+  try { w.opener = null; } catch(e){}
+}
+
+/* the teacher's Sub lesson plan panel */
+let planDate = "", planFitTimer = null, planStepList = [];
+const todayISO = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+const isoDate = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); return m ? new Date(+m[1], m[2] - 1, +m[3]) : new Date(); };
+const teacherPlanOpts = b => ({ date:isoDate(planDate), length:(b.plan && b.plan.length) || "one", code:!!(b.plan && b.plan.code), school:schoolInfo() });
+function renderPlanPanel(){
+  const b = board(), p = b.plan || {}, s = schoolInfo();
+  planStepList = planSteps(b);
+  const empty = planStepList.filter(x => !stepSub(x)).length;
+  const field = (lbl, attr, val, ph, max) => `<label class="lp-f">${lbl}<input type="text" ${attr} value="${esc(val)}" placeholder="${esc(ph || "")}" maxlength="${max || 40}" autocomplete="off"></label>`;
+  $("planBody").innerHTML = `
+    <div class="lp-row3"><label class="lp-f">The day it's for<input type="date" id="lpDate" value="${esc(planDate || todayISO())}"></label>
+      ${field("Period", 'data-pf="period"', p.period || "", "e.g. 3", 20)}${field("Room", 'data-pf="room"', p.room || "", "e.g. 214", 20)}</div>
+    <h3 class="lp-h3">Directions for the sub</h3>
+    ${planStepList.length ? `<p class="bg-note">One line for each step, for anything the notes don't say. It's saved with this board and its saved lessons, and never shows on the board itself.${empty ? ` <b>${empty} step${empty === 1 ? " has" : "s have"} no directions yet</b> (they print as a blank line).` : ""}</p>
+      <div class="lp-steps">${planStepList.map((x, i) => `<label class="lp-step"><span class="lp-step-h"><b>${esc(x.name)}</b>${x.min ? `<span>${x.min} min</span>` : ""}</span>
+        <input type="text" data-step="${i}" value="${esc(stepSub(x))}" maxlength="300" placeholder="What should the sub do during this step?" autocomplete="off"></label>`).join("")}</div>`
+      : `<p class="bg-note">Add an Agenda or a Timed note to this board and its steps show up here, each with a line for the sub.</p>`}
+    <label class="lp-f">Notes for the sub<textarea data-pf="notes" rows="4" maxlength="800" placeholder="Anything else: students who can help (first names only), what early finishers do, where materials are, dismissal reminders">${esc(p.notes || "")}</textarea></label>
+    <details class="lp-school"${s.teacher ? "" : " open"}><summary>Your name and school numbers <small>(saved for every plan)</small></summary>
+      <div class="lp-row2">${field("Your name, as subs see it", 'data-sf="teacher"', s.teacher, "e.g. Mr. Muigai", 40)}${field("Teacher next door", 'data-sf="door"', s.door, "Name and room", 40)}
+      ${field("Main office ext.", 'data-sf="office"', s.office, "", 20)}${field("Nurse ext.", 'data-sf="nurse"', s.nurse, "", 20)}</div></details>
+    <fieldset class="lp-len"><legend>Length</legend>
+      <label class="share-opt"><input type="radio" name="lpLen" value="one" ${p.length !== "full" ? "checked" : ""}><span><b>One page</b> (recommended)<small>No pictures. Flashcards and other notes are named in one line.</small></span></label>
+      <label class="share-opt"><input type="radio" name="lpLen" value="full" ${p.length === "full" ? "checked" : ""}><span><b>Full plan</b><small>Adds pictures, word meanings, documents, links and the full sub report.</small></span></label></fieldset>
+    <label class="share-opt"><input type="checkbox" data-pc="code" ${p.code ? "checked" : ""}${b.shareCode ? "" : " disabled"}><span><b>Include the board code and QR</b><small>${b.shareCode ? "Off by default to save space. The code is already in the sub binder." : "Share this board first to include its code."}</small></span></label>
+    <label class="share-opt"><input type="checkbox" data-pc="forSub" ${planOn(b) ? "checked" : ""}><span><b>Let the sub see this plan on the shared board</b><small>Adds a Lesson plan button to the sub's view, to read or print it.</small></span></label>
+    <div class="lp-fit" id="lpFit" role="status"></div>
+    <div class="lp-acts"><button class="btn" data-pa="preview">Preview</button><button class="btn primary" data-pa="print">Print or save as PDF</button></div>`;
+  updatePlanFit();
+}
+function updatePlanFit(){
+  const el = $("lpFit"); if (!el) return;
+  const b = board(), o = teacherPlanOpts(b);
+  if (o.length === "full"){ el.className = "lp-fit"; el.textContent = "The full plan runs as many pages as it needs."; return; }
+  const f = planFit(b, o);
+  el.className = "lp-fit " + (f.fits ? "ok" : "over");
+  el.textContent = f.fits ? "✓ Fits on one page." : `About ${f.over} line${f.over === 1 ? "" : "s"} too long for one page. Shorten the notes or directions, or choose Full plan.`;
+}
+function openPlan(){ if (!planDate) planDate = todayISO(); renderPlanPanel(); $("planWrap").hidden = false; setTimeout(() => $("planClose").focus(), 30); }
+function closePlan(){ $("planWrap").hidden = true; renderSettings(); }
+$("planClose").addEventListener("click", closePlan);
+$("planWrap").addEventListener("click", e => {
+  if (e.target === $("planWrap")){ closePlan(); return; }
+  const a = e.target.closest("[data-pa]")?.dataset.pa; if (!a) return;
+  const b = board(), o = teacherPlanOpts(b);
+  track("sub_plan_printed", { length:o.length, preview:a === "preview" });
+  openPlanWindow(b, { ...o, autoPrint:a === "print" });
+});
+$("planWrap").addEventListener("input", e => {
+  const t = e.target, b = board();
+  if (t.id === "lpDate"){ planDate = t.value; return; }
+  if (t.dataset.pf){ planOf(b)[t.dataset.pf] = t.value; save("typing"); }
+  else if (t.dataset.sf){ (state.school || (state.school = {}))[t.dataset.sf] = t.value; save("typing"); }
+  else if (t.dataset.step != null){
+    const x = planStepList[+t.dataset.step]; if (!x) return;
+    const v = t.value.trim(); if (v) x.src.sub = t.value; else delete x.src.sub;
+    if (x.alt) delete x.alt.sub;   // saved on the Timed task; an older line on the Agenda item would only confuse
+    save("typing");
+  } else return;
+  clearTimeout(planFitTimer); planFitTimer = setTimeout(updatePlanFit, 350);
+});
+$("planWrap").addEventListener("change", e => {
+  const t = e.target, b = board();
+  if (t.name === "lpLen"){ planOf(b).length = t.value; save(); updatePlanFit(); }
+  else if (t.dataset.pc === "code"){ planOf(b).code = t.checked; save(); updatePlanFit(); }
+  else if (t.dataset.pc === "forSub"){ planOf(b).forSub = t.checked; save(); toast(t.checked ? "Subs can open this plan from the shared board." : "The Lesson plan button is off for subs on this board."); }
+  else if (t.id === "lpDate") updatePlanFit();
+});
+
+/* the sub's Lesson plan button and side panel (a shared board opened with its code) */
+function updatePlanBtn(){
+  const btn = $("planBtn"); if (!btn) return;
+  btn.hidden = !(viewing && !viewMsg && planOn(board()));
+  if (btn.hidden){ if (!$("lpSide").hidden) closeLpSide(); }
+  else if (!$("lpSide").hidden) $("lpSideBody").innerHTML = planBody(board(), subPlanOpts(board()));   // the teacher's latest edits
+}
+const subPlanOpts = b => ({ date:new Date(), length:(b.plan && b.plan.length) || "one", code:false, school:b.planInfo || {} });
+function openLpSide(){
+  const b = board();
+  $("lpSideSub").textContent = (b.name || "Class") + " · " + new Date().toLocaleDateString(undefined, { weekday:"short", month:"short", day:"numeric" }) + (b.planInfo && b.planInfo.teacher ? " · from " + b.planInfo.teacher : "");
+  $("lpSideBody").innerHTML = planBody(b, subPlanOpts(b));
+  $("lpSide").hidden = false; $("planBtn").setAttribute("aria-expanded", "true");
+  setTimeout(() => $("lpSideClose").focus(), 30);
+  track("sub_plan_opened_by_sub");
+}
+function closeLpSide(){ $("lpSide").hidden = true; $("planBtn").setAttribute("aria-expanded", "false"); }
+$("planBtn").addEventListener("click", () => { if ($("lpSide").hidden) openLpSide(); else closeLpSide(); });
+$("lpSideClose").addEventListener("click", () => { closeLpSide(); $("planBtn").focus(); });
+$("lpPrint").addEventListener("click", () => { const b = board(); openPlanWindow(b, { ...subPlanOpts(b), autoPrint:true }); });
+$("lpWin").addEventListener("click", () => { const b = board(); openPlanWindow(b, subPlanOpts(b)); });
+// the plan's own styles, so the sub's panel and the one-page check show exactly what prints
+document.head.appendChild(Object.assign(document.createElement("style"), { id:"plan-css", textContent:PLAN_CSS }));
+
 /* ---------- Saved lessons ----------
    Like saving a whiteboard file: a teacher names a board's content and saves it, then opens it again
    later on any board. Saved in state.lessons, so it syncs to the account with the boards (and lives in
    this browser for guests), is part of Export, and never goes to a sub's shared view.
    state.lessons = [{ id, name, savedAt, createdAt, from (board name when saved), board:{ LESSON_KEYS } }]
    A board opened from (or saved to) a lesson remembers it in b.lessonId, so Ctrl+S saves changes back. */
-const LESSON_KEYS = ["bg", "bgShow", "backdrop", "notes", "ink", "crawl", "pipOrder", "lateMsg", "lateSteps", "subDraw"];
+const LESSON_KEYS = ["bg", "bgShow", "backdrop", "notes", "ink", "crawl", "pipOrder", "lateMsg", "lateSteps", "subDraw", "plan"];
 const LESSON_MAX = 300;
 let lsRenaming = null, lsQuery = "";
 const lessonOf = b => (b && b.lessonId && state.lessons.find(L => L.id === b.lessonId)) || null;
@@ -6396,8 +6756,10 @@ function openLesson(L, asNew){
     state.active = b.id;
   } else {
     b = board();
+    const room = b.plan ? { period:b.plan.period, room:b.plan.room } : null;   // the class's period and room stay with the board
     LESSON_KEYS.forEach(k => { delete b[k]; });   // the board keeps its name, share code, schedule and Float size
     Object.assign(b, { bg:"pond" }, c, { lessonId:L.id });
+    if (room){ b.plan = { ...(b.plan || {}) }; if (room.period) b.plan.period = room.period; else delete b.plan.period; if (room.room) b.plan.room = room.room; else delete b.plan.room; }
   }
   closeLessons(); render(); save();
   track("lesson_opened", { as: asNew ? "new_board" : "this_board" });
