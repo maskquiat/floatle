@@ -6055,16 +6055,94 @@ const SCENES = {
       <path d="${ridge(r, 760, 90, 8, false)}" fill="#141A3A"/><path d="${ridge(r, 830, 60, 6, false)}" fill="#0C1128"/>`);
   },
   leaves(){
+    // lush, layered tropical leaves: dark leaves far back, brighter ones in front, soft shadows between.
+    // Each leaf's veins are clipped to its own outline, so nothing pokes out past the edge.
     const r = SCENE_RNG(41);
-    const greens = ["#2F5E42", "#3A7050", "#28513A", "#447D59", "#21452F", "#356846"];
-    let body = `<rect width="1600" height="900" fill="#1D3729"/>`;
-    for (let i = 0; i < 34; i++){
-      const x = r() * 1700 - 50, y = r() * 1000, len = 260 + r() * 300, wid = len * (.3 + r() * .12), a = r() * 360, c = greens[i % greens.length];
-      body += `<g transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)})"><path d="${leafPath(len, wid)}" fill="${c}"/><path d="M0 0 L0 ${f1(-len * .96)}" stroke="#5E9A70" stroke-width="4" opacity=".55"/>`;
-      for (let k = 1; k < 6; k++){ const yy = -len * k / 6.5, w = wid * .8 * Math.sin(Math.PI * k / 6.5); body += `<path d="M0 ${f1(yy)} Q${f1(w * .5)} ${f1(yy - 20)} ${f1(w)} ${f1(yy - 40)} M0 ${f1(yy)} Q${f1(-w * .5)} ${f1(yy - 20)} ${f1(-w)} ${f1(yy - 40)}" fill="none" stroke="#5E9A70" stroke-width="2.5" opacity=".35"/>`; }
-      body += `</g>`;
+    let defs = `<radialGradient id="lbg" cx=".5" cy=".45" r=".75"><stop offset="0" stop-color="#1E4A2C"/><stop offset="1" stop-color="#0A1C11"/></radialGradient>
+      <radialGradient id="lvig" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#06140B" stop-opacity="0"/><stop offset="1" stop-color="#06140B" stop-opacity=".45"/></radialGradient>
+      <filter id="lsh" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>`;
+    // leaf colors by depth: [base, tip, vein]
+    const tones = [
+      [["#0E2817", "#1C4529", "#2E6A3E"], ["#12301C", "#21502F", "#35754A"], ["#0F2A1B", "#1E4A31", "#2F6B45"]],
+      [["#1C4A29", "#2F7039", "#58A05A"], ["#1A4430", "#2C6A45", "#55996A"], ["#22532C", "#377C3F", "#62AA5F"]],
+      [["#235A2C", "#438E3F", "#86C474"], ["#245C36", "#4A9850", "#8CC986"], ["#2B6A2E", "#55A145", "#9CD285"]]
+    ];
+    let gid = 0, cid = 0;
+    const grad = (a, b) => { const id = "lg" + gid++; defs += `<linearGradient id="${id}" x1="0" y1="1" x2=".25" y2="0"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`; return id; };
+    // outlines, drawn with the stem at 0,0 and the tip at 0,-L
+    const broad = (L, W) => `M0 0 C${f1(W * .95)} ${f1(-L * .12)} ${f1(W * 1.08)} ${f1(-L * .62)} 0 ${f1(-L)} C${f1(-W * 1.08)} ${f1(-L * .62)} ${f1(-W * .95)} ${f1(-L * .12)} 0 0Z`;
+    const heart = L => `M0 ${f1(-L * .1)} C${f1(L * .28)} ${f1(L * .06)} ${f1(L * .64)} ${f1(-L * .06)} ${f1(L * .64)} ${f1(-L * .46)} C${f1(L * .64)} ${f1(-L * .86)} ${f1(L * .26)} ${f1(-L)} 0 ${f1(-L)} C${f1(-L * .26)} ${f1(-L)} ${f1(-L * .64)} ${f1(-L * .86)} ${f1(-L * .64)} ${f1(-L * .46)} C${f1(-L * .64)} ${f1(-L * .06)} ${f1(-L * .28)} ${f1(L * .06)} 0 ${f1(-L * .1)}Z`;
+    const clip = d => { const id = "lc" + cid++; defs += `<clipPath id="${id}"><path d="${d}"/></clipPath>`; return id; };
+    const sideVeins = (L, W, n, c, sw, op) => {
+      let v = "";
+      for (let k = 1; k <= n; k++){
+        const y = -L * (.08 + .84 * k / (n + 1)), dx = W * 1.25, up = L * .16;
+        v += `M0 ${f1(y)} Q${f1(dx * .45)} ${f1(y - up * .5)} ${f1(dx)} ${f1(y - up)} M0 ${f1(y)} Q${f1(-dx * .45)} ${f1(y - up * .5)} ${f1(-dx)} ${f1(y - up)} `;
+      }
+      return `<path d="${v}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round" opacity="${op}"/>`;
+    };
+    const broadLeaf = (L, W, t, light) => {
+      const d = broad(L, W), g = grad(t[0], t[1]), cp = clip(d);
+      return { shadow:`<path d="${d}"/>`, leaf:`<path d="M0 0 L0 ${f1(L * .18)}" stroke="${t[0]}" stroke-width="${f1(L * .025)}" stroke-linecap="round"/><path d="${d}" fill="url(#${g})"/>
+        <g clip-path="url(#${cp})">${light ? `<path d="M0 0 C${f1(W * .3)} ${f1(-L * .3)} ${f1(W * .5)} ${f1(-L * .7)} 0 ${f1(-L)} C${f1(W * 1.1)} ${f1(-L * .6)} ${f1(W)} ${f1(-L * .15)} 0 0Z" fill="#FFFFFF" opacity=".06"/>` : ""}
+        ${sideVeins(L, W, Math.round(L / 60), t[2], f1(L * .005 + .8), .26)}<path d="M0 0 L0 ${f1(-L)}" stroke="${t[2]}" stroke-width="${f1(L * .011 + 1)}" opacity=".55"/></g>` };
+    };
+    const monstera = (L, t) => {
+      const d = heart(L), g = grad(t[0], t[1]), cp = clip(d), mid = "lm" + cid++;
+      // slits from the edge toward the middle, plus a few small holes, cut out with a mask
+      let cuts = "";
+      const RIBS = [.24, .42, .6, .78];
+      [-1, 1].forEach(s => RIBS.forEach((fy, k) => {
+        if (r() < .25) return;                                  // not every gap is split
+        const y = -L * (fy + .09 + (r() - .5) * .04), deep = .18 + r() * .2, w = L * (.035 + r() * .03);
+        const ax = s * L * .72, ay = y - L * .1, bx = s * L * deep, by = y + L * .02;
+        cuts += `<path d="M${f1(ax)} ${f1(ay - w)} Q${f1((ax + bx) / 2)} ${f1((ay + by) / 2 - w * .4)} ${f1(bx)} ${f1(by)} Q${f1((ax + bx) / 2)} ${f1((ay + by) / 2 + w * .6)} ${f1(ax)} ${f1(ay + w * 1.4)}Z"/>`;
+      }));
+      for (let k = 0; k < 3; k++) if (r() < .7){ const fy = .3 + k * .17, fx = (k % 2 ? -1 : 1) * (.1 + r() * .05); cuts += `<ellipse cx="${f1(L * fx)}" cy="${f1(-L * fy)}" rx="${f1(L * .022)}" ry="${f1(L * .04)}" transform="rotate(${f1(fx > 0 ? -25 : 25)} ${f1(L * fx)} ${f1(-L * fy)})"/>`; }
+      defs += `<mask id="${mid}" maskUnits="userSpaceOnUse" x="${f1(-L)}" y="${f1(-L * 1.1)}" width="${f1(L * 2)}" height="${f1(L * 1.4)}"><path d="${d}" fill="#fff"/><g fill="#000">${cuts}</g></mask>`;
+      let ribs = "";
+      [.24, .42, .6, .78].forEach(fy => { const y = -L * fy; ribs += `M0 ${f1(y + L * .05)} Q${f1(L * .3)} ${f1(y - L * .04)} ${f1(L * .7)} ${f1(y - L * .1)} M0 ${f1(y + L * .05)} Q${f1(-L * .3)} ${f1(y - L * .04)} ${f1(-L * .7)} ${f1(y - L * .1)} `; });
+      return { shadow:`<path d="${d}" mask="url(#${mid})"/>`, leaf:`<path d="M0 ${f1(-L * .1)} Q${f1(L * .04)} ${f1(L * .3)} 0 ${f1(L * .6)}" fill="none" stroke="${t[0]}" stroke-width="${f1(L * .03)}" stroke-linecap="round"/>
+        <g mask="url(#${mid})"><path d="${d}" fill="url(#${g})"/><g clip-path="url(#${cp})"><path d="${ribs}" fill="none" stroke="${t[2]}" stroke-width="${f1(L * .008 + 1)}" opacity=".3"/><path d="M0 ${f1(-L * .1)} L0 ${f1(-L * .97)}" stroke="${t[2]}" stroke-width="${f1(L * .014 + 1)}" opacity=".7"/></g></g>` };
+    };
+    const palm = (L, t) => {
+      let lf = "", sh = "";
+      const n = Math.round(L / 26), g = grad(t[0], t[1]);
+      for (let k = 2; k < n; k++){
+        const f = k / n, y = -L * f, x = Math.sin(f * 2.4) * L * .05;
+        const len = L * .42 * Math.sin(Math.PI * Math.min(1, f * 1.1)) + L * .06, wid = len * .085;
+        [-1, 1].forEach(s => {
+          const a = s * (62 - f * 22) + (r() - .5) * 8;
+          const p = `<path transform="translate(${f1(x)} ${f1(y)}) rotate(${f1(a)})" d="${leafPath(len, wid)}"/>`;
+          lf += p; sh += p;
+        });
+      }
+      return { shadow:sh, leaf:`<g fill="url(#${g})">${lf}</g><path d="M0 ${f1(L * .2)} Q${f1(L * .06)} ${f1(-L * .5)} ${f1(Math.sin(2.4) * L * .05)} ${f1(-L)}" fill="none" stroke="${t[2]}" stroke-width="${f1(L * .012 + 1.5)}" opacity=".8"/>` };
+    };
+    const place = (shape, x, y, a, s) => ({ tr:`translate(${f1(x)} ${f1(y)}) rotate(${f1(a)})${s ? ` scale(${s})` : ""}`, ...shape });
+    const layer = (items, sh) => (sh ? `<g filter="url(#lsh)" fill="#000" opacity="${sh}">${items.map(i => `<g transform="${i.tr} translate(12 16)">${i.shadow}</g>`).join("")}</g>` : "")
+      + items.map(i => `<g transform="${i.tr}">${i.leaf}</g>`).join("");
+    const T = (d, i) => tones[d][i % 3];
+    // back: a dense bed of dark leaves so no bare background shows
+    const back = [];
+    for (let i = 0; i < 26; i++){
+      const x = (i % 7) * 260 - 80 + r() * 120, y = Math.floor(i / 7) * 270 + 120 + r() * 140, a = r() * 360, L = 300 + r() * 220;
+      back.push(place(i % 4 === 0 ? monstera(L * .8, T(0, i)) : i % 4 === 1 ? palm(L * 1.2, T(0, i)) : broadLeaf(L, L * .32, T(0, i), false), x, y, a));
     }
-    return svgWrap(rad("lv", [[0, "#000000", 0], [1, "#000000", .35]], .5, .5, .8), body + `<rect width="1600" height="900" fill="url(#lv)"/>`);
+    // middle: mixed monstera, palms and broad leaves
+    const mid = [
+      [monstera(420, T(1, 0)), 260, 360, 20], [palm(620, T(1, 1)), 820, 520, -25], [broadLeaf(520, 170, T(1, 2), true), 1180, 420, 35],
+      [monstera(380, T(1, 1)), 1420, 640, -30], [broadLeaf(480, 150, T(1, 0), true), 560, 900, 10], [palm(560, T(1, 2)), 120, 980, 40],
+      [monstera(360, T(1, 2)), 960, 260, 160], [broadLeaf(460, 150, T(1, 1), true), 1560, 200, -120], [palm(540, T(1, 0)), 640, 120, 150]
+    ].map(([sh, x, y, a]) => place(sh, x, y, a));
+    // front: big bright leaves reaching in from the edges and corners
+    const front = [
+      [monstera(520, T(2, 0)), -60, 260, 70], [broadLeaf(640, 210, T(2, 1), true), 1660, 120, -70], [monstera(480, T(2, 2)), 1640, 900, -50],
+      [palm(720, T(2, 0)), -40, 940, 55], [broadLeaf(560, 180, T(2, 2), true), 1000, 980, 15], [broadLeaf(500, 165, T(2, 0), true), 380, -40, 200],
+      [monstera(400, T(2, 1)), 1260, -40, 205], [broadLeaf(460, 150, T(2, 1), true), 760, 700, -15]
+    ].map(([sh, x, y, a]) => place(sh, x, y, a));
+    return svgWrap(defs, `<rect width="1600" height="900" fill="url(#lbg)"/>${layer(back, 0)}${layer(mid, .45)}${layer(front, .5)}
+      <rect width="1600" height="900" fill="url(#lvig)"/>`);
   },
   waves(){
     const cols = ["#7CC3DA", "#5FAECB", "#4A9BBB", "#3C87A6", "#2F7392", "#255F7D", "#1C4C67", "#153B52"];
