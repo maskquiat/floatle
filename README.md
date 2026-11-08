@@ -64,7 +64,7 @@ sub_reports	table	End-of-day reports from subs
 feedback	table	Notes from the in-app "Questions, problems and ideas" form (send-only from the site; read in Table Editor). Setup: floatle-feedback.sql
 note-images	storage bucket	Images and slides pasted into Image notes
 get_shared_board(code)	function	Lets a sub open one shared board without listing or guessing others
-submit_sub_report(...)	function	Lets a sub send a report (rate-limited, only for boards still shared)
+submit_sub_report(...)	function	Lets a sub send a report (rate-limited, only for boards still shared). The period field needs floatle-sub-report-period.sql
 purge_old_sub_reports()	function	Clears old reports
 Every table needs Row Level Security turned on, so each teacher can only read and write their own rows. Subs reach shared boards and reports only through the two functions above.
 TODO: add the SQL for these tables, policies and functions to this repo as supabase-setup.sql, so the database can be rebuilt from scratch.
