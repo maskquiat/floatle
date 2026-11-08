@@ -704,6 +704,18 @@ body.pip-idle .pip-bar{opacity:0;pointer-events:none}
 .fc-done{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5em;text-align:center}
 .fc-done b{font-size:1.3em}
 body.present .fc-only-edit,.pip .fc-only-edit{display:none !important}
+/* Flashcards scale with the note: everything inside (card, Match tiles, Quiz answers, buttons) is sized in em,
+   and the body's text size comes from the note's own width and height (container units), so making the note
+   bigger or smaller zooms it like a picture. A- / A+ (--s) still adjust it. Sized so Quiz fits without scrolling at most shapes; at the default size it is a little smaller than
+   the other notes. The title bar scales too, but never below 13px so it's easy to grab. Not on phones or in the Float window, where notes stack. */
+@media (min-width:701px){
+  .board > .note.kind-cards:not(.is-min){container-type:size}
+  .board > .note.kind-cards:not(.is-min) .note-head{font-size:max(13px,calc(min(2.6cqw,3.4cqh) * var(--s)))}
+  .board > .note.kind-cards:not(.is-min) .note-body{font-size:max(11px,calc(min(4.6cqw,5.2cqh) * var(--s)))}
+}
+.note.kind-cards.fc-full{container-type:size}
+.note.kind-cards.fc-full .note-head{font-size:max(13px,calc(min(2.6cqw,3.4cqh) * var(--s)))}
+.note.kind-cards.fc-full .note-body{font-size:max(11px,calc(min(4.6cqw,5.2cqh) * var(--s)))}
 
 /* ---------- Dictionary note ---------- */
 .kind-dict .note-body{display:flex;flex-direction:column;gap:.45em}
@@ -2593,7 +2605,7 @@ function noteEl(n, forPip){
   const full = !forPip && n.kind === "cards" && fcFull.has(n.id) && !n.min;
   el.className = "note kind-" + (n.kind || "text") + (n.min ? " is-min" : "") + (full ? " fc-full" : "");
   el.dataset.id = n.id;
-  el.style.cssText = `left:${n.x}%;top:${n.y}%;width:${n.w}%;height:${n.h}%;z-index:${n.z||1};--paper:${COLORS[n.color]||COLORS.lemon};--s:${SIZED.has(n.kind) && !forPip ? imgHeadScale(n) : (n.s||1) * (full ? 1.7 : 1)}`;
+  el.style.cssText = `left:${n.x}%;top:${n.y}%;width:${n.w}%;height:${n.h}%;z-index:${n.z||1};--paper:${COLORS[n.color]||COLORS.lemon};--s:${SIZED.has(n.kind) && !forPip ? imgHeadScale(n) : (n.s||1)}`;
   el.setAttribute("aria-label", n.title || "Note");
   el.innerHTML = noteHTML(n, forPip);
   const live = !forPip && el.querySelector(".emb iframe");
