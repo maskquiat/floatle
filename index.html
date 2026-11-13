@@ -4464,7 +4464,8 @@ body{margin:0;font-family:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;co
 .logo img.k{height:62px}.logo img.k.flip{transform:scaleX(-1)}
 .logo img.w{height:40px;margin:0 -.2rem}
 .logo .tm{align-self:flex-start;margin:.35rem .25rem 0 .1rem;font-size:.85rem;font-weight:700;color:#5B6874;line-height:1}
-.top-r{text-align:right}.top-r h1{margin:0;font-size:1.65rem}.top-r p{margin:.15rem 0 0;color:#5B6874}
+.top-r{text-align:right}.top-r h1{margin:0;font-size:1.65rem}
+.only{flex:0 0 auto;padding:.3rem .7rem;border:2.5px solid #E8336E;border-radius:.5rem;color:#E8336E;font-weight:700;font-size:.85rem;line-height:1.2;letter-spacing:.14em;text-align:center}.top-r p{margin:.15rem 0 0;color:#5B6874}
 .card{display:flex;gap:1.2rem;align-items:center;justify-content:space-between;margin-top:.7rem;padding:.7rem 1.1rem;background:#E3F1FA;border-radius:4px}
 .fill{flex:1 1 auto}
 .lines{display:flex;gap:1.2rem;flex-wrap:wrap;font-size:1.02rem}
@@ -4498,6 +4499,7 @@ body{margin:0;font-family:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;co
 <main class="sheet">
   <header class="top">
     <div class="logo"><img class="k flip" src="${asset("koi.png")}" alt=""><img class="w" src="${asset("logo.png")}" alt="Floatle"><sup class="tm" aria-hidden="true">™</sup><img class="k" src="${asset("koi.png")}" alt=""></div>
+    <div class="only">TEACHERS<br>ONLY</div>
     <div class="top-r"><h1>Substitute Teacher Guide</h1><p>How to open today's class board on the screen</p></div>
   </header>
   <section class="card">
@@ -4505,7 +4507,7 @@ body{margin:0;font-family:"Atkinson Hyperlegible","Segoe UI",Arial,sans-serif;co
       <div class="lines"><span>Class: <b>${esc(b.name || "")}</b></span><span>Room: <b>&nbsp;</b></span></div>
       <div class="lbl">YOUR BOARD CODE</div>
       <div class="boxes" aria-label="Board code ${code}">${boxes}</div>
-      <p class="hint">You will type this code in Step 4.</p>
+      <p class="hint">You will type this code in Step 4. Students don't log in to Floatle or need this code.</p>
     </div>
     ${qr ? `<div class="qr">${qr}<b>Have a phone or tablet?</b><span>Scan to open this class board. No code needed.</span></div>` : ""}
   </section>
