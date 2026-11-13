@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>paint brush</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<g transform="rotate(40 128 128)">
+<path d="M128 6 C150 30 152 54 148 74 H108 C104 54 106 30 128 6 Z" fill="#FFFFFF"/>
+<path d="M128 6 C142 20 148 34 150 46 H106 C108 34 114 20 128 6 Z" fill="#FF6B6B"/>
+<rect x="104" y="72" width="48" height="44" rx="6" fill="#DDE3EA"/>
+<path d="M104 90 h48" stroke-width="6"/>
+<path d="M110 114 H146 L138 244 H118 Z" fill="#FFC93C"/>
+</g>
+</g>
+</svg>

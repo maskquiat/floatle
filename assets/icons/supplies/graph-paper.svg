@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>graph paper</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<g transform="rotate(-6 128 128)">
+<path d="M44 20 H186 L218 52 V236 H44 Z" fill="#FFFFFF"/>
+<path d="M76 20 V236 M108 20 V236 M140 20 V236 M172 20 V236 M204 44 V236 M44 52 H218 M44 84 H218 M44 116 H218 M44 148 H218 M44 180 H218 M44 212 H218" stroke="#7FB2FF" stroke-width="4"/>
+<path d="M44 20 H186 L218 52 V236 H44 Z"/>
+<path d="M186 20 V52 H218 Z" fill="#DDE3EA"/>
+<path d="M72 196 L116 128 L150 160 L196 84" stroke="#FF6B6B" stroke-width="10"/>
+</g>
+</g>
+</svg>
