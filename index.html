@@ -390,6 +390,7 @@ body.pip-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 .share-wrap{padding:.5rem}
 .trash-panel.share-panel{max-width:46rem;max-height:calc(100vh - 1rem);max-height:calc(100dvh - 1rem);padding:.85rem 1.1rem .9rem}
 .share-intro{line-height:1.5;margin:.6rem 0 1rem}
+.share-kept{font-family:ui-monospace,Consolas,monospace;letter-spacing:.12em;background:var(--line);padding:0 .3rem;border-radius:.25rem}
 .share-body{display:flex;gap:1.1rem;align-items:flex-start;margin-top:.6rem}
 .share-qr{width:clamp(7.5rem,30vh,12rem);height:auto;border:1px solid var(--line);border-radius:.6rem;background:#fff;flex:0 0 auto}
 .share-info{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:.7rem}
@@ -2957,7 +2958,7 @@ $("setMenu").addEventListener("click", e => {
   if (act === "dup"){
     const copy = JSON.parse(JSON.stringify(b));
     copy.id = uid(); copy.name = b.name + " (copy)";
-    delete copy.shareCode;   // a copy gets its own code only if the teacher shares it
+    delete copy.shareCode; delete copy.keptCode;   // a copy gets its own code only if the teacher shares it
     delete copy.sched;       // and its own schedule, so two boards don't claim the same class period
     renewIds(copy);
     delete copy.late;        // a late start belongs to the board it was set on
@@ -4275,7 +4276,7 @@ function pipPointerUp(e){
 const lastShared = {};
 let shareCanvas = null;
 const shareData = b => {
-  const c = JSON.parse(JSON.stringify(b)); delete c.shareCode;
+  const c = JSON.parse(JSON.stringify(b)); delete c.shareCode; delete c.keptCode;
   if (planOn(c)) c.planInfo = schoolInfo();   // the teacher's name and school numbers for the sub's copy of the plan
   else {                                      // plan off for subs: its notes and step directions stay private
     if (c.plan) delete c.plan.notes;
@@ -4299,16 +4300,19 @@ async function syncShares(){
     if (!error) lastShared[b.id] = json;
   }
 }
+/* A board keeps its code after Stop sharing (b.keptCode), so the codes and QR cards already printed in
+   sub binders work again when sharing is turned back on. Only "Generate new code" replaces it.
+   While sharing is off, the code has no row in shared_boards, so it opens nothing. */
 async function startSharing(b){
   for (let tries = 0; tries < 6; tries++){
-    const code = newCode();
+    const code = tries === 0 && b.keptCode ? b.keptCode : newCode();   // reuse this board's own code first
     const data = shareData(b);
     const { error } = await sb.from("shared_boards").insert({ code, owner:userId, board_id:b.id, data, updated_ms:Date.now() });
-    if (!error){ b.shareCode = code; lastShared[b.id] = JSON.stringify(data); save(); return code; }
+    if (!error){ b.shareCode = code; delete b.keptCode; lastShared[b.id] = JSON.stringify(data); save(); return code; }
     if (error.code === "23505" && /board/i.test(error.message || "")){
       // this board was already shared from another device: use that code
       const r = await sb.from("shared_boards").select("code").eq("owner", userId).eq("board_id", b.id).maybeSingle();
-      if (r.data){ b.shareCode = r.data.code; save(); syncShares(); return b.shareCode; }
+      if (r.data){ b.shareCode = r.data.code; delete b.keptCode; save(); syncShares(); return b.shareCode; }
     }
     if (error.code !== "23505") throw error;     // 23505 = that code is taken; try another
   }
@@ -4318,7 +4322,7 @@ async function stopSharing(b){
   const c = b.shareCode; if (!c) return;
   const { error } = await sb.from("shared_boards").delete().eq("code", c);
   if (error) throw error;
-  delete b.shareCode; delete lastShared[b.id]; save();
+  b.keptCode = c; delete b.shareCode; delete lastShared[b.id]; save();   // keep the code for when sharing comes back on
 }
 
 let qrLoading = null;
@@ -4393,6 +4397,13 @@ async function renderShare(){
       <button class="btn primary" data-sh="signin">Sign in or create an account</button>`;
     return;
   }
+  if (!b.shareCode && b.keptCode){
+    box.innerHTML = `<p class="share-intro"><b>Sharing is off for this board.</b> Its board code <b class="share-kept">${esc(b.keptCode)}</b> is saved. Right now the code opens nothing.</p>
+      <p class="share-intro">Turn sharing back on and the same code, link and QR code work again, including the sub guides you've already printed.</p>
+      <div class="share-foot"><button class="btn primary" data-sh="start">Turn sharing back on</button>
+        <button class="btn" data-sh="newcode" title="Replaces ${esc(b.keptCode)}. Reprint your sub guide after.">Generate new code</button></div>`;
+    return;
+  }
   if (!b.shareCode){
     box.innerHTML = `<p class="share-intro">Make a short link and QR code for this board to paste into your sub plans. A substitute can open it on any computer or phone without signing in. They see your notes and can run your timers, but they can't change your board. Edits you make later show up for them automatically.</p>
       <button class="btn primary" data-sh="start">Create link and QR code</button>`;
@@ -4421,7 +4432,7 @@ async function renderShare(){
     <p class="share-help">Anyone with this code can view this board, but only you can edit it. A sub can type the code at <b>${esc(location.host)}</b>, and tap <b>Note for the teacher</b> to tell you how class went. Their notes show up under <b>Sub reports</b>.</p>
     <div class="share-foot">
       <button class="btn" data-sh="preview">Preview as a sub</button>
-      <span><button class="btn" data-sh="newcode">New code</button><button class="btn danger-btn" data-sh="stop">Stop sharing</button></span>
+      <span><button class="btn" data-sh="newcode" title="Replaces this code. Reprint your sub guide after.">Generate new code</button><button class="btn danger-btn" data-sh="stop">Stop sharing</button></span>
     </div>`;
   try {
     await loadQR();
@@ -4556,8 +4567,13 @@ $("shareWrap").addEventListener("click", async e => {
   else if (a === "signin"){ closeShare(); try { localStorage.removeItem("swbats.skipLogin"); } catch(err){} showAuth("signin"); }
   else if (a === "start"){
     btn.disabled = true; btn.textContent = "Creating…";
-    try { await startSharing(b); renderShare(); }
-    catch(err){ btn.disabled = false; btn.textContent = "Create link and QR code"; toast("Couldn't create a link. Check your connection and try again."); }
+    const had = b.keptCode, back = !!had;
+    try {
+      const code = await startSharing(b); renderShare();
+      if (back) toast(code === had ? "Sharing is back on. Board code " + code + " works again."
+                                   : "Sharing is back on with a new code, " + code + ". Reprint your sub guide.");
+    }
+    catch(err){ btn.disabled = false; btn.textContent = back ? "Turn sharing back on" : "Create link and QR code"; toast("Couldn't create a link. Check your connection and try again."); }
   }
   else if (a === "subplan"){
     planOf(b).forSub = btn.checked; save();
@@ -4582,11 +4598,15 @@ $("shareWrap").addEventListener("click", async e => {
   else if (a === "guide") openSubGuide(b);
   else if (a === "preview") window.open(shareURL(b.shareCode), "_blank", "noopener");
   else if (a === "newcode") armBtn(btn, "Tap again (old code stops working)", async () => {
-    try { await stopSharing(b); await startSharing(b); renderShare(); toast("New code made. The old code no longer works."); }
+    try {
+      await stopSharing(b); delete b.keptCode;   // forget the old code so a fresh one is made
+      const code = await startSharing(b); renderShare();
+      toast("New board code: " + code + ". The old code no longer works. Reprint your sub guide.");
+    }
     catch(err){ toast("Couldn't change the code. Check your connection and try again."); renderShare(); }
   });
   else if (a === "stop") armBtn(btn, "Tap again to stop sharing", async () => {
-    try { await stopSharing(b); renderShare(); toast("Sharing is off. The code no longer works."); }
+    try { await stopSharing(b); renderShare(); toast("Sharing is off. Board code " + b.keptCode + " is saved and works again when you turn sharing back on."); }
     catch(err){ toast("Couldn't turn sharing off. Check your connection and try again."); }
   });
 });
