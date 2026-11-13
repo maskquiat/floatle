@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>glue</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<path d="M118 12 L128 0 L138 12 Z" fill="#FF6B6B" stroke-width="6" transform="translate(0 8)"/>
+<path d="M104 64 L118 22 h20 L152 64 Z" fill="#FF6B6B"/>
+<rect x="92" y="60" width="72" height="22" rx="6" fill="#FF6B6B"/>
+<rect x="66" y="80" width="124" height="164" rx="24" fill="#FFFFFF"/>
+<rect x="66" y="128" width="124" height="70" fill="#3D8BFD"/>
+<path d="M98 150 h60 M98 174 h40" stroke="#FFFFFF" stroke-width="10"/>
+</g>
+</svg>
