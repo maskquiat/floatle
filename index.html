@@ -457,6 +457,24 @@ body.present.viewing #pipBtn{display:inline-flex !important}
 .tm-add,.tm-foot{font-size:.62em !important}
 .trow{display:flex;align-items:center;gap:.4em;padding:.15em .25em;border-radius:.4em}
 .trow.is-cur{background:rgba(255,255,255,.6);box-shadow:inset 0 0 0 2px rgba(29,26,20,.5)}
+/* Spotlight: the step the class is on gets a white band, the other steps dim */
+.spot-on .list li,.spot-on .trow{transition:opacity .25s}
+.spot-on .list li.sp-dim,.spot-on .trow.sp-dim{opacity:var(--sp-dim,.4)}
+.spot-on .list li.sp-cur{flex-wrap:wrap;align-items:center;background:#fff;border-radius:.4em;padding:.35em .45em;margin:.2em -.15em;box-shadow:0 0 0 .13em #C63F77,0 .4em 1em -.45em rgba(0,0,0,.45)}
+.spot-on .list li.sp-cur .item-text{font-weight:700;font-size:1.1em}
+.spot-on .trow.is-cur{background:#fff;box-shadow:0 0 0 .16em #C63F77,0 .4em 1em -.45em rgba(0,0,0,.45)}
+.spot-on .trow.is-cur .task-text{font-weight:700}
+.sp-now{flex:0 0 auto;margin-left:auto;background:#C63F77;color:#fff;font-weight:700;font-size:.45em;letter-spacing:.12em;border-radius:999px;padding:.3em .75em;line-height:1.2}
+.sp-prog{flex:0 0 calc(100% - 1.45em);height:.28em;border-radius:999px;background:#E6EAED;overflow:hidden;margin:.25em 0 .05em 1.45em}
+.sp-prog i{display:block;height:100%;width:100%;border-radius:999px;background:#2E9E6A;transition:width .25s linear}
+.sp-bar{display:flex;align-items:center;justify-content:flex-end;gap:.4em;margin-top:.45em;font-size:max(12px,.48em)}
+.sp-bar .sp-step{margin-right:auto;opacity:.7}
+.sp-bar button{font:inherit;font-weight:700;border:1px solid rgba(0,0,0,.18);background:rgba(255,255,255,.75);color:#1D1A14;border-radius:.5em;padding:.35em .8em;min-height:2.2em;cursor:pointer}
+.sp-bar button.go{background:#C63F77;border-color:#C63F77;color:#fff}
+.sp-bar button:disabled{opacity:.4;cursor:default}
+.tool[data-act="spot"][aria-pressed="true"]{color:#C63F77}
+.pip .sp-bar{display:none}
+body.present.spot-focus .note:not(.spot-keep){opacity:.22;filter:saturate(.5);transition:opacity .3s,filter .3s}
 .tdot{flex:0 0 auto;width:1.6em;height:1.6em;font-size:.7em;border-radius:50%;display:grid;place-items:center;font-weight:700;border:2px solid rgba(0,0,0,.4)}
 .tdot svg{width:.95em;height:.95em}
 .is-done .tdot{background:#1F7A50;border-color:#1F7A50;color:#fff}
@@ -1709,6 +1727,7 @@ try { const d = document.createElement("div"); d.contentEditable = "plaintext-on
 const editableAttr = () => presenting ? "false" : (PT ? "plaintext-only" : "true");
 
 const ICON = {
+  spot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>',
   bag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="14" rx="3"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7M9 13h6"/></svg>',
   grip:'<svg class="grip" viewBox="0 0 8 14" fill="currentColor"><circle cx="2" cy="2" r="1.3"/><circle cx="6" cy="2" r="1.3"/><circle cx="2" cy="7" r="1.3"/><circle cx="6" cy="7" r="1.3"/><circle cx="2" cy="12" r="1.3"/><circle cx="6" cy="12" r="1.3"/></svg>',
   min:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14"/></svg>',
@@ -1863,7 +1882,7 @@ function timedBodyHTML(n, ed){
       <button class="tm-btn alt" data-act="tnext" title="Done, next task" aria-label="Done, next task" ${I.t ? "" : "disabled"}>${ICON.check}</button>
     </div>` : "";
   const rows = I.tasks.map((x, i) => {
-    const st = i < I.cur ? "is-done" : i === I.cur ? "is-cur" : "";
+    const st = (i < I.cur ? "is-done" : i === I.cur ? "is-cur" : "") + (spotOn(n) && i !== I.cur ? " sp-dim" : "");
     const dot = i < I.cur ? ICON.check : i === I.cur ? ICON.play : String(i + 1);
     let took = "";
     if (i < I.cur && x.actual != null){
@@ -1998,12 +2017,18 @@ function tickTimed(){
       const key = I.t.id + ":" + I.tm.endAt;
       if (!chimed.has(key)){ chimed.add(key); chime(); }
     }
+    if (n.autoNext && I.running && I.t && I.rem <= 0){   // Move on when time is up
+      timedAct(n, "tnext");
+      if (b === board()){ renderNote(n); renderPanel(n); }
+      persist();
+    }
   }));
   const docs = [document];
   if (typeof pipWin !== "undefined" && pipWin && !pipWin.closed) docs.push(pipWin.document);
   board().notes.forEach(n => {
     if (n.kind !== "timed") return;
     const I = tInfo(n);
+    boardEl.querySelectorAll(`.note[data-sp-link="${n.id}"] .sp-prog i`).forEach(el => { el.style.width = (I.frac * 100).toFixed(1) + "%"; el.style.background = I.zc; });
     const ro = readoutOf(I), sub = subOf(I);
     const name = I.allDone ? "All tasks done" : I.t ? (I.t.t || "Untitled task") : "No tasks yet";
     const nx = I.tasks[I.cur + 1];
@@ -2539,11 +2564,158 @@ function matAct(n, act, btn){
   else if (act === "matpick") el.querySelector(matPick.has(n.id) ? ".mat-opt" : '[data-act="matpick"]')?.focus();
 }
 
+/* ---------- Spotlight: highlight the step the class is on, dim the rest ----------
+   Agenda and Checklist notes, and Timed notes. Turned on per note from the note's Spotlight button.
+   n.spot = { on, dim:"l"|"m"|"s", link:<a Timed note's id> }. An agenda's current step is its first
+   unchecked item, so checking a step off (or Next step) moves the spotlight along. Linked to a Timed
+   note, the agenda follows that timer instead: step 1 is task 1, and so on.
+   t.autoNext (Timed notes): move to the next task when its time is up.
+   b.focus: in Present mode, dim every note except the spotlighted ones and the timers they follow.
+   Subs on a shared board can press Next step too; on their screen only, like the timers. */
+const SP_DIM = { l:.6, m:.4, s:.2 };
+const spotOn = n => !!(n && n.spot && n.spot.on && (n.kind === "list" || n.kind === "timed"));
+function spotTimer(n){
+  const id = spotOn(n) && n.kind === "list" && n.spot.link;
+  return id ? board().notes.find(x => x.id === id && x.kind === "timed") || null : null;
+}
+function spotCur(n){
+  const t = spotTimer(n);
+  if (t) return Math.min(t.cur || 0, n.items.length);
+  const i = n.items.findIndex(it => !it.done);
+  return i < 0 ? n.items.length : i;
+}
+function spotClass(n){
+  if (!spotOn(n) && !board().notes.some(a => spotTimer(a) === n)) return "";
+  return (spotOn(n) ? " spot-on" : "") + " spot-keep";
+}
+function listBodyHTML(n, ed, forPip){
+  const on = spotOn(n), t = on && spotTimer(n), cur = on ? spotCur(n) : -1;
+  const lis = n.items.map((it, i) => {
+    const done = t ? i < cur : it.done;
+    const cls = (done ? "done" : "") + (on ? (i === cur ? " sp-cur" : " sp-dim") : "");
+    return `<li class="${cls.trim()}" data-item="${it.id}"><button class="check" data-act="check" aria-label="${done?"Mark not done":"Mark done"}" aria-pressed="${done}">${ICON.check}</button><span class="item-text" contenteditable="${ed}">${esc(it.t)}</span>${
+      i === cur ? `<span class="sp-now">NOW</span>${t ? `<span class="sp-prog" aria-hidden="true"><i></i></span>` : ""}` : ""}</li>`;
+  }).join("");
+  const bar = on && !forPip && n.items.length ? `<div class="sp-bar">
+      <span class="sp-step">${cur < n.items.length ? `Step ${cur + 1} of ${n.items.length}` : "All steps done"}</span>
+      ${t ? "" : `<button type="button" data-act="spback" ${cur > 0 ? "" : "disabled"}>Back</button>`}
+      <button type="button" class="go" data-act="spnext" ${cur < n.items.length ? "" : "disabled"}>Next step</button></div>` : "";
+  return `<ol class="list">${lis}</ol>${bar}`;
+}
+// Next step / Back on a spotlighted agenda
+function spotStep(n, fwd){
+  if (n.kind !== "list") return;
+  const t = spotTimer(n);
+  if (t){
+    if (!fwd) return;
+    timedAct(t, "tnext"); save(); renderNote(t); renderPanel(t);   // redrawing the timer redraws this agenda
+    return;
+  }
+  const cur = spotCur(n);
+  if (fwd){ if (n.items[cur]) n.items[cur].done = true; }
+  else if (cur > 0) n.items[cur - 1].done = false;
+  save(); renderNote(n);
+}
+// a timer moved on: redraw the agendas that follow it
+function spotSync(t){
+  board().notes.forEach(a => { if (a.kind === "list" && spotTimer(a) === t) renderNote(a); });
+}
+// a new Timed note with one task per agenda step, linked to the agenda
+function spotMakeTimer(n){
+  const b = board(), steps = n.items.filter(it => (it.t || "").trim());
+  // below the agenda if there's room, otherwise beside it
+  const below = (+n.y || 0) + (+n.h || 40) + 2, x = +n.x || 0;
+  const t = makeNote("timed", below <= 60 ? { x, y: below } : { x: Math.min(x + (+n.w || 30) + 1.5, 66), y: +n.y || 6 });
+  t.title = ((n.title || "Agenda") + " timer").slice(0, 60);
+  if (steps.length) t.tasks = steps.map(it => ({ id:uid(), t:it.t.trim(), min:5, actual:null }));
+  t.cur = 0; t.timer = { running:false, endAt:0, rem:t.tasks[0] ? t.tasks[0].min * 60000 : null };
+  t.autoNext = true;
+  b.notes.push(t);
+  n.spot = Object.assign({}, n.spot, { on:true, link:t.id });
+  n.items.forEach(it => { it.done = false; });
+  return t;
+}
+let spPop = null, spFor = null;
+function spotMenu(n, btnEl){
+  if (!spPop){
+    spPop = document.createElement("div");
+    spPop.className = "rt-pop sp-pop"; spPop.setAttribute("role", "menu"); spPop.setAttribute("aria-label", "Spotlight");
+    document.body.appendChild(spPop);
+    spPop.addEventListener("click", spotPick);
+    document.addEventListener("pointerdown", e => {
+      if (spPop.classList.contains("show") && !spPop.contains(e.target) && !e.target.closest('[data-act="spot"]')) spotClose();
+    });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && spPop.classList.contains("show")) spotClose(true); });
+  }
+  if (spFor === n.id && spPop.classList.contains("show")){ spotClose(); return; }
+  spFor = n.id;
+  spotFill(n);
+  spPop.classList.add("show");
+  btnEl.setAttribute("aria-expanded", "true");
+  spotPlace(btnEl);
+  spPop.querySelector(".rt-opt")?.focus();
+}
+function spotPlace(btnEl){
+  const r = btnEl.getBoundingClientRect(), pw = spPop.offsetWidth, ph = spPop.offsetHeight;
+  let top = r.bottom + 6;
+  if (top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 6);
+  spPop.style.top = top + "px";
+  spPop.style.left = Math.max(8, Math.min(r.right - pw, window.innerWidth - pw - 8)) + "px";
+}
+function spotFill(n){
+  const b = board(), sp = n.spot || {}, on = spotOn(n), dim = sp.dim || "m";
+  const opt = (role, chk, attrs, label) => `<button type="button" class="rt-opt" role="${role}" aria-checked="${chk}" ${attrs}>${label}</button>`;
+  let h = `<h4>Spotlight</h4>${opt("menuitemcheckbox", on, 'data-sp="on"', n.kind === "timed" ? "Highlight the current task" : "Highlight the current step")}
+    <hr><h4>Dim the others</h4>${[["l","Light"],["m","Medium"],["s","Strong"]].map(([v, l]) => opt("menuitemradio", on && dim === v, `data-sp="dim" data-v="${v}"`, l)).join("")}`;
+  if (n.kind === "list"){
+    const timers = b.notes.filter(x => x.kind === "timed");
+    const link = on ? sp.link || "" : "";
+    h += `<hr><h4>Keep in sync with a timer</h4>${opt("menuitemradio", on && !spotTimer(n), 'data-sp="link" data-v=""', "No timer: I'll press Next step")}
+      ${timers.map(x => opt("menuitemradio", link === x.id, `data-sp="link" data-v="${x.id}"`, "Follow “" + esc(x.title || "Timed") + "”")).join("")}
+      ${opt("menuitem", false, 'data-sp="mk"', "Make a timer from these steps")}`;
+    const t = spotTimer(n);
+    if (t) h += opt("menuitemcheckbox", !!t.autoNext, 'data-sp="auto"', "Move on when time is up");
+  } else {
+    h += `<hr>${opt("menuitemcheckbox", !!n.autoNext, 'data-sp="auto"', "Move on when time is up")}`;
+  }
+  h += `<hr>${opt("menuitemcheckbox", !!b.focus, 'data-sp="focus"', "In Present mode, dim the rest of the board")}`;
+  spPop.innerHTML = h;
+}
+function spotClose(refocus){
+  if (!spPop) return;
+  spPop.classList.remove("show");
+  const btn = spFor && boardEl.querySelector(`.note[data-id="${spFor}"] [data-act="spot"]`);
+  if (btn){ btn.setAttribute("aria-expanded", "false"); if (refocus) btn.focus(); }
+  spFor = null;
+}
+function spotPick(e){
+  const o = e.target.closest("[data-sp]"); if (!o) return;
+  const b = board(), n = b.notes.find(x => x.id === spFor); if (!n) { spotClose(); return; }
+  const k = o.dataset.sp, v = o.dataset.v;
+  const sp = n.spot || (n.spot = { on:false, dim:"m" });
+  let msg = "";
+  if (k === "on"){ sp.on = !sp.on; msg = sp.on ? "Spotlight is on. " + (n.kind === "timed" ? "The current task stands out." : "Check off a step, or press Next step, to move it along.") : "Spotlight is off."; }
+  else if (k === "dim"){ sp.on = true; sp.dim = v; }
+  else if (k === "link"){
+    sp.on = true;
+    if (v){ sp.link = v; n.items.forEach(it => { it.done = false; }); const t = spotTimer(n); msg = "This agenda now follows “" + ((t && t.title) || "Timed") + "”. Step 1 goes with task 1, and so on."; }
+    else delete sp.link;
+  }
+  else if (k === "mk"){ spotMakeTimer(n); msg = "Made a timer note from your steps, 5 minutes each. Set the minutes, then press Start on it."; }
+  else if (k === "auto"){ const t = n.kind === "timed" ? n : spotTimer(n); if (t){ t.autoNext = !t.autoNext; if (!t.autoNext) delete t.autoNext; } }
+  else if (k === "focus"){ b.focus = !b.focus; if (!b.focus) delete b.focus; msg = b.focus ? "In Present mode, everything but the spotlighted step and its timer will dim." : ""; }
+  save(); renderBoard();
+  if (msg) toast(msg);
+  const btn = boardEl.querySelector(`.note[data-id="${n.id}"] [data-act="spot"]`);
+  if (k === "mk" || !btn){ spotClose(); return; }
+  spotFill(n); btn.setAttribute("aria-expanded", "true"); spotPlace(btn);
+  spPop.querySelector(`[data-sp="${k}"]${v != null ? `[data-v="${v}"]` : ""}`)?.focus();
+}
+
 /* ---------- rendering ---------- */
 function noteHTML(n, forPip){
   const ed = forPip ? "false" : editableAttr();
-  const body = n.kind === "list"
-    ? `<ol class="list">${n.items.map(it => `<li class="${it.done?"done":""}" data-item="${it.id}"><button class="check" data-act="check" aria-label="${it.done?"Mark not done":"Mark done"}" aria-pressed="${it.done}">${ICON.check}</button><span class="item-text" contenteditable="${ed}">${esc(it.t)}</span></li>`).join("")}</ol>`
+  const body = n.kind === "list" ? listBodyHTML(n, ed, forPip)
     : n.kind === "timed" ? timedBodyHTML(n, ed)
     : n.kind === "image" ? imageBodyHTML(n, forPip)
     : n.kind === "cards" ? cardsBodyHTML(n, ed)
@@ -2561,6 +2733,7 @@ function noteHTML(n, forPip){
       <span class="preview">${esc(firstLine(n))}</span>
       <span class="spacer"></span>
       <div class="tools">
+        ${n.kind === "list" || n.kind === "timed" ? `<button class="tool t-edit" data-act="spot" title="Spotlight the current step" aria-label="Spotlight options" aria-haspopup="menu" aria-pressed="${spotOn(n)}">${ICON.spot}</button>` : ""}
         <button class="tool t-edit" data-act="color" title="Change color" aria-label="Change color"><span class="dot"></span></button>
         ${img ? (n.src ? `<button class="tool t-edit" data-act="pick" title="Replace image" aria-label="Replace image">${ICON.image}</button>
         <button class="tool t-edit" data-act="smaller" title="Make picture smaller" aria-label="Make picture smaller">${ICON.smaller}</button>
@@ -2602,9 +2775,11 @@ function refreshImgHeads(){
 function noteEl(n, forPip){
   const el = document.createElement("article");
   const full = !forPip && n.kind === "cards" && fcFull.has(n.id) && !n.min;
-  el.className = "note kind-" + (n.kind || "text") + (n.min ? " is-min" : "") + (full ? " fc-full" : "");
+  el.className = "note kind-" + (n.kind || "text") + (n.min ? " is-min" : "") + (full ? " fc-full" : "") + spotClass(n);
   el.dataset.id = n.id;
   el.style.cssText = `left:${n.x}%;top:${n.y}%;width:${n.w}%;height:${n.h}%;z-index:${n.z||1};--paper:${COLORS[n.color]||COLORS.lemon};--s:${SIZED.has(n.kind) && !forPip ? imgHeadScale(n) : (n.s||1)}`;
+  if (spotOn(n)) el.style.setProperty("--sp-dim", String(SP_DIM[n.spot.dim] || SP_DIM.m));
+  if (spotTimer(n)) el.dataset.spLink = n.spot.link;
   el.setAttribute("aria-label", n.title || "Note");
   el.innerHTML = noteHTML(n, forPip);
   const live = !forPip && el.querySelector(".emb iframe");
@@ -2623,7 +2798,7 @@ function renderNote(n){
   const el = noteEl(n);
   if (old && el.dataset.live && old.dataset.live === el.dataset.live){ patchLive(old, el); return old; }
   if (old) old.replaceWith(el); else boardEl.appendChild(el);
-  if (n.kind === "timed") tickTimed();
+  if (n.kind === "timed"){ tickTimed(); spotSync(n); }
   return el;
 }
 function renderTabs(){
@@ -2681,6 +2856,7 @@ tabsEl.addEventListener("wheel", e => {
 new ResizeObserver(updateTabArrows).observe(tabsEl);
 function renderBoard(){
   const b = board();
+  document.body.classList.toggle("spot-focus", !!(presenting && b.focus && b.notes.some(spotOn)));
   document.body.classList.toggle("sub-draw", viewerDraw());
   if (inkMode && viewing && !viewerDraw()) setInk(false);   // the teacher turned drawing off
   boardEl.className = "board";
@@ -3043,6 +3219,9 @@ function handleNoteAction(n, e, noteNode, inPip){
   if (n.kind === "links" && LINK_ACTS.has(act)){ if (!inPip && !presenting && !viewing) linkAct(n, act, btn); return; }
   if (n.kind === "table" && TBL_ACTS.has(act)){ if (!inPip && !presenting && !viewing) tblAct(n, act, btn); return; }
   if (n.kind === "draw" && DRAW_ACTS.has(act)){ if (!inPip && (!viewing || viewerDraw())) drawToolAct(act, btn, n); return; }
+  if (act === "spot"){ if (!inPip && !presenting && !viewing) spotMenu(n, btn); return; }
+  if (act === "spnext" || act === "spback"){ spotStep(n, act === "spnext"); return; }
+  if (act === "check" && spotTimer(n)){ toast("This agenda follows its timer. Press Next step, or Done, next on the timer."); return; }
   if (act === "min"){ n.min = !n.min; }
   else if (act === "color"){ n.color = COLOR_KEYS[(COLOR_KEYS.indexOf(n.color)+1) % COLOR_KEYS.length]; }
   else if ((act === "smaller" || act === "bigger") && n.kind === "image"){
@@ -7231,6 +7410,7 @@ function renewIds(c){
       n.cur = 0; n.timer = { running:false, endAt:0, rem:null };
     }
   });
+  (c.notes || []).forEach(n => { if (n.spot && n.spot.link){ if (idMap[n.spot.link]) n.spot.link = idMap[n.spot.link]; else delete n.spot.link; } });
   if (Array.isArray(c.pipOrder)) c.pipOrder = c.pipOrder.map(id => idMap[id]).filter(Boolean);
   if (c.crawl && Array.isArray(c.crawl.ids)) c.crawl.ids = c.crawl.ids.map(id => idMap[id]).filter(Boolean);
   return c;
