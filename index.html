@@ -881,7 +881,6 @@ textarea.cw-in{resize:vertical;line-height:1.4}
 body.present .late-chip{bottom:calc(clamp(3rem,7.5vh,5.5rem) + 1rem)}
 .late-chip svg{color:#F2C14E}
 @media (max-width:700px){
-  .add-wrap{order:-2} #lateBtn{order:-1}   /* on phones, Running late sits right next to Add note */
   .late-layer{position:fixed;top:auto;bottom:0;left:0;right:0;max-height:85%;font-size:15px;overflow:auto}
   .late-grid{grid-template-columns:1fr}
   .late-body{font-size:1.25em}
@@ -1161,9 +1160,6 @@ body.present .site-foot,body.viewing .site-foot{display:none}
   </button>
   <button class="btn edit-only" id="shareBtn" aria-label="Share" title="Share this board with a substitute (link + QR code)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 14v.01M14 21h.01M17 21h4v-4"/></svg><span class="lbl">Share</span>
-  </button>
-  <button class="btn edit-only" id="lateBtn" aria-label="Running late" title="Running late? Let class start without you">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span class="lbl">Running late</span>
   </button>
   <button class="btn rep-btn edit-only" id="repBtn" aria-label="Sub reports" title="Reports your substitutes left for you" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg><span class="lbl">Sub reports</span><span class="rep-dot" id="repDot" hidden></span>
@@ -5442,7 +5438,6 @@ function readLateText(){
   if (m) lateForm.msg = m.value.trim();
   if (s) lateForm.steps = s.value.split("\n").map(x => x.trim()).filter(Boolean).slice(0, 8);
 }
-$("lateBtn").addEventListener("click", () => openLate(board().id));
 $("lateClose").addEventListener("click", closeLate);
 $("lateBody").addEventListener("change", e => {
   if (e.target.id === "lfBoard"){ readLateText(); lateForm = lateFormFor(state.boards.find(x => x.id === e.target.value) || board()); renderLate(); $("lfBoard").focus(); }
