@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>ruler</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<g transform="rotate(-40 128 128)">
+<rect x="10" y="98" width="236" height="60" rx="6" fill="#FFC93C"/>
+<path d="M30 98 v24 M50 98 v14 M70 98 v24 M90 98 v14 M110 98 v24 M130 98 v14 M150 98 v24 M170 98 v14 M190 98 v24 M210 98 v14 M226 98 v24" stroke-width="6"/>
+<circle cx="226" cy="142" r="6" fill="#FFFFFF" stroke-width="5"/>
+</g>
+</g>
+</svg>

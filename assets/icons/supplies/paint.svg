@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
+<title>paint</title>
+<g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
+<path d="M128 26 C202 26 246 72 240 128 C236 168 202 168 186 160 C166 150 150 166 164 190 C178 214 160 234 124 232 C62 230 16 190 16 130 C16 70 66 26 128 26 Z" fill="#F6D6A8"/>
+<circle cx="78" cy="164" r="16" fill="#FFFFFF"/>
+<circle cx="76" cy="96" r="20" fill="#FF6B6B"/>
+<circle cx="128" cy="70" r="20" fill="#FFC93C"/>
+<circle cx="184" cy="88" r="20" fill="#3D8BFD"/>
+<circle cx="124" cy="190" r="20" fill="#2EC4B6"/>
+</g>
+</svg>
