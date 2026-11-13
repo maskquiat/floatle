@@ -1,27 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="512" height="512">
-<title>gloves</title>
+<title>disposable gloves</title>
 <g fill="none" stroke="#1E2A3B" stroke-width="8" stroke-linejoin="round" stroke-linecap="round">
-<g id="gl">
 <g stroke-width="24">
-<rect x="78" y="34" width="22" height="80" rx="11"/>
-<rect x="106" y="20" width="22" height="94" rx="11"/>
-<rect x="134" y="26" width="22" height="88" rx="11"/>
-<rect x="162" y="46" width="22" height="70" rx="11"/>
-<rect x="76" y="96" width="108" height="100" rx="26"/>
-<rect x="44" y="104" width="22" height="70" rx="11" transform="rotate(-34 55 139)"/>
-<rect x="90" y="188" width="80" height="54" rx="8"/>
+<rect x="82" y="30" width="20" height="84" rx="10"/>
+<rect x="108" y="16" width="20" height="98" rx="10"/>
+<rect x="134" y="22" width="20" height="92" rx="10"/>
+<rect x="160" y="42" width="20" height="74" rx="10"/>
+<rect x="80" y="96" width="100" height="92" rx="24"/>
+<rect x="46" y="100" width="20" height="72" rx="10" transform="rotate(-34 56 136)"/>
+<path d="M92 176 L82 244 H178 L168 176 Z"/>
 </g>
-<g fill="#9ED8F5" stroke="none">
-<rect x="78" y="34" width="22" height="80" rx="11"/>
-<rect x="106" y="20" width="22" height="94" rx="11"/>
-<rect x="134" y="26" width="22" height="88" rx="11"/>
-<rect x="162" y="46" width="22" height="70" rx="11"/>
-<rect x="76" y="96" width="108" height="100" rx="26"/>
-<rect x="44" y="104" width="22" height="70" rx="11" transform="rotate(-34 55 139)"/>
-<rect x="90" y="188" width="80" height="54" rx="8" fill="#6FC3EC"/>
+<g fill="#B3BEFF" stroke="none">
+<rect x="82" y="30" width="20" height="84" rx="10"/>
+<rect x="108" y="16" width="20" height="98" rx="10"/>
+<rect x="134" y="22" width="20" height="92" rx="10"/>
+<rect x="160" y="42" width="20" height="74" rx="10"/>
+<rect x="80" y="96" width="100" height="92" rx="24"/>
+<rect x="46" y="100" width="20" height="72" rx="10" transform="rotate(-34 56 136)"/>
+<path d="M92 176 L82 244 H178 L168 176 Z"/>
 </g>
-<path d="M90 196 h80" stroke-width="6"/>
-<path d="M103 46 V108 M131 34 V108 M159 50 V108" stroke-width="6"/>
-</g>
+<path d="M105 44 V108 M131 30 V108 M157 46 V108" stroke-width="5"/>
+<path d="M82 230 H178" stroke-width="5"/>
+<path d="M96 60 v34" stroke="#FFFFFF" stroke-width="5" opacity=".7"/>
+<path d="M98 200 l-4 26" stroke="#FFFFFF" stroke-width="5" opacity=".7"/>
 </g>
 </svg>
