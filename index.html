@@ -472,6 +472,13 @@ body.present.viewing #pipBtn{display:inline-flex !important}
 .sp-bar button{font:inherit;font-weight:700;border:1px solid rgba(0,0,0,.18);background:rgba(255,255,255,.75);color:#1D1A14;border-radius:.5em;padding:.35em .8em;min-height:2.2em;cursor:pointer}
 .sp-bar button.go{background:#C63F77;border-color:#C63F77;color:#fff}
 .sp-bar button:disabled{opacity:.4;cursor:default}
+.sp-bar button.sp-end{display:inline-flex;align-items:center;gap:.35em;background:transparent;border-style:dashed}
+.sp-bar button.sp-end svg{width:1em;height:1em}
+.sp-bar button.sp-end:hover{background:rgba(255,255,255,.75);border-style:solid}
+.sp-bar button.sp-end.go{background:#C63F77;border-color:#C63F77;border-style:solid;color:#fff}
+.sp-bar.sp-alone{justify-content:flex-start}
+.rt-opt.sp-off{color:#B3261E;font-weight:700}
+.rt-opt.sp-off svg{width:1em;height:1em;flex:0 0 auto}
 .tool[data-act="spot"][aria-pressed="true"]{color:#C63F77}
 .pip .sp-bar{display:none}
 body.present.spot-focus .note:not(.spot-keep){opacity:.22;filter:saturate(.5);transition:opacity .3s,filter .3s}
@@ -1895,7 +1902,8 @@ function timedBodyHTML(n, ed){
       <span class="tmin"><button class="tm-step tm-edit" data-act="tless" aria-label="One minute less">&minus;</button><span>${x.min} min</span><button class="tm-step tm-edit" data-act="tmore" aria-label="One minute more">+</button></span>${tail}</li>`;
   }).join("");
   const total = I.tasks.reduce((a, x) => a + x.min, 0);
-  return `${strip}<ol class="tlist">${rows}</ol>
+  const endBar = spotOn(n) && I.tasks.length && !viewing ? `<div class="sp-bar sp-alone">${spotEndBtn(false)}</div>` : "";
+  return `${strip}<ol class="tlist">${rows}</ol>${endBar}
     <button class="tm-add tm-edit" data-act="tadd">${ICON.plus}Add a task</button>
     <div class="tm-foot"><span>Planned <b>${total} min</b></span><span class="lv-finish"></span></div>`;
 }
@@ -2588,6 +2596,18 @@ function spotClass(n){
   if (!spotOn(n) && !board().notes.some(a => spotTimer(a) === n)) return "";
   return (spotOn(n) ? " spot-on" : "") + " spot-keep";
 }
+// "End spotlight" on the note itself, so it's clear how to turn it off (teachers only; subs can't change the board)
+function spotEndBtn(prominent){
+  if (viewing) return "";
+  return `<button type="button" class="sp-end${prominent ? " go" : ""}" data-act="spend" title="Turn off Spotlight for this note" aria-label="End spotlight">${ICON.x}End spotlight</button>`;
+}
+function spotEnd(n){
+  if (!n.spot) return;
+  n.spot.on = false;
+  if (spFor === n.id) spotClose();
+  save(); renderBoard();
+  toast("Spotlight is off. To turn it back on, use the sun button on this note" + (presenting ? " (in Edit board)." : "."));
+}
 function listBodyHTML(n, ed, forPip){
   const on = spotOn(n), t = on && spotTimer(n), cur = on ? spotCur(n) : -1;
   const lis = n.items.map((it, i) => {
@@ -2596,10 +2616,12 @@ function listBodyHTML(n, ed, forPip){
     return `<li class="${cls.trim()}" data-item="${it.id}"><button class="check" data-act="check" aria-label="${done?"Mark not done":"Mark done"}" aria-pressed="${done}">${ICON.check}</button><span class="item-text" contenteditable="${ed}">${esc(it.t)}</span>${
       i === cur ? `<span class="sp-now">NOW</span>${t ? `<span class="sp-prog" aria-hidden="true"><i></i></span>` : ""}` : ""}</li>`;
   }).join("");
+  const all = cur >= n.items.length;
   const bar = on && !forPip && n.items.length ? `<div class="sp-bar">
-      <span class="sp-step">${cur < n.items.length ? `Step ${cur + 1} of ${n.items.length}` : "All steps done"}</span>
+      <span class="sp-step">${all ? "All steps done" : `Step ${cur + 1} of ${n.items.length}`}</span>
+      ${spotEndBtn(all)}
       ${t ? "" : `<button type="button" data-act="spback" ${cur > 0 ? "" : "disabled"}>Back</button>`}
-      <button type="button" class="go" data-act="spnext" ${cur < n.items.length ? "" : "disabled"}>Next step</button></div>` : "";
+      ${all ? "" : `<button type="button" class="go" data-act="spnext">Next step</button>`}</div>` : "";
   return `<ol class="list">${lis}</ol>${bar}`;
 }
 // Next step / Back on a spotlighted agenda
@@ -2679,6 +2701,7 @@ function spotFill(n){
     h += `<hr>${opt("menuitemcheckbox", !!n.autoNext, 'data-sp="auto"', "Move on when time is up")}`;
   }
   h += `<hr>${opt("menuitemcheckbox", !!b.focus, 'data-sp="focus"', "In Present mode, dim the rest of the board")}`;
+  if (on) h += `<hr><button type="button" class="rt-opt sp-off" role="menuitem" data-sp="off">${ICON.x}Turn off Spotlight</button>`;
   spPop.innerHTML = h;
 }
 function spotClose(refocus){
@@ -2694,6 +2717,7 @@ function spotPick(e){
   const k = o.dataset.sp, v = o.dataset.v;
   const sp = n.spot || (n.spot = { on:false, dim:"m" });
   let msg = "";
+  if (k === "off"){ spotEnd(n); return; }
   if (k === "on"){ sp.on = !sp.on; msg = sp.on ? "Spotlight is on. " + (n.kind === "timed" ? "The current task stands out." : "Check off a step, or press Next step, to move it along.") : "Spotlight is off."; }
   else if (k === "dim"){ sp.on = true; sp.dim = v; }
   else if (k === "link"){
@@ -2733,7 +2757,7 @@ function noteHTML(n, forPip){
       <span class="preview">${esc(firstLine(n))}</span>
       <span class="spacer"></span>
       <div class="tools">
-        ${n.kind === "list" || n.kind === "timed" ? `<button class="tool t-edit" data-act="spot" title="Spotlight the current step" aria-label="Spotlight options" aria-haspopup="menu" aria-pressed="${spotOn(n)}">${ICON.spot}</button>` : ""}
+        ${n.kind === "list" || n.kind === "timed" ? `<button class="tool t-edit" data-act="spot" title="${spotOn(n) ? "Spotlight is on: change it or turn it off" : "Spotlight the current step"}" aria-label="Spotlight options" aria-haspopup="menu" aria-pressed="${spotOn(n)}">${ICON.spot}</button>` : ""}
         <button class="tool t-edit" data-act="color" title="Change color" aria-label="Change color"><span class="dot"></span></button>
         ${img ? (n.src ? `<button class="tool t-edit" data-act="pick" title="Replace image" aria-label="Replace image">${ICON.image}</button>
         <button class="tool t-edit" data-act="smaller" title="Make picture smaller" aria-label="Make picture smaller">${ICON.smaller}</button>
@@ -3220,6 +3244,7 @@ function handleNoteAction(n, e, noteNode, inPip){
   if (n.kind === "table" && TBL_ACTS.has(act)){ if (!inPip && !presenting && !viewing) tblAct(n, act, btn); return; }
   if (n.kind === "draw" && DRAW_ACTS.has(act)){ if (!inPip && (!viewing || viewerDraw())) drawToolAct(act, btn, n); return; }
   if (act === "spot"){ if (!inPip && !presenting && !viewing) spotMenu(n, btn); return; }
+  if (act === "spend"){ if (!inPip && !viewing) spotEnd(n); return; }
   if (act === "spnext" || act === "spback"){ spotStep(n, act === "spnext"); return; }
   if (act === "check" && spotTimer(n)){ toast("This agenda follows its timer. Press Next step, or Done, next on the timer."); return; }
   if (act === "min"){ n.min = !n.min; }
