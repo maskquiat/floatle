@@ -1026,6 +1026,16 @@ body.present .bd-chip,body.viewing .bd-chip{display:none}
 .tb td.fx{position:relative}
 .tb td.fx::after{content:"";position:absolute;top:0;right:0;border-style:solid;border-width:0 .4em .4em 0;border-color:transparent #3D6FD1 transparent transparent;pointer-events:none}
 .tb td.err .tb-cell{color:#A3271A;font-weight:700}
+.tb td.box{text-align:center;vertical-align:middle}
+.tb .tb-box{width:1.15em;height:1.15em;margin:.18em auto;padding:0;border:2px solid rgba(0,0,0,.6);border-radius:.22em;background:#fff;display:grid;place-items:center;cursor:pointer;color:#fff}
+.tb .tb-box svg{width:.8em;height:.8em;opacity:0}
+.tb td.box.on .tb-box{background:#2E7D4F;border-color:#2E7D4F}
+.tb td.box.on .tb-box svg{opacity:1}
+.tb .tb-box:focus-visible{outline:2px solid #1D1A14;outline-offset:2px}
+.tb tr.hr td.box{background:rgba(0,0,0,.09)}
+.tb-prog{display:flex;align-items:center;gap:.3em;font-size:.72em;font-weight:700;opacity:.75;padding:.25em .1em 0}
+.tb-prog svg{width:.9em;height:.9em}
+.tb-prog.all{color:#2E7D4F;opacity:1}
 .tb th.tb-g{font-size:.62em;font-weight:700;opacity:.55;padding:0 .35em;border:0;background:none;text-align:center;display:none;user-select:none;-webkit-user-select:none}
 .kind-table .note-body:focus-within .tb-g{display:table-cell}
 .tb-bar{display:flex;flex-wrap:wrap;align-items:center;gap:.35em;font-size:max(12px,.4em);opacity:0;transition:opacity .15s}
@@ -3241,6 +3251,7 @@ function handleNoteAction(n, e, noteNode, inPip){
   if (n.kind === "materials" && MAT_ACTS.has(act)){ if (!inPip && !presenting && !viewing) matAct(n, act, btn); return; }
   if (n.kind === "embed" && EMB_ACTS.has(act)){ embAct(n, act, noteNode, inPip); return; }
   if (n.kind === "links" && LINK_ACTS.has(act)){ if (!inPip && !presenting && !viewing) linkAct(n, act, btn); return; }
+  if (n.kind === "table" && act === "tbbox"){ tblTick(n, btn, inPip); return; }   // ticks work everywhere, like checklist items: Present mode, the Float window, a shared view
   if (n.kind === "table" && TBL_ACTS.has(act)){ if (!inPip && !presenting && !viewing) tblAct(n, act, btn); return; }
   if (n.kind === "draw" && DRAW_ACTS.has(act)){ if (!inPip && (!viewing || viewerDraw())) drawToolAct(act, btn, n); return; }
   if (act === "spot"){ if (!inPip && !presenting && !viewing) spotMenu(n, btn); return; }
@@ -6079,22 +6090,37 @@ boardEl.addEventListener("keydown", e => {
    n.tbl = { c:[[cell, ...], ...] (rows of what was typed), hr (first row is a bold header) }.
    A cell that starts with = is a formula: + - * / ^ ( ), cell names like B2, and SUM, AVERAGE,
    MIN, MAX, COUNT, MEDIAN and ROUND with ranges like B2:B6. Formulas are worked out here, with no eval.
-   Typed cells show exactly as typed; formula results show up to 2 decimal places. */
+   Typed cells show exactly as typed; formula results show up to 2 decimal places.
+   A cell holding "[ ]" or "[x]" is a checkbox. It can be ticked anywhere the table shows, including
+   Present mode and the Float window, so a class can watch tasks get done. In formulas a ticked box
+   counts as 1 and an empty one as 0, so =SUM(B2:B9) or =CHECKED(B2:B9) counts what's done. */
 Object.assign(ICON, {
   table:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 15h18M9.5 9.5V20"/></svg>'
 });
 const TBL_MAXR = 40, TBL_MAXC = 12;
-const TBL_ACTS = new Set(["tbrow", "tbcol", "tbdelrow", "tbdelcol", "tbhr", "tbcsv"]);
+const TBL_ACTS = new Set(["tbrow", "tbcol", "tbdelrow", "tbdelcol", "tbhr", "tbcsv", "tbboxcol", "tbuncheck"]);
 const TBL_ERR = {
   "#REF!":"This formula points to a cell that isn't in the table.",
   "#DIV/0!":"This divides by zero (or averages cells that are empty).",
   "#LOOP!":"This formula uses its own answer. Point it at other cells.",
-  "#NAME?":"Unknown function. Try SUM, AVERAGE, MIN, MAX, COUNT, MEDIAN or ROUND.",
+  "#NAME?":"Unknown function. Try SUM, AVERAGE, MIN, MAX, COUNT, MEDIAN, ROUND or CHECKED.",
   "#VALUE!":"A cell this formula uses has words in it, not a number.",
   "#ERROR!":"Check this formula, for example =SUM(B2:B6) or =B2*C2."
 };
 let tblLast = null;   // the last cell typed in on this device { id, r, c }: where Add and Remove act
 const tblCol = c => String.fromCharCode(65 + c);
+// a checkbox cell: "[ ]" (or "[]") is empty, "[x]" is ticked; anything else isn't a checkbox (null)
+function tblBox(raw){
+  const m = /^\[\s*([xX✓✔]?)\s*\]$/.exec(String(raw ?? "").trim());
+  return m ? !!m[1] : null;
+}
+// a new row copies which columns are checkboxes from the row it's added next to
+const tblNewRow = (T, from) => (T.c[from] || T.c[T.c.length - 1]).map(x => tblBox(x) === null ? "" : "[ ]");
+function tblBoxCount(T){
+  let on = 0, all = 0;
+  T.c.forEach((row, r) => { if (T.hr && r === 0) return; row.forEach(x => { const b = tblBox(x); if (b !== null){ all++; if (b) on++; } }); });
+  return { on, all };
+}
 function tblOf(n){
   let T = n.tbl;
   if (!T || !Array.isArray(T.c) || !T.c.length) T = n.tbl = { c:[["", ""], ["", ""]], hr:true };
@@ -6122,7 +6148,9 @@ function tblCompute(T){
     busy[k] = 1;
     try {
       const raw = T.c[r][c].trim(); let v;
-      if (raw.startsWith("=") && raw.length > 1) v = formula(raw.slice(1));
+      const b = tblBox(raw);
+      if (b !== null) v = b ? 1 : 0;
+      else if (raw.startsWith("=") && raw.length > 1) v = formula(raw.slice(1));
       else { const x = tblNum(raw); v = x === null ? raw : x; }
       memo[k] = { v }; return v;
     } catch(e){ memo[k] = { e: TBL_ERR[e] ? e : "#ERROR!" }; throw memo[k].e; }
@@ -6173,9 +6201,12 @@ function tblCompute(T){
       const a = toks[i], b = toks[i + 1], c = toks[i + 2];
       if (a && a.t === "ref" && b && b.t === "op" && b.v === ":" && c && c.t === "ref"){
         i += 3;
-        const out = [];
+        const out = []; out.ck = 0; out.un = 0;
         for (let r = Math.min(a.r, c.r); r <= Math.max(a.r, c.r); r++)
-          for (let k = Math.min(a.c, c.c); k <= Math.max(a.c, c.c); k++){ const v = cell(r, k); if (typeof v === "number") out.push(v); }
+          for (let k = Math.min(a.c, c.c); k <= Math.max(a.c, c.c); k++){
+            const v = cell(r, k); if (typeof v === "number") out.push(v);
+            const b = r < R && k < C ? tblBox(T.c[r][k]) : null; if (b !== null){ if (b) out.ck++; else out.un++; }
+          }
         return out;
       }
       return [expr()];
@@ -6189,6 +6220,8 @@ function tblCompute(T){
       if (name === "COUNT") return all.length;
       if (name === "MEDIAN"){ if (!all.length) throw "#DIV/0!"; const s = [...all].sort((x, y) => x - y), h = s.length >> 1; return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2; }
       if (name === "ROUND"){ const x = (args[0] || [])[0], d = Math.max(0, Math.min(6, Math.round((args[1] || [0])[0] || 0))); if (x === undefined) throw "#ERROR!"; return Math.round(x * 10 ** d) / 10 ** d; }
+      if (name === "CHECKED" || name === "DONE") return args.reduce((x, a) => x + (a.ck || 0), 0);
+      if (name === "UNCHECKED" || name === "NOTDONE") return args.reduce((x, a) => x + (a.un || 0), 0);
       if (name === "ABS"){ const x = (args[0] || [])[0]; if (x === undefined) throw "#ERROR!"; return Math.abs(x); }
       throw "#NAME?";
     }
@@ -6197,6 +6230,8 @@ function tblCompute(T){
     return v;
   }
   return T.c.map((row, r) => row.map((raw, c) => {
+    const b = tblBox(raw);
+    if (b !== null) return { d:b ? "✓" : "", box:true, on:b };
     const fx = raw.trim().startsWith("=") && raw.trim().length > 1;
     try {
       const v = cell(r, c);
@@ -6208,13 +6243,14 @@ function tblCompute(T){
 }
 function tblLine(n){
   if (!tblHasData(n)) return "Empty table";
-  const T = tblOf(n), words = T.c.flat().map(x => x.trim()).filter(x => x && !x.startsWith("="));
+  const T = tblOf(n), words = T.c.flat().map(x => x.trim()).filter(x => x && !x.startsWith("=") && tblBox(x) === null);
   return T.c.length + " × " + T.c[0].length + (words.length ? " · " + words.slice(0, 4).join(", ") : "");
 }
 function tableBodyHTML(n, forPip){
-  const T = tblOf(n), V = tblCompute(T), ed = !forPip && !presenting && !viewing, C = T.c[0].length;
+  const T = tblOf(n), V = tblCompute(T), ed = !forPip && !presenting && !viewing, C = T.c[0].length, cnt = tblBoxCount(T);
   const ce = ed ? ` contenteditable="${editableAttr()}" spellcheck="false"` : "";
   const cellHTML = (v, r, c) => {
+    if (v.box) return `<td data-r="${r}" data-c="${c}" class="box${v.on ? " on" : ""}"><button class="tb-box" data-act="tbbox" role="checkbox" aria-checked="${v.on}" aria-label="Cell ${tblCol(c)}${r + 1}: ${v.on ? "done" : "not done"}"${ed ? ' title="Click or press Space to tick. Delete or Backspace turns it back into a plain cell."' : ""}>${ICON.check}</button></td>`;
     const cls = [v.num ? "num" : "", v.fx ? "fx" : "", v.err ? "err" : ""].filter(Boolean).join(" ");
     return `<td data-r="${r}" data-c="${c}"${cls ? ` class="${cls}"` : ""}${v.err ? ` title="${esc(TBL_ERR[v.err] || "")}"` : ""}><div class="tb-cell"${ce}${ed ? ` aria-label="Cell ${tblCol(c)}${r + 1}"` : ""}>${esc(v.d)}</div></td>`;
   };
@@ -6226,16 +6262,19 @@ function tableBodyHTML(n, forPip){
       <button class="doc-btn alt" data-act="tbdelrow" title="Remove the row of the cell you're in">${ICON.x}Row</button>
       <button class="doc-btn alt" data-act="tbdelcol" title="Remove the column of the cell you're in">${ICON.x}Column</button>
       <label><input type="checkbox" data-act="tbhr" ${T.hr ? "checked" : ""}> Header row</label>
+      <button class="doc-btn alt" data-act="tbboxcol" title="Turn the column you're in into checkboxes, or back into plain cells">${ICON.check}Checkboxes</button>
+      ${cnt.on ? `<button class="doc-btn alt" data-act="tbuncheck" title="Untick every box, ready to use again">Uncheck all</button>` : ""}
       <button class="doc-btn alt" data-act="tbcsv" title="Download as a CSV file for Excel or Google Sheets">${ICON.download}CSV</button>
-      <span class="tb-tip">Tab and Enter move between cells. Paste from Excel or Google Sheets to fill it in. Start a cell with = to do math: =SUM(B2:B6), =AVERAGE(C2:C6), =B2*C2</span>
+      <span class="tb-tip">Tab and Enter move between cells. Paste from Excel or Google Sheets to fill it in. Start a cell with = to do math: =SUM(B2:B6), =AVERAGE(C2:C6), =B2*C2. Type [ ] in a cell for a checkbox, and =CHECKED(B2:B9) counts the ticked ones.</span>
     </div>`;
-  return `<div class="tb-wrap"><table class="tb${C > 6 ? " wide" : ""}">${guide}${rows}</table></div>${bar}`;
+  const prog = cnt.all ? `<div class="tb-prog${cnt.on === cnt.all ? " all" : ""}" aria-live="polite">${ICON.check}${cnt.on} of ${cnt.all} done</div>` : "";
+  return `<div class="tb-wrap"><table class="tb${C > 6 ? " wide" : ""}">${guide}${rows}</table></div>${prog}${bar}`;
 }
 // the same table without editing, for the sub plan and the Running late screen (L = how text is escaped)
 function tblPlainHTML(n, L){
   if (!tblHasData(n)) return "";
   const T = tblOf(n), V = tblCompute(T);
-  const tr = (row, tag) => `<tr>${row.map(v => `<${tag}${v.num ? ' style="text-align:right"' : ""}>${L(v.d)}</${tag}>`).join("")}</tr>`;
+  const tr = (row, tag) => `<tr>${row.map(v => `<${tag}${v.num ? ' style="text-align:right"' : v.box ? ' style="text-align:center"' : ""}>${v.box ? (v.on ? "☑" : "☐") : L(v.d)}</${tag}>`).join("")}</tr>`;
   return `<table>${T.hr ? `<thead>${tr(V[0], "th")}</thead>` : ""}<tbody>${V.slice(T.hr ? 1 : 0).map(r => tr(r, "td")).join("")}</tbody></table>`;
 }
 // shows fresh answers in every cell except the one being typed in
@@ -6251,8 +6290,9 @@ function tblRefresh(n){
   });
 }
 function tblFocusCell(n, r, c){
-  const el = boardEl.querySelector(`.note[data-id="${n.id}"] td[data-r="${r}"][data-c="${c}"] .tb-cell`);
+  const td = boardEl.querySelector(`.note[data-id="${n.id}"] td[data-r="${r}"][data-c="${c}"]`), el = td && td.querySelector(".tb-cell");
   if (el && el.isContentEditable){ el.focus(); placeCaretEnd(el); }
+  else if (td && !presenting && !viewing) td.querySelector(".tb-box")?.focus();
 }
 /* After a row or column is added or removed, formulas keep pointing at the same cells
    (like a spreadsheet). A cell a formula used that was removed becomes #REF!. */
@@ -6283,9 +6323,21 @@ function tblAct(n, act, btn){
   let to = null;
   if (act === "tbhr"){ T.hr = !!btn.checked; save(); renderNote(n); return; }
   if (act === "tbcsv"){ tblCSV(n); return; }
+  if (act === "tbuncheck"){ T.c.forEach(row => row.forEach((x, k) => { if (tblBox(x)) row[k] = "[ ]"; })); save(); renderNote(n); return; }
+  if (act === "tbboxcol"){
+    // the cells under the header become checkboxes; if they already all are, they go back to plain cells.
+    // Words already typed in the column stay as they are.
+    const rows = T.c.filter((_, i) => !(T.hr && i === 0));
+    if (!rows.length){ toast("Add a row under the header first."); return; }
+    const isBox = rows.every(row => tblBox(row[c]) !== null);
+    rows.forEach(row => { if (isBox) row[c] = ""; else if (!row[c].trim()) row[c] = "[ ]"; });
+    if (!isBox && !rows.some(row => tblBox(row[c]) !== null)){ toast("This column is full of words. Pick an empty column, or add one with + Column."); return; }
+    save(); renderNote(n); tblLast = { id:n.id, r, c }; tblFocusCell(n, T.hr && r === 0 && R > 1 ? 1 : r, c);
+    return;
+  }
   if (act === "tbrow"){
     if (R >= TBL_MAXR){ toast("A table holds up to " + TBL_MAXR + " rows."); return; }
-    tblShift(T, "r", r + 1, 1); T.c.splice(r + 1, 0, Array(C).fill("")); to = [r + 1, c];
+    tblShift(T, "r", r + 1, 1); T.c.splice(r + 1, 0, tblNewRow(T, r)); to = [r + 1, c];
   }
   else if (act === "tbcol"){
     if (C >= TBL_MAXC){ toast("A table holds up to " + TBL_MAXC + " columns."); return; }
@@ -6302,10 +6354,22 @@ function tblAct(n, act, btn){
   save(); renderNote(n);
   if (to){ tblLast = { id:n.id, r:to[0], c:to[1] }; tblFocusCell(n, to[0], to[1]); }
 }
+function tblTick(n, btn, inPip){
+  const td = btn.closest("td"), T = tblOf(n), r = +td.dataset.r, c = +td.dataset.c, row = T.c[r];
+  if (!row || tblBox(row[c]) === null) return;
+  row[c] = tblBox(row[c]) ? "[ ]" : "[x]";
+  tblLast = { id:n.id, r, c };
+  save();
+  const bn = boardEl.querySelector(`.note[data-id="${n.id}"]`);
+  if (!inPip || bn) renderNote(n);
+  if (!inPip && !presenting && !viewing) tblFocusCell(n, r, c);
+  const { on, all } = tblBoxCount(T);
+  if (tblBox(row[c]) && all > 1 && on === all) toast("All " + all + " done!");
+}
 function tblCSV(n){
   const V = tblCompute(tblOf(n));
   const q = s => /[",\r\n]/.test(s) || /^[=+\-@]/.test(s) && isNaN(+s) ? '"' + s.replace(/"/g, '""') + '"' : s;
-  const blob = new Blob(["﻿" + V.map(row => row.map(v => q(v.d)).join(",")).join("\r\n")], { type:"text/csv;charset=utf-8" });
+  const blob = new Blob(["﻿" + V.map(row => row.map(v => v.box ? (v.on ? "TRUE" : "FALSE") : q(v.d)).join(",")).join("\r\n")], { type:"text/csv;charset=utf-8" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = ((n.title || "Table").replace(/[\\/:*?"<>|]+/g, "").trim() || "Table") + ".csv";
@@ -6335,15 +6399,20 @@ boardEl.addEventListener("focusin", e => {
 });
 boardEl.addEventListener("focusout", e => {
   const t = e.target; if (!t.classList?.contains("tb-cell")) return;
-  t.closest("td")?.classList.remove("editing");
+  const td = t.closest("td"); td?.classList.remove("editing");
   const nn = t.closest(".note"), n = nn && findNote(nn.dataset.id); if (!n) return;
-  setTimeout(() => tblRefresh(n), 0);
+  const raw = td ? (tblOf(n).c[+td.dataset.r] || [])[+td.dataset.c] : "";
+  setTimeout(() => {
+    // typing [ ] or [x] makes a checkbox once you leave the cell (unless you moved to another cell of this table, which keeps the caret)
+    if (tblBox(raw) !== null){ const a = document.activeElement, back = a && a.closest && a.closest(`.note[data-id="${n.id}"] td[data-r]`); renderNote(n); if (back) tblFocusCell(n, +back.dataset.r, +back.dataset.c); }
+    else tblRefresh(n);
+  }, 0);
 });
 boardEl.addEventListener("keydown", e => {
   const t = e.target; if (!t.classList?.contains("tb-cell") || !t.isContentEditable) return;
   const nn = t.closest(".note"), n = nn && findNote(nn.dataset.id); if (!n) return;
   const T = tblOf(n), R = T.c.length, C = T.c[0].length, td = t.closest("td"), r = +td.dataset.r, c = +td.dataset.c;
-  const addRow = () => { if (R >= TBL_MAXR) return false; T.c.push(Array(C).fill("")); save(); renderNote(n); return true; };
+  const addRow = () => { if (R >= TBL_MAXR) return false; T.c.push(tblNewRow(T, R - 1)); save(); renderNote(n); return true; };
   let to = null;
   if (e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); t.blur(); return; }
   if (e.key === "Tab"){
@@ -6360,6 +6429,26 @@ boardEl.addEventListener("keydown", e => {
     if (to) e.preventDefault();
   }
   if (to) tblFocusCell(n, to[0], to[1]);
+});
+boardEl.addEventListener("focusin", e => {
+  const t = e.target; if (!t.classList?.contains("tb-box")) return;
+  const nn = t.closest(".note"), td = t.closest("td"); if (!nn || !td) return;
+  tblLast = { id:nn.dataset.id, r:+td.dataset.r, c:+td.dataset.c };
+});
+boardEl.addEventListener("keydown", e => {
+  const t = e.target; if (!t.classList?.contains("tb-box") || presenting || viewing) return;
+  const nn = t.closest(".note"), n = nn && findNote(nn.dataset.id); if (!n) return;
+  const T = tblOf(n), R = T.c.length, C = T.c[0].length, td = t.closest("td"), r = +td.dataset.r, c = +td.dataset.c;
+  let to = null;
+  if (e.key === "Delete" || e.key === "Backspace"){ e.preventDefault(); T.c[r][c] = ""; save(); renderNote(n); tblFocusCell(n, r, c); return; }
+  if (e.key === "Enter"){ e.preventDefault(); t.click(); return; }
+  if (e.key === "Tab"){ e.preventDefault(); to = e.shiftKey ? (c > 0 ? [r, c - 1] : r > 0 ? [r - 1, C - 1] : null) : (c < C - 1 ? [r, c + 1] : r < R - 1 ? [r + 1, 0] : null); }
+  else if (e.key === "ArrowUp") to = r > 0 ? [r - 1, c] : null;
+  else if (e.key === "ArrowDown") to = r < R - 1 ? [r + 1, c] : null;
+  else if (e.key === "ArrowLeft") to = c > 0 ? [r, c - 1] : null;
+  else if (e.key === "ArrowRight") to = c < C - 1 ? [r, c + 1] : null;
+  else if (e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); t.blur(); return; }
+  if (to){ e.preventDefault(); tblFocusCell(n, to[0], to[1]); }
 });
 boardEl.addEventListener("paste", e => {
   const t = e.target.closest ? e.target.closest(".tb-cell") : null; if (!t || !t.isContentEditable) return;
