@@ -1664,6 +1664,7 @@ async function onSignedIn(user){
   loadReports();
   loadPlan().then(() => {   // Pro raises the document limits
     renderAddMenu(); renderSettings();   // show or hide the "Pro" labels now that the plan is known
+    runPendingUpgrade();   // came from the pricing page's "Get Pro"
     // analytics: Supabase user id only (never the email); replay only in edit mode, never a shared view or Present
     try {
       posthog.identify(user.id, {
@@ -2982,6 +2983,7 @@ function renderAddMenu(){
 /* Settings menu: an icon on every line, grouped under short headings. Status ("On", the bell time,
    the Trash count) shows as a small tag on the right so names stay on one line. */
 const SET_ICON = {
+  pro:'<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>',
   share:'<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h3v-3"/>',
   reports:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>',
   sched:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',
@@ -3039,6 +3041,9 @@ function renderSettings(){
     <hr>
     ${setItem("del", "Delete this board", { cls:"danger", dis:state.boards.length < 2 })}
     <hr>
+    ${sb ? (isPro()
+      ? setItem("pro", "Floatle Pro", { hint:proUntil ? "Active through " + new Date(proUntil).toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" }) : "Active", tag:"Pro", tagOn:true })
+      : setItem("pro", "Get Floatle Pro", { hint:"Unlimited boards and every tool", tag:"Pro" })) : ""}
     ${sb ? (userId
       ? `<div class="acct" id="syncLine">${esc(syncLabel)}</div>${setItem("signout", "Sign out")}`
       : `<div class="acct" id="syncLine">${esc(syncLabel)}</div>${setItem("signin", "Sign in or create an account")}`)
@@ -3196,6 +3201,12 @@ $("setMenu").addEventListener("click", e => {
   if (act === "late"){ toggleMenu($("setBtn"), $("setMenu"), false); openLate(b.id); return; }
   if (act === "reports"){ toggleMenu($("setBtn"), $("setMenu"), false); openReports(); return; }
   if (act === "help"){ toggleMenu($("setBtn"), $("setMenu"), false); openHelp(); return; }
+  if (act === "pro"){
+    toggleMenu($("setBtn"), $("setMenu"), false);
+    if (isPro()) toast("Thank you for supporting Floatle! To change or cancel your plan, use the link in your Paddle receipt or email billing@floatle.com.");
+    else window.open("/pricing/", "_blank", "noopener");
+    return;
+  }
   if (act === "feedback"){ window.open(FEEDBACK_URL, "_blank", "noopener"); toggleMenu($("setBtn"), $("setMenu"), false); return; }
   if (act === "import"){ $("importFile").click(); toggleMenu($("setBtn"), $("setMenu"), false); return; }
   if (act === "dup"){
@@ -5877,6 +5888,116 @@ function boardLimitCard(sub){
   setTimeout(() => $("limitPro").focus(), 30);
 }
 function closeBoardLimit(){ $("limitWrap").hidden = true; }
+
+/* ---------- Payments (Paddle) ----------
+   The pricing page's buttons open floatle.com/?upgrade=monthly | yearly | founding. Floatle makes sure the
+   teacher is signed in, then opens Paddle's checkout with their account id attached. When the payment goes
+   through, Paddle tells our Supabase function (paddle-webhook), which turns on Pro in the plans table;
+   Floatle checks the plan every few seconds until it sees Pro.
+   To go live: change PADDLE.env to "production" and swap in the live token and live price ids. */
+const PADDLE = {
+  env: "sandbox",
+  token: "test_7efb83ee76fc5e7585097b8c2c9",
+  prices: {
+    monthly: "pri_01m80egvwnnz7pwxbb3d9128tx",
+    yearly: "pri_01m80ew4ejpat8q5gyt5w75kb7",
+    founding: "pri_01m80f2k00d3hw4rp4g66v1gb1"
+  },
+  foundingSpots: 100
+};
+const UPGRADE_KEY = "floatle.upgrade";
+// the chosen plan is kept for an hour, so it survives signing up and confirming the email in a new tab
+const savePending = plan => { try { localStorage.setItem(UPGRADE_KEY, JSON.stringify({ plan, t: Date.now() })); } catch(e){} };
+const readPending = () => { try { const v = JSON.parse(localStorage.getItem(UPGRADE_KEY) || "null"); return v && Date.now() - v.t < 3600000 ? v.plan : ""; } catch(e){ return ""; } };
+const clearPending = () => { try { localStorage.removeItem(UPGRADE_KEY); } catch(e){} };
+let paddleReady = null;
+function loadPaddle(){
+  if (paddleReady) return paddleReady;
+  paddleReady = new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.paddle.com/paddle/v2/paddle.js";
+    s.onload = () => {
+      try {
+        if (PADDLE.env === "sandbox") window.Paddle.Environment.set("sandbox");
+        window.Paddle.Initialize({ token: PADDLE.token, eventCallback: paddleEvent });
+        resolve(window.Paddle);
+      } catch(e){ reject(e); }
+    };
+    s.onerror = () => { paddleReady = null; reject(new Error("paddle")); };
+    document.head.appendChild(s);
+  });
+  return paddleReady;
+}
+async function foundingSpotsLeft(){
+  try { const { data, error } = await sb.rpc("founding_spots_left"); if (!error && typeof data === "number") return data; } catch(e){}
+  return null;   // unknown: let the checkout go ahead
+}
+async function startCheckout(plan){
+  if (!PADDLE.prices[plan]) plan = "yearly";
+  if (!sb){ toast("Payments need an internet connection. Try again in a moment."); return; }
+  if (!userId){
+    savePending(plan);
+    showAuth("signup");
+    authMsg("Create your free account (or sign in) first. Your checkout opens right after.");
+    return;
+  }
+  if (isPro()){ toast("You already have Floatle Pro. Thank you!"); return; }
+  if (plan === "founding"){
+    const left = await foundingSpotsLeft();
+    if (left === 0){ toast("The Founding Teacher spots are all taken. Pro Yearly is still $36 a year.", () => startCheckout("yearly"), "Get Pro Yearly"); return; }
+  }
+  track("checkout_started", { plan });
+  try {
+    const P = await loadPaddle();
+    P.Checkout.open({
+      items: [{ priceId: PADDLE.prices[plan], quantity: 1 }],
+      customer: userEmail ? { email: userEmail } : undefined,
+      customData: { user_id: userId, plan },
+      settings: { displayMode: "overlay", theme: "light", allowLogout: false }
+    });
+  } catch(e){ toast("The checkout couldn't open. Check your connection and try again, or email billing@floatle.com."); }
+}
+function paddleEvent(ev){
+  if (!ev || ev.name !== "checkout.completed") return;
+  track("checkout_completed", { plan: (ev.data && ev.data.custom_data && ev.data.custom_data.plan) || "" });
+  waitForPro();
+}
+async function waitForPro(){
+  toast("Payment received. Turning on Pro…");
+  for (let i = 0; i < 20; i++){
+    await new Promise(r => setTimeout(r, 3000));
+    await loadPlan();
+    if (isPro()){
+      render(); renderAddMenu(); renderSettings();
+      toast("You're on Floatle Pro. Thank you for supporting Floatle!");
+      return;
+    }
+  }
+  toast("Your payment went through. Pro can take a minute to turn on; reload the page shortly, or email billing@floatle.com if it doesn't.");
+}
+/* floatle.com/?upgrade=… from the pricing page; remembered across sign-in */
+function pendingUpgrade(){
+  let plan = "";
+  try { plan = new URLSearchParams(location.search).get("upgrade") || readPending(); } catch(e){}
+  return PADDLE.prices[plan] ? plan : "";
+}
+function runPendingUpgrade(){
+  const plan = pendingUpgrade(); if (!plan) return;
+  clearPending();
+  if (/[?&]upgrade=/.test(location.search)){
+    const q = new URLSearchParams(location.search); q.delete("upgrade");
+    history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash);
+  }
+  startCheckout(plan);
+}
+if (!viewing){
+  const plan0 = pendingUpgrade();
+  if (plan0 && sb){
+    savePending(plan0);
+    // signed-out visitors get the sign-up screen with a note; signed-in teachers get checkout once their plan loads
+    setTimeout(() => { if (!userId){ showAuth("signup"); authMsg("Create your free account (or sign in) first. Your checkout opens right after."); } }, 1500);
+  }
+}
 $("limitClose").addEventListener("click", closeBoardLimit);
 $("limitPro").addEventListener("click", () => { track("upgrade_clicked", { reason: "board_cap" }); window.open("/pricing/", "_blank", "noopener"); closeBoardLimit(); });
 $("limitWrap").addEventListener("click", e => { if (e.target === $("limitWrap")) closeBoardLimit(); });

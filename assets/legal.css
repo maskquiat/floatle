@@ -78,3 +78,4 @@ address{font-style:normal}
 .compare .no{color:var(--line);font-weight:700}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media (max-width:480px){.compare thead th:not(:first-child){width:5.2rem}}
+.monthly-link{display:block;text-align:center;margin-top:.6rem;font-size:.92rem;color:var(--muted)}
