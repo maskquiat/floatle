@@ -1084,7 +1084,12 @@ body.viewing:not(.sub-draw) .draw-btn{display:none !important}
 .menu .set-item .si{width:1.15rem;height:1.15rem;flex:0 0 auto;color:var(--muted)}
 .set-t{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;line-height:1.25}
 .set-t small{color:var(--muted);font-size:.8rem}
-.pro-tag{margin-left:auto;font-size:.68rem;font-weight:700;padding:.05rem .45rem;border-radius:999px;background:#FDE3EE;color:#8A1F4C;border:1px solid #F5B8D0}
+.limit-panel{max-width:28rem}
+.limit-panel h2{font-family:var(--brand-font);font-weight:900}
+.limit-list{margin:.4rem 0 1rem;padding-left:1.2rem;line-height:1.55}
+.limit-acts{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.limit-tip{font-size:.85rem;color:var(--muted);margin:1rem 0 0;line-height:1.45}
+.menu-pro-tag{margin-left:auto;font-size:.68rem;font-weight:700;padding:.05rem .45rem;border-radius:999px;background:#FDE3EE;color:#8A1F4C;border:1px solid #F5B8D0}
 .set-tag{flex:0 0 auto;font-size:.72rem;font-weight:700;padding:.1rem .5rem;border-radius:999px;background:var(--chrome-2);color:var(--muted);border:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
 .set-tag.on{background:#E3F4EA;color:#1F6B45;border-color:#B5DEC4}
 .set-sec{margin:.7rem .6rem .2rem;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -1282,6 +1287,22 @@ body.present .site-foot,body.viewing .site-foot{display:none}
   </form>
   </div>
   <div class="auth-foot"><p class="copy-line">&copy; 2026 Kenneth Muigai. All rights reserved.</p><nav class="legal-links" aria-label="Legal"><a href="/pricing/">Pricing</a><a href="/terms/">Terms</a><a href="/privacy/">Privacy</a><a href="/refunds/">Refunds</a></nav></div>
+</div>
+<div class="trash-wrap" id="limitWrap" hidden>
+  <div class="trash-panel limit-panel" role="dialog" aria-modal="true" aria-labelledby="limitTitle">
+    <div class="trash-head"><h2 id="limitTitle">You're using both free boards</h2></div>
+    <p class="trash-sub" id="limitSub">The free plan includes 2 boards. Floatle Pro gives you as many as you need:</p>
+    <ul class="limit-list">
+      <li>A board for every class and period</li>
+      <li>Scheduled boards that switch on their own</li>
+      <li>Unlimited saved lessons</li>
+    </ul>
+    <div class="limit-acts">
+      <button class="btn primary" id="limitPro" type="button">See Floatle Pro</button>
+      <button class="btn" id="limitClose" type="button">Not now</button>
+    </div>
+    <p class="limit-tip">Tip: you can also save a board as a lesson and reopen it later, or move a board you no longer need to Trash.</p>
+  </div>
 </div>
 <div class="trash-wrap" id="trashWrap" hidden>
   <div class="trash-panel" role="dialog" aria-modal="true" aria-labelledby="trashTitle">
@@ -2945,7 +2966,7 @@ function renderAddMenu(){
   const item = ([k, t]) => {
     const ico = { image:ICON.image, cards:ICON.cards, dict:ICON.book, doc:ICON.file, materials:ICON.bag, draw:ICON.pencil, embed:ICON.screen, links:ICON.link, table:ICON.table }[t.kind];
     const mark = ico ? `<span class="ico">${ico}</span>` : `<span class="swatch" style="background:${COLORS[t.color]}"></span>`;
-    const pro = (k === "flashcards" || k === "dictionary") && !isPro() ? `<span class="pro-tag">Pro</span>` : "";
+    const pro = (k === "flashcards" || k === "dictionary") && !isPro() ? `<span class="menu-pro-tag">Pro</span>` : "";
     const main = `<button class="item" role="menuitem" data-type="${k}">${mark}${t.label}${pro}</button>`;
     if (k !== "timed") return main;
     // the clock button adds a Timed note and opens its timer beside it
@@ -3178,6 +3199,7 @@ $("setMenu").addEventListener("click", e => {
   if (act === "feedback"){ window.open(FEEDBACK_URL, "_blank", "noopener"); toggleMenu($("setBtn"), $("setMenu"), false); return; }
   if (act === "import"){ $("importFile").click(); toggleMenu($("setBtn"), $("setMenu"), false); return; }
   if (act === "dup"){
+    if (!canAddBoard()){ toggleMenu($("setBtn"), $("setMenu"), false); boardLimitCard(); return; }
     const copy = JSON.parse(JSON.stringify(b));
     copy.id = uid(); copy.name = b.name + " (copy)";
     delete copy.shareCode; delete copy.keptCode;   // a copy gets its own code only if the teacher shares it
@@ -3208,6 +3230,7 @@ $("setMenu").addEventListener("click", e => {
 
 tabsEl.addEventListener("click", e => {
   if (e.target.id === "addClass"){
+    if (!canAddBoard()){ boardLimitCard(); return; }
     const nb = { id:uid(), name:"Board " + (state.boards.length+1), bg:"pond", notes:[] };
     state.boards.push(nb); state.active = nb.id; render(); save();
     renderSettings(); toggleMenu($("setBtn"), $("setMenu"), true);
@@ -3916,6 +3939,7 @@ function restoreFromTrash(tid){
   } else if (t.type === "lesson"){
     if (!state.lessons.some(x => x.id === t.item.id)) state.lessons.splice(Math.min(t.index ?? state.lessons.length, state.lessons.length), 0, t.item);
   } else {
+    if (!state.boards.some(x => x.id === t.item.id) && !canAddBoard()){ boardLimitCard("Restoring this board would make 3. The free plan includes 2 boards, so move one to Trash first, or get Floatle Pro for as many as you need:"); return; }
     if (!state.boards.some(x => x.id === t.item.id)) state.boards.splice(Math.min(t.index ?? state.boards.length, state.boards.length), 0, t.item);
     state.active = t.item.id;
   }
@@ -5167,6 +5191,9 @@ $("importFile").addEventListener("change", async e => {
   try {
     const next = JSON.parse(await f.text());
     if (!next || !Array.isArray(next.boards) || !next.boards.length) throw 0;
+    if (!isPro() && next.boards.length > FREE_BOARDS && next.boards.length > state.boards.length){
+      boardLimitCard(`This file has ${next.boards.length} boards, and the free plan includes 2. Nothing was changed. Floatle Pro holds as many as you need:`); return;
+    }
     setState(next);
     render(); save(); toast("Imported " + state.boards.length + " board" + (state.boards.length>1?"s":"") + ".");
     uploadPendingImages();
@@ -5839,7 +5866,21 @@ const hostOf = s => { try { return new URL(s).hostname.replace(/^www\./, ""); } 
 function safeURL(s){ try { const u = new URL(s); return u.protocol === "https:" && /\./.test(u.hostname) ? u : null; } catch(e){ return null; } }
 /* Pro locks: free accounts and guests see the feature but can't turn it on. Anything already
    on a board keeps working (and can always be turned off), so nobody loses their work. */
-const FREE_LESSONS = 3;
+const FREE_LESSONS = 3, FREE_BOARDS = 2;
+/* Free accounts and guests hold 2 boards. Anyone who already has more keeps them all; they just can't add another. */
+const canAddBoard = () => isPro() || state.boards.length < FREE_BOARDS;
+function boardLimitCard(sub){
+  closeMenus();
+  track("upgrade_prompt_shown", { reason: "board_cap" });
+  $("limitSub").textContent = sub || "The free plan includes 2 boards. Floatle Pro gives you as many as you need:";
+  $("limitWrap").hidden = false;
+  setTimeout(() => $("limitPro").focus(), 30);
+}
+function closeBoardLimit(){ $("limitWrap").hidden = true; }
+$("limitClose").addEventListener("click", closeBoardLimit);
+$("limitPro").addEventListener("click", () => { track("upgrade_clicked", { reason: "board_cap" }); window.open("/pricing/", "_blank", "noopener"); closeBoardLimit(); });
+$("limitWrap").addEventListener("click", e => { if (e.target === $("limitWrap")) closeBoardLimit(); });
+$("limitWrap").addEventListener("keydown", e => { if (e.key === "Escape"){ e.preventDefault(); closeBoardLimit(); } });
 function proToast(what){
   track("upgrade_prompt_shown", { reason: what });
   toast(what + " come with Floatle Pro.", () => window.open("/pricing/", "_blank", "noopener"), "See Pro");
@@ -7518,6 +7559,7 @@ function openLesson(L, asNew){
   if (!Array.isArray(c.notes)) c.notes = [];
   c.notes.forEach(n => { zTop = Math.max(zTop, n.z || 0); });
   let b;
+  if (asNew && !canAddBoard()){ boardLimitCard("Opening a lesson as a new board would make 3. You can open it on this board instead, or get Floatle Pro for as many boards as you need:"); return; }
   if (asNew){
     b = { id:uid(), name:L.name.slice(0, 40) || "Lesson", bg:"pond", ...c, lessonId:L.id };
     state.boards.splice(state.boards.indexOf(board()) + 1, 0, b);
