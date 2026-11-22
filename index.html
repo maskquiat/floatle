@@ -219,6 +219,12 @@ body.present .rt-bar,body.present .rt-pop,body.viewing .rt-bar,body.viewing .rt-
 
 /* ---------- present mode ---------- */
 body.present .edit-only{display:none !important}
+body.frozen .add-wrap,body.frozen #undoBtn,body.frozen #redoBtn,body.frozen #shareBtn,body.frozen #drawBtn,body.frozen .tools .t-edit,body.frozen .resize,body.frozen .bd-chip,body.frozen .rt-bar,body.frozen .rt-pop{display:none !important}
+.frozen-bar{position:absolute;top:.6rem;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem;max-width:min(94%,46rem);padding:.55rem .8rem;border-radius:12px;background:#FFF8E1;color:#3D3200;border:1px solid #E8D48A;box-shadow:0 6px 18px rgba(0,0,0,.18);font-size:.92rem;text-align:center}
+.frozen-bar .btn{padding:.35rem .7rem;font-size:.88rem}
+body.present .frozen-bar{display:none}
+.tab.frz{opacity:.7}
+.tab.frz::after{content:" · view-only";font-size:.78em;opacity:.85}
 body.present .present-title{display:block}
 body.present .brand{display:none}
 body.present .tabs-wrap{display:none}
@@ -1663,7 +1669,7 @@ async function onSignedIn(user){
   syncShares();
   loadReports();
   loadPlan().then(() => {   // Pro raises the document limits
-    renderAddMenu(); renderSettings();   // show or hide the "Pro" labels now that the plan is known
+    render();   // show or hide the "Pro" labels, and view-only boards, now that the plan is known
     runPendingUpgrade();   // came from the pricing page's "Get Pro"
     // analytics: Supabase user id only (never the email); replay only in edit mode, never a shared view or Present
     try {
@@ -1765,11 +1771,12 @@ const findNote = id => board().notes.find(n => n.id === id);
 const $ = id => document.getElementById(id);
 const boardEl = $("board"), tabsEl = $("tabs");
 let presenting = false;
+let frozen = false;   // this board is view-only: Pro ended and it isn't one of the 2 active boards (see boardFrozen)
 const narrow = () => window.matchMedia("(max-width:700px)").matches;
 
 let PT = false;
 try { const d = document.createElement("div"); d.contentEditable = "plaintext-only"; PT = d.contentEditable === "plaintext-only"; } catch(e){}
-const editableAttr = () => presenting ? "false" : (PT ? "plaintext-only" : "true");
+const editableAttr = () => (presenting || frozen) ? "false" : (PT ? "plaintext-only" : "true");
 
 const ICON = {
   spot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>',
@@ -2450,7 +2457,7 @@ function docSignInToast(){
 }
 
 function docBodyHTML(n, forPip){
-  const up = docUp[n.id], d = up || n.doc, editing = !forPip && !presenting && !viewing;
+  const up = docUp[n.id], d = up || n.doc, editing = !forPip && !(presenting || frozen) && !viewing;
   if (!d || !d.name){
     return editing
       ? `<div class="doc doc-empty"><b>Attach a handout or worksheet</b>
@@ -2477,7 +2484,7 @@ function redrawDoc(n){
 }
 async function attachDoc(file, opts){
   opts = opts || {};
-  if (viewing || presenting || !file) return;
+  if (viewing || (presenting || frozen) || !file) return;
   if (!sb || !userId){ docSignInToast(); return; }
   const ext = docExt(file.name);
   if (!ext){ toast("Floatle can attach PDF, Word, PowerPoint, Excel, text and picture files."); return; }
@@ -2517,7 +2524,7 @@ async function attachDoc(file, opts){
   }
 }
 async function docAct(n, act){
-  if (act === "docpick"){ if (!presenting && !viewing) pickDoc(n.id); return; }
+  if (act === "docpick"){ if (!(presenting || frozen) && !viewing) pickDoc(n.id); return; }
   const d = n.doc; if (!d || !d.path || !sb) return;
   // open the tab right away, while the click still counts, so pop-up blockers allow it
   const win = act === "docopen" ? window.open("", "_blank") : null;
@@ -2570,7 +2577,7 @@ const matLabel = m => (m.l || "").trim() || MAT_NAME[m.k] || "";
 const matPick = new Set();   // notes whose picker is open (this device only, not saved)
 function matsBodyHTML(n, ed, forPip){
   const mats = (n.mats || []).filter(m => MAT_NAME[m.k]);
-  const editing = !forPip && !presenting && !viewing;
+  const editing = !forPip && !(presenting || frozen) && !viewing;
   if (editing && matPick.has(n.id)){
     const on = new Set(mats.map(m => m.k));
     return `<div class="mat-bar"><span class="mat-hint">Tap what students need today.</span>
@@ -2868,7 +2875,7 @@ function renderNote(n){
 }
 function renderTabs(){
   tabsEl.innerHTML = state.boards.map(b =>
-    `<button class="tab" role="tab" data-board="${b.id}" aria-selected="${b.id===state.active}">${esc(b.name)}</button>`).join("")
+    `<button class="tab${boardFrozen(b) ? " frz" : ""}" role="tab" data-board="${b.id}" aria-selected="${b.id===state.active}"${boardFrozen(b) ? ' title="View-only on the free plan"' : ""}>${esc(b.name)}</button>`).join("")
     + `<button class="tab add edit-only" id="addClass" title="Add a new board">+ Class</button>`;
   $("presentTitle").textContent = board().name;
   requestAnimationFrame(() => {
@@ -2921,6 +2928,9 @@ tabsEl.addEventListener("wheel", e => {
 new ResizeObserver(updateTabArrows).observe(tabsEl);
 function renderBoard(){
   const b = board();
+  try { frozen = boardFrozen(b); } catch(e){ frozen = false; }
+  document.body.classList.toggle("frozen", frozen);
+  if (!frozen) frzSwap = false;
   document.body.classList.toggle("spot-focus", !!(presenting && b.focus && b.notes.some(spotOn)));
   document.body.classList.toggle("sub-draw", viewerDraw());
   if (inkMode && viewing && !viewerDraw()) setInk(false);   // the teacher turned drawing off
@@ -2944,7 +2954,7 @@ function renderBoard(){
       el.innerHTML = embFrame(bd, bd.title);
       boardEl.insertBefore(el, boardEl.firstChild);
     }
-    if (!presenting && !viewing) boardEl.insertAdjacentHTML("beforeend",
+    if (!(presenting || frozen) && !viewing) boardEl.insertAdjacentHTML("beforeend",
       `<div class="bd-chip edit-only" role="group" aria-label="Board background"><span>${esc(bd.prov)} fills this board</span><button data-bd="bg">Change</button><button data-bd="note">Make it a note</button><button data-bd="remove">Remove</button></div>`);
   }
   if (!b.notes.length && !bd){
@@ -2952,6 +2962,7 @@ function renderBoard(){
       ? `<div class="empty">${viewMsg || "<div>This board is empty.</div>"}</div>`
       : `<div class="empty"><div>This board is empty.<br>${presenting ? "Choose Edit board to add notes." : "Use Add note to post your first note."}</div></div>`);
   }
+  if (frozen) boardEl.insertAdjacentHTML("beforeend", frozenBar());
   b.notes.forEach(n => {
     const el = noteEl(n), k = n.id + "|" + (el.dataset.live || ""), old = el.dataset.live && keep.get(k);
     if (old){ keep.delete(k); patchLive(old, el); }
@@ -3015,7 +3026,7 @@ function renderSettings(){
   const bgNote = b.backdrop ? esc(b.backdrop.prov) : showOf(b) ? "Slideshow" : BGS[b.bg] ? "" : esc(bgInfo(b.bg).name);
   $("setMenu").innerHTML = `
     <label for="className">Board name</label>
-    <div style="padding:0 .6rem .4rem"><input type="text" id="className" value="${esc(b.name)}" maxlength="40"></div>
+    <div style="padding:0 .6rem .4rem"><input type="text" id="className" value="${esc(b.name)}" maxlength="40"${frozen ? " disabled" : ""}></div>
     <h3>Background</h3>
     <div class="bg-row">${Object.keys(BGS).map(k => `<button data-bg="${k}" aria-pressed="${b.bg===k && !showOf(b) && !b.backdrop}" title="${BGS[k]}" aria-label="${BGS[k]}" style="background:${BG_SWATCH[k]}"></button>`).join("")}</div>
     ${setItem("bg", "More backgrounds", { cls:"c-bg", hint:bgNote ? "Now: " + bgNote : "" })}
@@ -3164,6 +3175,7 @@ $("addMenu").addEventListener("click", e => {
 let delArm = false;
 $("setMenu").addEventListener("input", e => {
   if (e.target.id === "className"){
+    if (frozen) return;
     board().name = e.target.value.trim() || "Untitled board";
     renderTabs(); save("typing");
   }
@@ -3171,11 +3183,15 @@ $("setMenu").addEventListener("input", e => {
 $("setMenu").addEventListener("click", e => {
   const b = board();
   const bg = e.target.closest("[data-bg]");
+  if (bg && frozen){ toggleMenu($("setBtn"), $("setMenu"), false); frozenToast(); return; }
   if (bg){
     if (b.backdrop){ toast(b.backdrop.prov + " is covering the background. Remove it from the board to see this one.", () => openBg("slides"), "Show me"); }
     setBg(bg.dataset.bg); renderSettings(); return;
   }
   const act = e.target.closest("[data-set]")?.dataset.set; if (!act) return;
+  if (frozen && !["signout", "signin", "export", "trash", "help", "pro", "feedback", "del", "reports", "plan", "dup"].includes(act)){
+    toggleMenu($("setBtn"), $("setMenu"), false); frozenToast(); return;
+  }
   if (act === "signout"){ toggleMenu($("setBtn"), $("setMenu"), false); signOut(); return; }
   if (act === "signin"){ toggleMenu($("setBtn"), $("setMenu"), false); try { localStorage.removeItem("swbats.skipLogin"); } catch(e){} showAuth("signin"); return; }
   if (act === "export"){
@@ -3283,23 +3299,24 @@ boardEl.addEventListener("click", e => {
 function handleNoteAction(n, e, noteNode, inPip){
   const btn = e.target.closest("[data-act]");
   // on phones and in the floating window, tapping a bar opens it
-  if (!btn && (narrow() || inPip) && e.target.closest(".note-head") && !e.target.isContentEditable){
+  if (!btn && !frozen && (narrow() || inPip) && e.target.closest(".note-head") && !e.target.isContentEditable){
     n.min = !n.min; after(); return;
   }
   if (!btn) return;
   const act = btn.dataset.act;
-  if (act === "pick"){ if (!presenting && !viewing && !inPip) pickImage(n.id); return; }
+  if (frozen && !VIEW_OK.has(act)){ frozenToast(); return; }
+  if (act === "pick"){ if (!(presenting || frozen) && !viewing && !inPip) pickImage(n.id); return; }
   if (act === "zoom"){ if (!inPip) openImageView(n); return; }
   if (act === "fcfull"){ if (!inPip){ if (n.min && !fcFull.has(n.id)) n.min = false; setFcFull(n, !fcFull.has(n.id)); } return; }
   if (n.kind === "cards" && act.startsWith("fc")){ cardsAct(n, act, btn, inPip); return; }
   if (n.kind === "dict" && DICT_ACTS.has(act)){ dictAct(n, act, btn, noteNode); return; }
   if (n.kind === "doc" && DOC_ACTS.has(act)){ if (!(inPip && act === "docpick")) docAct(n, act); return; }
-  if (n.kind === "materials" && MAT_ACTS.has(act)){ if (!inPip && !presenting && !viewing) matAct(n, act, btn); return; }
+  if (n.kind === "materials" && MAT_ACTS.has(act)){ if (!inPip && !(presenting || frozen) && !viewing) matAct(n, act, btn); return; }
   if (n.kind === "embed" && EMB_ACTS.has(act)){ embAct(n, act, noteNode, inPip); return; }
-  if (n.kind === "links" && LINK_ACTS.has(act)){ if (!inPip && !presenting && !viewing) linkAct(n, act, btn); return; }
-  if (n.kind === "table" && TBL_ACTS.has(act)){ if (!inPip && !presenting && !viewing) tblAct(n, act, btn); return; }
+  if (n.kind === "links" && LINK_ACTS.has(act)){ if (!inPip && !(presenting || frozen) && !viewing) linkAct(n, act, btn); return; }
+  if (n.kind === "table" && TBL_ACTS.has(act)){ if (!inPip && !(presenting || frozen) && !viewing) tblAct(n, act, btn); return; }
   if (n.kind === "draw" && DRAW_ACTS.has(act)){ if (!inPip && (!viewing || viewerDraw())) drawToolAct(act, btn, n); return; }
-  if (act === "spot"){ if (!inPip && !presenting && !viewing) spotMenu(n, btn); return; }
+  if (act === "spot"){ if (!inPip && !(presenting || frozen) && !viewing) spotMenu(n, btn); return; }
   if (act === "spend"){ if (!inPip && !viewing) spotEnd(n); return; }
   if (act === "spnext" || act === "spback"){ spotStep(n, act === "spnext"); return; }
   if (act === "check" && spotTimer(n)){ toast("This agenda follows its timer. Press Next step, or Done, next on the timer."); return; }
@@ -3512,7 +3529,7 @@ function placeCaretEnd(el){
    n.text that HTML belongs to, so if an older copy of the app edits the words, the plain text
    wins instead of showing stale formatting. Every bit of HTML goes through rtClean() before it
    is shown or saved: only a short list of tags and styles survives, nothing that can run code. */
-const richEditableAttr = () => presenting ? "false" : "true";
+const richEditableAttr = () => (presenting || frozen) ? "false" : "true";
 const RT_TAGS = { B:"b", STRONG:"b", I:"i", EM:"i", U:"u", INS:"u", S:"s", STRIKE:"s", DEL:"s", MARK:"mark",
   SPAN:"span", FONT:"span", DIV:"div", P:"div", H1:"div", H2:"div", H3:"div", H4:"div", BLOCKQUOTE:"div", BR:"br", UL:"ul", OL:"ol", LI:"li" };
 const RT_DROP = /^(SCRIPT|STYLE|IFRAME|FRAME|OBJECT|EMBED|TEMPLATE|SVG|MATH|NOSCRIPT|HEAD|TITLE|META|LINK|BUTTON|INPUT|SELECT|TEXTAREA|IMG|VIDEO|AUDIO|CANVAS)$/i;
@@ -3781,7 +3798,7 @@ function rtPlace(){
   RT.bar.style.left = Math.max(8, Math.min(r.left, window.innerWidth - bw - 8)) + "px";
 }
 function rtShow(el){
-  if (presenting || (typeof viewing !== "undefined" && viewing)) return;
+  if ((presenting || frozen) || (typeof viewing !== "undefined" && viewing)) return;
   rtBuild();
   if (RT.el !== el){ rtClosePop(); if (RT.ro){ RT.ro.disconnect(); RT.ro.observe(el.closest(".note")); } }
   RT.el = el;
@@ -4030,9 +4047,9 @@ function modalOpen(){
   return !$("auth").hidden || !$("trashWrap").hidden || !$("shareWrap").hidden || !$("leaveWrap").hidden || !$("repWrap").hidden || !$("imgView").hidden || !$("schedWrap").hidden || !$("crawlWrap").hidden || !$("lateWrap").hidden || !$("bgWrap").hidden || !$("lessonWrap").hidden || !$("planWrap").hidden;
 }
 function imageBodyHTML(n, forPip){
-  const tapZoom = !forPip && (presenting || viewing);
+  const tapZoom = !forPip && ((presenting || frozen) || viewing);
   if (n.src) return `<div class="note-img${uploadingIds.has(n.id) ? " busy" : ""}"><img src="${esc(n.src)}" alt="${esc(n.title || "Image")}" draggable="false"${tapZoom ? ' data-act="zoom"' : ' style="cursor:default"'}></div>`;
-  if (forPip || presenting || viewing) return `<div class="img-drop is-empty"><span>No image yet</span></div>`;
+  if (forPip || (presenting || frozen) || viewing) return `<div class="img-drop is-empty"><span>No image yet</span></div>`;
   return `<div class="img-drop" data-act="pick">
       <b>Paste a screenshot or slide</b>
       <span class="img-keys">Copy it, click the board, then press ${PASTE_KEYS}</span>
@@ -4123,7 +4140,7 @@ function fitNoteToImage(n, w, h, isNew){
 
 async function addImage(file, opts){
   opts = opts || {};
-  if (viewing || presenting) return;
+  if (viewing || (presenting || frozen)) return;
   if (!file || !/^image\//.test(file.type || "")){ toast("That isn't a picture Floatle can use. Try a PNG or JPG."); return; }
   if (file.size > IMG_MAX_BYTES){ toast("That picture is too big (over 25 MB). Try a screenshot instead."); return; }
   const online = !!(sb && userId);
@@ -4192,7 +4209,7 @@ function clipImage(dt){
 /* Paste anywhere on the board. Typing in a note still pastes text like before;
    an image pastes into the empty Image note you just made or clicked, or into a new one. */
 document.addEventListener("paste", e => {
-  if (viewing || presenting || modalOpen()) return;
+  if (viewing || (presenting || frozen) || modalOpen()) return;
   const t = e.target;
   if (t && t.closest && t.closest("input, textarea, .menu")) return;
   const file = clipImage(e.clipboardData); if (!file) return;
@@ -4217,12 +4234,12 @@ boardEl.addEventListener("pointerdown", e => {
 /* drag a picture or document from the computer onto the board (or onto an empty Image note or a Document note) */
 const hasFiles = e => [...(e.dataTransfer?.types || [])].includes("Files");
 let dropDepth = 0;
-boardEl.addEventListener("dragenter", e => { if (viewing || presenting || !hasFiles(e)) return; dropDepth++; boardEl.classList.add("drop-on"); });
+boardEl.addEventListener("dragenter", e => { if (viewing || (presenting || frozen) || !hasFiles(e)) return; dropDepth++; boardEl.classList.add("drop-on"); });
 boardEl.addEventListener("dragleave", () => { if (dropDepth && --dropDepth === 0) boardEl.classList.remove("drop-on"); });
-boardEl.addEventListener("dragover", e => { if (viewing || presenting || !hasFiles(e)) return; e.preventDefault(); e.dataTransfer.dropEffect = "copy"; });
+boardEl.addEventListener("dragover", e => { if (viewing || (presenting || frozen) || !hasFiles(e)) return; e.preventDefault(); e.dataTransfer.dropEffect = "copy"; });
 boardEl.addEventListener("drop", e => {
   dropDepth = 0; boardEl.classList.remove("drop-on");
-  if (viewing || presenting || !hasFiles(e)) return;
+  if (viewing || (presenting || frozen) || !hasFiles(e)) return;
   e.preventDefault();
   const nn = e.target.closest(".note"), n = nn && findNote(nn.dataset.id);
   const r = boardEl.getBoundingClientRect();
@@ -4269,7 +4286,7 @@ function onUndoKey(e){
   if (k !== "z" && k !== "y") return;
   if (modalOpen()) return;
   if (e.target && e.target.closest && e.target.closest("input")) return;   // text boxes (class name) keep their own undo
-  if (presenting) return;
+  if ((presenting || frozen)) return;
   e.preventDefault();
   if (k === "y" || e.shiftKey) redo(); else undo();
 }
@@ -4812,7 +4829,7 @@ async function openSubGuide(b){
   w.document.open(); w.document.write(subGuideHTML(b, qr)); w.document.close();
   try { w.opener = null; } catch(e){}
 }
-function openShare(){ renderShare(); $("shareWrap").hidden = false; setTimeout(() => $("shareClose").focus(), 30); }
+function openShare(){ if (frozen){ frozenToast(); return; } renderShare(); $("shareWrap").hidden = false; setTimeout(() => $("shareClose").focus(), 30); }
 function closeShare(){ $("shareWrap").hidden = true; renderSettings(); updateRepBadge(); }
 function armBtn(btn, label, fn){
   if (btn.dataset.armed){ fn(); return; }
@@ -5880,6 +5897,52 @@ function safeURL(s){ try { const u = new URL(s); return u.protocol === "https:" 
 const FREE_LESSONS = 3, FREE_BOARDS = 2;
 /* Free accounts and guests hold 2 boards. Anyone who already has more keeps them all; they just can't add another. */
 const canAddBoard = () => isPro() || state.boards.length < FREE_BOARDS;
+/* When Pro ends nothing is deleted: 2 boards stay active and the rest turn view-only until the teacher
+   upgrades or swaps which 2 stay active (state.keep). Accounts that never had Pro are left as they were. */
+const proEnded = () => proUntil > 0 && !isPro();
+function activeBoardIds(){
+  const ids = state.boards.map(b => b.id);
+  const keep = (Array.isArray(state.keep) ? state.keep : []).filter(id => ids.includes(id)).slice(0, FREE_BOARDS);
+  for (const id of ids){ if (keep.length >= FREE_BOARDS) break; if (!keep.includes(id)) keep.push(id); }
+  return keep;
+}
+const boardFrozen = (b = board()) => !viewing && proEnded() && state.boards.length > FREE_BOARDS && !activeBoardIds().includes(b.id);
+const VIEW_OK = new Set(["zoom", "fcfull", "fcflip", "fcnext", "fcprev", "docopen", "docget", "embopen", "dsay"]);
+let frzSwap = false;
+function frozenToast(){
+  track("upgrade_prompt_shown", { reason: "board_view_only" });
+  toast("This board is view-only on the free plan. Get Floatle Pro, or make it one of your 2 active boards.", () => window.open("/pricing/", "_blank", "noopener"), "See Pro");
+}
+function frozenBar(){
+  const act = activeBoardIds().map(id => state.boards.find(b => b.id === id)).filter(Boolean);
+  const body = frzSwap
+    ? `<span>Which board should become view-only instead?</span>${act.map(b => `<button class="btn" data-frz="swap" data-id="${b.id}">${esc(b.name)}</button>`).join("")}<button class="btn" data-frz="cancel">Cancel</button>`
+    : `<span><b>View-only.</b> The free plan keeps 2 boards active (${act.map(b => esc(b.name)).join(" and ")}). Nothing here was deleted.</span><button class="btn primary" data-frz="pro">See Pro</button><button class="btn" data-frz="ask">Make this board active</button>`;
+  return `<div class="frozen-bar" role="status">${body}</div>`;
+}
+boardEl.addEventListener("click", e => {
+  const f = e.target.closest("[data-frz]"); if (!f) return;
+  const k = f.dataset.frz;
+  if (k === "pro"){ track("upgrade_clicked", { reason: "board_view_only" }); window.open("/pricing/", "_blank", "noopener"); return; }
+  if (k === "ask"){ frzSwap = true; renderBoard(); return; }
+  if (k === "cancel"){ frzSwap = false; renderBoard(); return; }
+  if (k === "swap"){
+    const b = board(), out = state.boards.find(x => x.id === f.dataset.id);
+    state.keep = activeBoardIds().filter(id => id !== f.dataset.id).concat(b.id);
+    frzSwap = false; render(); save();
+    toast(b.name + " is active now. " + (out ? out.name + " is view-only." : ""));
+  }
+});
+/* A view-only board can be looked at, presented, floated, exported or deleted, but not changed.
+   These run before every other board handler, so drags, typing and drops never start. */
+["pointerdown", "keydown", "input", "dragstart", "drop", "paste", "beforeinput"].forEach(t => boardEl.addEventListener(t, e => {
+  if (!frozen || !e.target.closest || e.target.closest(".frozen-bar")) return;
+  if (!e.target.closest(".note, .bd-chip, .ink-layer, canvas")) return;
+  if (t === "pointerdown" && e.target.closest("[data-act], a")) return;   // buttons are checked on click
+  if (t === "keydown" && !(e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) return;
+  e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+  if (t === "pointerdown" || t === "drop" || t === "paste") frozenToast();
+}, true));
 function boardLimitCard(sub){
   closeMenus();
   track("upgrade_prompt_shown", { reason: "board_cap" });
@@ -5896,6 +5959,7 @@ function closeBoardLimit(){ $("limitWrap").hidden = true; }
    Floatle checks the plan every few seconds until it sees Pro.
    To go live: change PADDLE.env to "production" and swap in the live token and live price ids. */
 const PADDLE = {
+  live: false,   // false until Paddle approves the live account: checkout stays closed except on a tester's browser (see payTester)
   env: "sandbox",
   token: "test_7efb83ee76fc5e7585097b8c2c9",
   prices: {
@@ -5932,8 +5996,22 @@ async function foundingSpotsLeft(){
   try { const { data, error } = await sb.rpc("founding_spots_left"); if (!error && typeof data === "number") return data; } catch(e){}
   return null;   // unknown: let the checkout go ahead
 }
+/* Before launch, checkout opens only on a browser that visited floatle.com/?paytest=on (and ?paytest=off undoes it). */
+const PAYTEST_KEY = "floatle.paytest";
+try {
+  const pt = new URLSearchParams(location.search).get("paytest");
+  if (pt === "on") localStorage.setItem(PAYTEST_KEY, "1");
+  if (pt === "off") localStorage.removeItem(PAYTEST_KEY);
+} catch(e){}
+const payTester = () => { try { return localStorage.getItem(PAYTEST_KEY) === "1"; } catch(e){ return false; } };
 async function startCheckout(plan){
   if (!PADDLE.prices[plan]) plan = "yearly";
+  if (!PADDLE.live && !payTester()){
+    track("checkout_waitlist", { plan, signed_in: !!userId });
+    toast(userId ? "Floatle Pro opens soon. We'll email you when it's ready. Everything in Free works today."
+                 : "Floatle Pro opens soon. You can start free today: everything in Free works now.");
+    return;
+  }
   if (!sb){ toast("Payments need an internet connection. Try again in a moment."); return; }
   if (!userId){
     savePending(plan);
@@ -6109,7 +6187,7 @@ function embFrame(e, title){
   return `<iframe src="${esc(src)}" title="${esc(title || e.prov || "Embedded page")}" allow="${EMB_ALLOW}" allowfullscreen${trusted ? "" : ` sandbox="${EMB_SANDBOX}"`} referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
 }
 function embBodyHTML(n, forPip){
-  const e = n.embed && safeURL(n.embed.src) ? n.embed : null, editing = !forPip && !presenting && !viewing;
+  const e = n.embed && safeURL(n.embed.src) ? n.embed : null, editing = !forPip && !(presenting || frozen) && !viewing;
   if (editing && (!e || embEdit.has(n.id))){
     return `<div class="emb-empty"><b>${e ? "Show something else" : "Show slides, a video or music"}</b>
       <div class="emb-form"><input class="emb-in" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a link or embed code" value="${esc(e ? e.raw : "")}" aria-label="Link or embed code">
@@ -6145,7 +6223,7 @@ function embAct(n, act, noteNode, inPip){
     (inPip && pipWin ? pipWin : window).open(e.open, "_blank", "noopener");
     return;
   }
-  if (inPip || presenting || viewing) return;
+  if (inPip || (presenting || frozen) || viewing) return;
   if (act === "embgo"){ embApply(n, noteNode); return; }
   if (act === "embcancel"){ embEdit.delete(n.id); renderNote(n); return; }
   if (act === "embedit"){
@@ -6194,7 +6272,7 @@ function normURL(s){
 const favURL = u => "https://www.google.com/s2/favicons?sz=64&domain=" + encodeURIComponent(hostOf(u));
 const linkName = l => (l.t || "").trim() || hostOf(normURL(l.u));
 function linksBodyHTML(n, forPip){
-  const links = n.links || (n.links = []), editing = !forPip && !presenting && !viewing;
+  const links = n.links || (n.links = []), editing = !forPip && !(presenting || frozen) && !viewing;
   if (editing && linkEdit.has(n.id)){
     const rows = links.map((l, i) => `<li class="lk-row" data-link="${l.id}">
         <div class="lk-fields"><input class="lk-in t" data-lf="t" type="text" placeholder="Title (optional)" value="${esc(l.t)}" aria-label="Link ${i + 1} title" autocomplete="off">
@@ -6416,7 +6494,7 @@ function tblLine(n){
   return T.c.length + " × " + T.c[0].length + (words.length ? " · " + words.slice(0, 4).join(", ") : "");
 }
 function tableBodyHTML(n, forPip){
-  const T = tblOf(n), V = tblCompute(T), ed = !forPip && !presenting && !viewing, C = T.c[0].length;
+  const T = tblOf(n), V = tblCompute(T), ed = !forPip && !(presenting || frozen) && !viewing, C = T.c[0].length;
   const ce = ed ? ` contenteditable="${editableAttr()}" spellcheck="false"` : "";
   const cellHTML = (v, r, c) => {
     const cls = [v.num ? "num" : "", v.fx ? "fx" : "", v.err ? "err" : ""].filter(Boolean).join(" ");
@@ -6783,6 +6861,7 @@ boardEl.addEventListener("pointercancel", endPen);
 /* drawing on the board itself: a see-through layer over the board and its notes */
 let inkMode = false;
 function setInk(on){
+  if (on && frozen){ frozenToast(); on = false; }
   inkMode = !!on && !narrow() && (!viewing || viewerDraw());
   $("drawBtn").setAttribute("aria-pressed", String(inkMode));
   if (inkMode){ closeMenus(); if (DRAW.color === "#FFFFFF" && /white|light/.test(boardEl.className)) setDraw("color", "#1B2530"); }
@@ -7828,7 +7907,7 @@ $("lessonFile").addEventListener("change", async e => {
 document.addEventListener("keydown", e => {
   if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey || (e.key || "").toLowerCase() !== "s") return;
   e.preventDefault();   // never the browser's "Save page as"
-  if (viewing || presenting) return;
+  if (viewing || (presenting || frozen)) return;
   if (!$("lessonWrap").hidden){ const c = lessonOf(board()); if (c) $("lessonBody").querySelector('[data-ls="update"]')?.click(); return; }
   if (modalOpen()) return;
   quickSaveLesson();

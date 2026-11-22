@@ -79,3 +79,4 @@ address{font-style:normal}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media (max-width:480px){.compare thead th:not(:first-child){width:5.2rem}}
 .monthly-link{display:block;text-align:center;margin-top:.6rem;font-size:.92rem;color:var(--muted)}
+.launch-note{margin:1.2rem 0 0;padding:.8rem 1rem;border-radius:12px;background:#FFF8E1;border:1px solid #E8D48A;color:#3D3200}
