@@ -1084,6 +1084,7 @@ body.viewing:not(.sub-draw) .draw-btn{display:none !important}
 .menu .set-item .si{width:1.15rem;height:1.15rem;flex:0 0 auto;color:var(--muted)}
 .set-t{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;line-height:1.25}
 .set-t small{color:var(--muted);font-size:.8rem}
+.pro-tag{margin-left:auto;font-size:.68rem;font-weight:700;padding:.05rem .45rem;border-radius:999px;background:#FDE3EE;color:#8A1F4C;border:1px solid #F5B8D0}
 .set-tag{flex:0 0 auto;font-size:.72rem;font-weight:700;padding:.1rem .5rem;border-radius:999px;background:var(--chrome-2);color:var(--muted);border:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
 .set-tag.on{background:#E3F4EA;color:#1F6B45;border-color:#B5DEC4}
 .set-sec{margin:.7rem .6rem .2rem;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -1641,6 +1642,7 @@ async function onSignedIn(user){
   syncShares();
   loadReports();
   loadPlan().then(() => {   // Pro raises the document limits
+    renderAddMenu(); renderSettings();   // show or hide the "Pro" labels now that the plan is known
     // analytics: Supabase user id only (never the email); replay only in edit mode, never a shared view or Present
     try {
       posthog.identify(user.id, {
@@ -2732,6 +2734,9 @@ function spotPick(e){
   const sp = n.spot || (n.spot = { on:false, dim:"m" });
   let msg = "";
   if (k === "off"){ spotEnd(n); return; }
+  // Pro: linking an agenda to a timer, making a timer from steps, and turning on auto move-on
+  const turningOnAuto = k === "auto" && !((n.kind === "timed" ? n : spotTimer(n)) || {}).autoNext;
+  if (((k === "link" && v) || k === "mk" || turningOnAuto) && !isPro()){ spotClose(); proToast("Timer sync and auto move-on"); return; }
   if (k === "on"){ sp.on = !sp.on; msg = sp.on ? "Spotlight is on. " + (n.kind === "timed" ? "The current task stands out." : "Check off a step, or press Next step, to move it along.") : "Spotlight is off."; }
   else if (k === "dim"){ sp.on = true; sp.dim = v; }
   else if (k === "link"){
@@ -2940,7 +2945,8 @@ function renderAddMenu(){
   const item = ([k, t]) => {
     const ico = { image:ICON.image, cards:ICON.cards, dict:ICON.book, doc:ICON.file, materials:ICON.bag, draw:ICON.pencil, embed:ICON.screen, links:ICON.link, table:ICON.table }[t.kind];
     const mark = ico ? `<span class="ico">${ico}</span>` : `<span class="swatch" style="background:${COLORS[t.color]}"></span>`;
-    const main = `<button class="item" role="menuitem" data-type="${k}">${mark}${t.label}</button>`;
+    const pro = (k === "flashcards" || k === "dictionary") && !isPro() ? `<span class="pro-tag">Pro</span>` : "";
+    const main = `<button class="item" role="menuitem" data-type="${k}">${mark}${t.label}${pro}</button>`;
     if (k !== "timed") return main;
     // the clock button adds a Timed note and opens its timer beside it
     return `<div class="item-row">${main}<button class="item-clock" role="menuitem" data-type="timed" data-timer="1" title="Add a Timed note with its timer" aria-label="Add a Timed note with its timer">${ICON.clock}</button></div>`;
@@ -2994,9 +3000,9 @@ function renderSettings(){
     ${setItem("plan", "Sub lesson plan", { cls:"c-lp", ico:"lessons", hint:"One page to print or share" })}
     ${setItem("share", "Share with a sub", { cls:"c-sh", hint:"Link and QR code", tag:b.shareCode ? "On" : "", tagOn:true })}
     ${sb && userId ? setItem("reports", "Sub reports", { cls:"c-rp", hint:"Notes your subs left", tag:unread ? unread + " new" : "", tagOn:true }) : ""}
-    ${setItem("sched", "Schedule boards", { cls:"c-sc", hint:"Switch by class period", tag:b.sched && b.sched.on ? fmtTime(b.sched.t) : "" })}
-    ${setItem("crawl", "Screen crawler", { cls:"c-cr", hint:"Ticker along the bottom", tag:CRAWL_READY && crawlCfg(b).on ? "On" : "", tagOn:true })}
-    ${setItem("late", "Running late", { cls:"c-la", hint:"Start class without me", tag:lateActive(b) ? "On" : "", tagOn:true })}
+    ${setItem("sched", "Schedule boards", { cls:"c-sc", hint:"Switch by class period", tag:b.sched && b.sched.on ? fmtTime(b.sched.t) : isPro() ? "" : "Pro" })}
+    ${setItem("crawl", "Screen crawler", { cls:"c-cr", hint:"Ticker along the bottom", tag:CRAWL_READY && crawlCfg(b).on ? "On" : isPro() ? "" : "Pro", tagOn:CRAWL_READY && crawlCfg(b).on })}
+    ${setItem("late", "Running late", { cls:"c-la", hint:"Start class without me", tag:lateActive(b) ? "On" : isPro() ? "" : "Pro", tagOn:lateActive(b) })}
     <div class="set-sec">This board</div>
     ${setItem("lessons", "Saved lessons", { cls:"c-ls", hint:lessonOf(b) ? "Opened: " + esc(lessonOf(b).name) : "Save, name and reopen boards", tag:state.lessons.length ? String(state.lessons.length) : "" })}
     ${setItem("dup", "Duplicate")}
@@ -3090,6 +3096,8 @@ $("addMenu").addEventListener("click", e => {
   if (e.target.closest("[data-ink]")){ toggleMenu($("addBtn"), $("addMenu"), false); setInk(true); return; }
   const btn = e.target.closest("[data-type]"); if (!btn) return;
   const b = board();
+  const proType = { flashcards:"Flashcards", dictionary:"Dictionary notes" }[btn.dataset.type];
+  if (proType && !isPro()){ toggleMenu($("addBtn"), $("addMenu"), false); proToast(proType); return; }
   if (btn.dataset.type === "document"){
     // documents live in the teacher's account, and free boards hold a few
     if (!sb || !userId){ toggleMenu($("addBtn"), $("addMenu"), false); docSignInToast(); return; }
@@ -5312,6 +5320,7 @@ $("schedBody").addEventListener("change", e => {
   }
   const row = e.target.closest("[data-sb]"), b = row && state.boards.find(x => x.id === row.dataset.sb); if (!b) return;
   const s = schedOf(b), f = e.target.dataset.f;
+  if (f === "on" && e.target.checked && !isPro()){ e.target.checked = false; proToast("Scheduled boards"); return; }
   if (f === "on"){ s.on = e.target.checked; save(); rerenderSched(`[data-sb="${b.id}"] [data-f="on"]`); }
   else if (f === "t" && e.target.value){ s.t = e.target.value; save(); }   // no redraw, so typing the time isn't interrupted
 });
@@ -5586,7 +5595,9 @@ function crawlChanged(focusSel){
 }
 function addCrawlMsg(){
   const inp = $("crMsg"), v = (inp.value || "").trim(); if (!v) { inp.focus(); return; }
-  const c = crawlEdit(board()); c.msgs = [...c.msgs, v];
+  const c = crawlEdit(board());
+  if (!c.on && !isPro()){ proToast("Screen crawlers"); return; }
+  c.msgs = [...c.msgs, v];
   if (!c.on) c.on = true;
   crawlChanged("#crMsg");
 }
@@ -5596,7 +5607,7 @@ $("crawlWrap").addEventListener("click", e => {
   const btn = e.target.closest("button[data-c]"); if (!btn) return;
   const b = board(), c = crawlEdit(b), f = btn.dataset.c, v = btn.dataset.v;
   if (f === "add"){ addCrawlMsg(); return; }
-  if (f === "float"){ if (!c.on){ c.on = true; save(); } closeCrawlSet(); openPip("crawl"); return; }
+  if (f === "float"){ if (!c.on){ if (!isPro()){ proToast("Screen crawlers"); return; } c.on = true; save(); } closeCrawlSet(); openPip("crawl"); return; }
   if (f === "delmsg"){ c.msgs = c.msgs.filter((_, i) => i !== +v); crawlChanged("#crMsg"); return; }
   if (f === "motion" || f === "speed" || f === "style"){ c[f] = v; crawlChanged(`[data-c="${f}"][data-v="${v}"]`); }
 });
@@ -5604,6 +5615,7 @@ $("crawlBody").addEventListener("keydown", e => { if (e.target.id === "crMsg" &&
 $("crawlBody").addEventListener("change", e => {
   const f = e.target.dataset.c; if (!f) return;
   const b = board(), c = crawlEdit(b);
+  if (f === "on" && e.target.checked && !c.on && !isPro()){ e.target.checked = false; proToast("Screen crawlers"); return; }
   if (f === "on") c.on = e.target.checked;
   else if (f === "note"){
     const all = b.notes.filter(crawlable).map(n => n.id);
@@ -5721,6 +5733,7 @@ $("lateWrap").addEventListener("click", async e => {
   if (a === "more"){ if (lateActive(b)){ b.late.eta = (b.late.eta || Date.now()) + 600000; b.late.until += 600000; save(); renderLate(); renderLateChip(); toast("Added 10 minutes."); } return; }
   if (a === "go"){
     if (!b.shareCode) return;
+    if (!lateActive(b) && !isPro()){ proToast("Running late screens"); return; }
     const now = Date.now(), f = lateForm, eta = now + f.eta * 60000;
     const keep = lateActive(b) ? b.late.start : now;   // updating keeps the covering adult's timer running
     b.late = { on:true, start:keep, eta, until: Math.max(now + 30 * 60000, eta + 30 * 60000), spot:f.spot || "", mins: f.spot ? f.mins : 0,
@@ -5824,9 +5837,12 @@ Object.assign(ICON, {
 });
 const hostOf = s => { try { return new URL(s).hostname.replace(/^www\./, ""); } catch(e){ return ""; } };
 function safeURL(s){ try { const u = new URL(s); return u.protocol === "https:" && /\./.test(u.hostname) ? u : null; } catch(e){ return null; } }
+/* Pro locks: free accounts and guests see the feature but can't turn it on. Anything already
+   on a board keeps working (and can always be turned off), so nobody loses their work. */
+const FREE_LESSONS = 3;
 function proToast(what){
-  if (!sb || !userId){ docSignInToast(); return; }
-  toast(what + " come with Floatle Pro.");
+  track("upgrade_prompt_shown", { reason: what });
+  toast(what + " come with Floatle Pro.", () => window.open("/pricing/", "_blank", "noopener"), "See Pro");
 }
 
 /* ---------- Embed notes: Google Slides, Canva, PowerPoint, YouTube, Spotify and other sites ----------
@@ -5977,6 +5993,7 @@ function embAct(n, act, noteNode, inPip){
     return;
   }
   if (act === "embfill"){
+    if (!isPro()){ proToast("Slide and video backdrops"); return; }
     const b = board();
     b.backdrop = { ...n.embed, title:n.title };
     b.notes.splice(b.notes.indexOf(n), 1);
@@ -7026,7 +7043,7 @@ function minesHTML(show, del){
 }
 function renderBgPanel(){
   const b = board(), s = b.bgShow || {}, signedIn = !!(sb && userId);
-  const tabs = [["scenes","Scenes"],["colors","Colors"],["mine","My pictures",1],["show","Slideshow",1],["slides","Slides or video"]];
+  const tabs = [["scenes","Scenes"],["colors","Colors"],["mine","My pictures",1],["show","Slideshow",1],["slides","Slides or video",1]];
   let body = "";
   if (bgTab === "scenes") body = scenesHTML(false);
   else if (bgTab === "colors"){
@@ -7051,7 +7068,7 @@ function renderBgPanel(){
   }
   else {
     const bd = b.backdrop;
-    body = `<p class="bg-note">Show Google Slides, Canva, PowerPoint, a YouTube video or another page across the whole board. Your notes float on top, and subs see it too.</p>`
+    body = `<p class="bg-note">Show Google Slides, Canva, PowerPoint, a YouTube video or another page across the whole board. Your notes float on top, and subs see it too.${isPro() ? "" : " Slide and video backdrops come with Floatle Pro."}</p>`
       + (bd ? `<div class="bg-cur"><b>${esc(bd.prov)} fills this board</b><button class="btn" data-bgact="bdnote">Make it a note</button><button class="btn danger-btn" data-bgact="bdremove">Remove</button></div>` : "")
       + `<div class="bg-link"><input id="bgEmbIn" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a link or embed code" aria-label="Link or embed code"><button class="btn primary" data-bgact="bdgo">${bd ? "Show this instead" : "Show it"}</button></div>
         <div class="bg-err" id="bgEmbErr" role="alert"></div>
@@ -7104,6 +7121,7 @@ $("bgWrap").addEventListener("click", async e => {
   if (a === "bdremove"){ delete b.backdrop; renderBoard(); save(); renderBgPanel(); toast("Removed from the board.", undo); return; }
   if (a === "bdnote"){ backdropToNote(); renderBgPanel(); toast("It's a note on the board now."); return; }
   if (a === "bdgo"){
+    if (!isPro()){ proToast("Slide and video backdrops"); return; }
     const r = parseEmbed($("bgEmbIn").value);
     if (r.err){ $("bgEmbErr").textContent = r.err; $("bgEmbIn").focus(); return; }
     b.backdrop = { ...r, title:r.prov };
@@ -7401,6 +7419,7 @@ $("planWrap").addEventListener("input", e => {
 });
 $("planWrap").addEventListener("change", e => {
   const t = e.target, b = board();
+  if (t.name === "lpLen" && t.value === "full" && !isPro()){ t.checked = false; const one = t.form ? t.form.querySelector('[name="lpLen"][value="one"]') : document.querySelector('[name="lpLen"][value="one"]'); if (one) one.checked = true; proToast("Full sub plans"); return; }
   if (t.name === "lpLen"){ planOf(b).length = t.value; save(); updatePlanFit(); }
   else if (t.dataset.pc === "code"){ planOf(b).code = t.checked; save(); updatePlanFit(); }
   else if (t.dataset.pc === "forSub"){ planOf(b).forSub = t.checked; save(); toast(t.checked ? "Subs can open this plan from the shared board." : "The Lesson plan button is off for subs on this board."); }
@@ -7476,6 +7495,7 @@ function saveLesson(name, overwrite){
   const b = board(), now = Date.now();
   let L = overwrite || null;
   if (!L){
+    if (!isPro() && state.lessons.length >= FREE_LESSONS){ track("upgrade_prompt_shown", { reason:"lessons" }); toast(`The free plan saves up to ${FREE_LESSONS} lessons. Unlimited saved lessons come with Floatle Pro.`, () => window.open("/pricing/", "_blank", "noopener"), "See Pro"); return null; }
     if (state.lessons.length >= LESSON_MAX){ toast(`You have ${LESSON_MAX} saved lessons. Delete a few old ones to save more.`); return null; }
     L = { id:uid(), name, createdAt:now };
     state.lessons.push(L);
@@ -7632,6 +7652,7 @@ $("lessonFile").addEventListener("change", async e => {
     const base = name;
     while (state.lessons.some(L => sameName(L.name, name))) name = cleanLessonName(base + " (" + k++ + ")");
     const board0 = {}; LESSON_KEYS.forEach(key => { if (data.board[key] !== undefined) board0[key] = data.board[key]; });
+    if (!isPro() && state.lessons.length >= FREE_LESSONS){ toast(`The free plan saves up to ${FREE_LESSONS} lessons. Unlimited saved lessons come with Floatle Pro.`, () => window.open("/pricing/", "_blank", "noopener"), "See Pro"); return; }
     const L = { id:uid(), name, createdAt:Date.now(), savedAt:Date.now(), from:"a lesson file", board:board0 };
     state.lessons.push(L); save(); renderLessons(); uploadPendingImages();
     track("lesson_file_opened");
