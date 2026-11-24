@@ -1024,6 +1024,14 @@ body.present .bd-chip,body.viewing .bd-chip{display:none}
 .tb-wrap{flex:1 1 auto;min-height:0;overflow:auto}
 .tb{border-collapse:collapse;width:100%;font-size:.8em;line-height:1.25}
 .tb.wide{font-size:.7em}
+.tb.sized{width:auto}
+.tb.sized td{min-width:0}
+.tb td,.tb th.tb-g{position:relative}
+.tb-rc,.tb-rr{position:absolute;z-index:2;touch-action:none}
+.tb-rc{top:0;bottom:0;right:-3px;width:6px;cursor:col-resize}
+.tb-rr{left:0;right:0;bottom:-3px;height:6px;cursor:row-resize}
+.tb-rc:hover,.tb-rr:hover,.tb-rc.on,.tb-rr.on{background:rgba(61,111,209,.6)}
+.tb.rsz,.tb.rsz *{user-select:none;-webkit-user-select:none}
 .tb td{border:1px solid rgba(0,0,0,.3);background:rgba(255,255,255,.72);padding:0;vertical-align:top;min-width:2.6em}
 .tb .tb-cell{padding:.22em .45em;min-height:1.25em;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}
 .tb .tb-cell[contenteditable]:focus{box-shadow:inset 0 0 0 2px #1D1A14;background:#fff}
@@ -2859,7 +2867,7 @@ function noteEl(n, forPip){
   const full = !forPip && n.kind === "cards" && fcFull.has(n.id) && !n.min;
   el.className = "note kind-" + (n.kind || "text") + (n.min ? " is-min" : "") + (full ? " fc-full" : "") + spotClass(n);
   el.dataset.id = n.id;
-  el.style.cssText = `left:${n.x}%;top:${n.y}%;width:${n.w}%;height:${n.h}%;z-index:${n.z||1};--paper:${COLORS[n.color]||COLORS.lemon};--s:${SIZED.has(n.kind) && !forPip ? imgHeadScale(n) : (n.s||1)}`;
+  el.style.cssText = `left:${n.x}%;top:${n.y}%;width:${n.w}%;${n.kind === "table" ? `height:auto;max-height:${n.h}%` : `height:${n.h}%`};z-index:${n.z||1};--paper:${COLORS[n.color]||COLORS.lemon};--s:${SIZED.has(n.kind) && !forPip ? imgHeadScale(n) : (n.s||1)}`;
   if (spotOn(n)) el.style.setProperty("--sp-dim", String(SP_DIM[n.spot.dim] || SP_DIM.m));
   if (spotTimer(n)) el.dataset.spLink = n.spot.link;
   el.setAttribute("aria-label", n.title || "Note");
@@ -3914,6 +3922,8 @@ boardEl.addEventListener("pointerdown", e => {
   drag = { n, el:noteNode, mode:isResize?"resize":"move", sx:e.clientX, sy:e.clientY,
     x:n.x, y:n.y, w:n.w, h:n.h, W:r.width, H:r.height, pid:e.pointerId, moved:false,
     elH: noteNode.offsetHeight };
+  // a table note is only as tall as its table, so resizing starts from the height you see
+  if (isResize && n.kind === "table") drag.h = noteNode.offsetHeight / r.height * 100;
   noteNode.setPointerCapture(e.pointerId);
   noteNode.classList.add("dragging");
 });
@@ -3931,7 +3941,8 @@ boardEl.addEventListener("pointermove", e => {
     const m = viewing && SUB_MIN[n.id];   // a sub can't make a note smaller than the teacher set it
     n.w = clamp(drag.w + dx, Math.max(140 / drag.W * 100, m ? Math.min(m.w, 100 - n.x) : 0), Math.max(100 - n.x, m ? m.w : 0));
     n.h = clamp(drag.h + dy, Math.max(70 / drag.H * 100, m ? Math.min(m.h, 100 - n.y) : 0), Math.max(100 - n.y, m ? m.h : 0));
-    drag.el.style.width = n.w + "%"; drag.el.style.height = n.h + "%";
+    drag.el.style.width = n.w + "%";
+    if (n.kind === "table") drag.el.style.maxHeight = n.h + "%"; else drag.el.style.height = n.h + "%";
   }
 });
 function endDrag(e){
@@ -6401,7 +6412,7 @@ Object.assign(ICON, {
   table:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 15h18M9.5 9.5V20"/></svg>'
 });
 const TBL_MAXR = 40, TBL_MAXC = 12;
-const TBL_ACTS = new Set(["tbrow", "tbcol", "tbdelrow", "tbdelcol", "tbhr", "tbcsv", "tbboxcol", "tbuncheck"]);
+const TBL_ACTS = new Set(["tbrow", "tbcol", "tbdelrow", "tbdelcol", "tbhr", "tbcsv", "tbboxcol", "tbuncheck", "tbfit"]);
 const TBL_ERR = {
   "#REF!":"This formula points to a cell that isn't in the table.",
   "#DIV/0!":"This divides by zero (or averages cells that are empty).",
@@ -6429,6 +6440,10 @@ function tblOf(n){
   if (!T || !Array.isArray(T.c) || !T.c.length) T = n.tbl = { c:[["", ""], ["", ""]], hr:true };
   const w = Math.max(1, ...T.c.map(r => Array.isArray(r) ? r.length : 0));
   T.c = T.c.map(r => { r = Array.isArray(r) ? r.map(x => String(x ?? "")) : []; while (r.length < w) r.push(""); return r; });
+  // T.w = column widths, T.h = row heights, in ems of the table's text (null = automatic). Only kept once someone sizes one.
+  const fit = (a, len) => { if (!Array.isArray(a)) return undefined; a = a.slice(0, len).map(x => +x > 0 ? +(+x).toFixed(2) : null); while (a.length < len) a.push(null); return a.some(x => x) ? a : undefined; };
+  T.w = fit(T.w, w); T.h = fit(T.h, T.c.length);
+  if (!T.w) delete T.w; if (!T.h) delete T.h;
   return T;
 }
 const tblHasData = n => !!(n.tbl && Array.isArray(n.tbl.c) && n.tbl.c.some(r => (r || []).some(x => String(x ?? "").trim())));
@@ -6552,13 +6567,18 @@ function tblLine(n){
 function tableBodyHTML(n, forPip){
   const T = tblOf(n), V = tblCompute(T), ed = !forPip && !(presenting || frozen) && !viewing, C = T.c[0].length, cnt = tblBoxCount(T);
   const ce = ed ? ` contenteditable="${editableAttr()}" spellcheck="false"` : "";
+  const sized = !!(T.w || T.h);
+  // drag a cell's right edge to size its column, its bottom edge to size its row (double-click to fit)
+  const hc = ed ? '<span class="tb-rc" aria-hidden="true" title="Drag to size this column. Double-click to fit it to its words."></span>' : "";
+  const hr = ed ? '<span class="tb-rr" aria-hidden="true" title="Drag to size this row. Double-click to make it automatic again."></span>' : "";
+  const cw = c => T.w && T.w[c] ? ` style="width:${T.w[c]}em"` : "";
   const cellHTML = (v, r, c) => {
-    if (v.box) return `<td data-r="${r}" data-c="${c}" class="box${v.on ? " on" : ""}"><button class="tb-box" data-act="tbbox" role="checkbox" aria-checked="${v.on}" aria-label="Cell ${tblCol(c)}${r + 1}: ${v.on ? "done" : "not done"}"${ed ? ' title="Click or press Space to tick. Delete or Backspace turns it back into a plain cell."' : ""}>${ICON.check}</button></td>`;
+    if (v.box) return `<td data-r="${r}" data-c="${c}" class="box${v.on ? " on" : ""}"${cw(c)}>${hc}${hr}<button class="tb-box" data-act="tbbox" role="checkbox" aria-checked="${v.on}" aria-label="Cell ${tblCol(c)}${r + 1}: ${v.on ? "done" : "not done"}"${ed ? ' title="Click or press Space to tick. Delete or Backspace turns it back into a plain cell."' : ""}>${ICON.check}</button></td>`;
     const cls = [v.num ? "num" : "", v.fx ? "fx" : "", v.err ? "err" : ""].filter(Boolean).join(" ");
-    return `<td data-r="${r}" data-c="${c}"${cls ? ` class="${cls}"` : ""}${v.err ? ` title="${esc(TBL_ERR[v.err] || "")}"` : ""}><div class="tb-cell"${ce}${ed ? ` aria-label="Cell ${tblCol(c)}${r + 1}"` : ""}>${esc(v.d)}</div></td>`;
+    return `<td data-r="${r}" data-c="${c}"${cls ? ` class="${cls}"` : ""}${cw(c)}${v.err ? ` title="${esc(TBL_ERR[v.err] || "")}"` : ""}><div class="tb-cell"${ce}${ed ? ` aria-label="Cell ${tblCol(c)}${r + 1}"` : ""}>${esc(v.d)}</div>${hc}${hr}</td>`;
   };
-  const guide = ed ? `<tr class="tb-gr"><th class="tb-g"></th>${T.c[0].map((_, c) => `<th class="tb-g">${tblCol(c)}</th>`).join("")}</tr>` : "";
-  const rows = V.map((row, r) => `<tr${T.hr && r === 0 ? ' class="hr"' : ""}>${ed ? `<th class="tb-g">${r + 1}</th>` : ""}${row.map((v, c) => cellHTML(v, r, c)).join("")}</tr>`).join("");
+  const guide = ed ? `<tr class="tb-gr"><th class="tb-g"></th>${T.c[0].map((_, c) => `<th class="tb-g" data-c="${c}">${tblCol(c)}${hc}</th>`).join("")}</tr>` : "";
+  const rows = V.map((row, r) => `<tr data-r="${r}"${T.hr && r === 0 ? ' class="hr"' : ""}${T.h && T.h[r] ? ` style="height:${T.h[r]}em"` : ""}>${ed ? `<th class="tb-g" data-r="${r}">${r + 1}${hr}</th>` : ""}${row.map((v, c) => cellHTML(v, r, c)).join("")}</tr>`).join("");
   const bar = !ed ? "" : `<div class="tb-bar">
       <button class="doc-btn alt" data-act="tbrow" title="Add a row below the cell you're in">${ICON.plus}Row</button>
       <button class="doc-btn alt" data-act="tbcol" title="Add a column to the right of the cell you're in">${ICON.plus}Column</button>
@@ -6567,11 +6587,12 @@ function tableBodyHTML(n, forPip){
       <label><input type="checkbox" data-act="tbhr" ${T.hr ? "checked" : ""}> Header row</label>
       <button class="doc-btn alt" data-act="tbboxcol" title="Turn the column you're in into checkboxes, or back into plain cells">${ICON.check}Checkboxes</button>
       ${cnt.on ? `<button class="doc-btn alt" data-act="tbuncheck" title="Untick every box, ready to use again">Uncheck all</button>` : ""}
+      ${sized ? `<button class="doc-btn alt" data-act="tbfit" title="Make every column and row automatic again">Reset sizes</button>` : ""}
       <button class="doc-btn alt" data-act="tbcsv" title="Download as a CSV file for Excel or Google Sheets">${ICON.download}CSV</button>
-      <span class="tb-tip">Tab and Enter move between cells. Paste from Excel or Google Sheets to fill it in. Start a cell with = to do math: =SUM(B2:B6), =AVERAGE(C2:C6), =B2*C2. Type [ ] in a cell for a checkbox, and =CHECKED(B2:B9) counts the ticked ones.</span>
+      <span class="tb-tip">Tab and Enter move between cells. Paste from Excel or Google Sheets to fill it in. Start a cell with = to do math: =SUM(B2:B6), =AVERAGE(C2:C6), =B2*C2. Type [ ] in a cell for a checkbox, and =CHECKED(B2:B9) counts the ticked ones. Drag the edge of a column or row to size it, like in Excel; double-click the edge to fit.</span>
     </div>`;
   const prog = cnt.all ? `<div class="tb-prog${cnt.on === cnt.all ? " all" : ""}" aria-live="polite">${ICON.check}${cnt.on} of ${cnt.all} done</div>` : "";
-  return `<div class="tb-wrap"><table class="tb${C > 6 ? " wide" : ""}">${guide}${rows}</table></div>${prog}${bar}`;
+  return `<div class="tb-wrap"><table class="tb${C > 6 ? " wide" : ""}${T.w ? " sized" : ""}">${guide}${rows}</table></div>${prog}${bar}`;
 }
 // the same table without editing, for the sub plan and the Running late screen (L = how text is escaped)
 function tblPlainHTML(n, L){
@@ -6626,6 +6647,7 @@ function tblAct(n, act, btn){
   let to = null;
   if (act === "tbhr"){ T.hr = !!btn.checked; save(); renderNote(n); return; }
   if (act === "tbcsv"){ tblCSV(n); return; }
+  if (act === "tbfit"){ delete T.w; delete T.h; save(); renderNote(n); return; }
   if (act === "tbuncheck"){ T.c.forEach(row => row.forEach((x, k) => { if (tblBox(x)) row[k] = "[ ]"; })); save(); renderNote(n); return; }
   if (act === "tbboxcol"){
     // the cells under the header become checkboxes; if they already all are, they go back to plain cells.
@@ -6640,19 +6662,19 @@ function tblAct(n, act, btn){
   }
   if (act === "tbrow"){
     if (R >= TBL_MAXR){ toast("A table holds up to " + TBL_MAXR + " rows."); return; }
-    tblShift(T, "r", r + 1, 1); T.c.splice(r + 1, 0, tblNewRow(T, r)); to = [r + 1, c];
+    tblShift(T, "r", r + 1, 1); T.c.splice(r + 1, 0, tblNewRow(T, r)); if (T.h) T.h.splice(r + 1, 0, null); to = [r + 1, c];
   }
   else if (act === "tbcol"){
     if (C >= TBL_MAXC){ toast("A table holds up to " + TBL_MAXC + " columns."); return; }
-    tblShift(T, "c", c + 1, 1); T.c.forEach(row => row.splice(c + 1, 0, "")); to = [r, c + 1];
+    tblShift(T, "c", c + 1, 1); T.c.forEach(row => row.splice(c + 1, 0, "")); if (T.w) T.w.splice(c + 1, 0, T.w[c]); to = [r, c + 1];
   }
   else if (act === "tbdelrow"){
     if (R <= 1){ toast("A table needs at least one row."); return; }
-    T.c.splice(r, 1); tblShift(T, "r", r, -1); to = [Math.min(r, R - 2), c];
+    T.c.splice(r, 1); if (T.h) T.h.splice(r, 1); tblShift(T, "r", r, -1); to = [Math.min(r, R - 2), c];
   }
   else if (act === "tbdelcol"){
     if (C <= 1){ toast("A table needs at least one column."); return; }
-    T.c.forEach(row => row.splice(c, 1)); tblShift(T, "c", c, -1); to = [r, Math.min(c, C - 2)];
+    T.c.forEach(row => row.splice(c, 1)); if (T.w) T.w.splice(c, 1); tblShift(T, "c", c, -1); to = [r, Math.min(c, C - 2)];
   }
   save(); renderNote(n);
   if (to){ tblLast = { id:n.id, r:to[0], c:to[1] }; tblFocusCell(n, to[0], to[1]); }
@@ -6753,6 +6775,74 @@ boardEl.addEventListener("keydown", e => {
   else if (e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); t.blur(); return; }
   if (to){ e.preventDefault(); tblFocusCell(n, to[0], to[1]); }
 });
+/* Sizing columns and rows, like Excel or Google Sheets: drag the edge of a cell (or of a column letter
+   or row number). Sizes are saved in ems of the table's text, so they grow and shrink with the note.
+   The first time a column is sized, every column keeps the width it has now, so nothing else jumps. */
+let tblRsz = null;
+const tblEm = tb => tb.getBoundingClientRect().width / (tb.offsetWidth || 1) * (parseFloat(getComputedStyle(tb).fontSize) || 16);
+boardEl.addEventListener("pointerdown", e => {
+  const h = e.target.closest ? e.target.closest(".tb-rc,.tb-rr") : null; if (!h) return;
+  const nn = h.closest(".note"), n = nn && findNote(nn.dataset.id), tb = h.closest("table"); if (!n || !tb || presenting || frozen || viewing) return;
+  e.preventDefault(); e.stopPropagation();
+  const T = tblOf(n), col = h.classList.contains("tb-rc"), em = tblEm(tb), cell = h.parentElement;
+  if (col){
+    const c = +cell.dataset.c;
+    tblRsz = { n, T, tb, h, col, i:c, em, s:e.clientX, v0:(T.w && T.w[c]) || cell.getBoundingClientRect().width / em, pid:e.pointerId };
+  } else {
+    const r = +cell.dataset.r, tr = tb.querySelector(`tr[data-r="${r}"]`); if (!tr) return;
+    tblRsz = { n, T, tb, h, col, i:r, tr, em, s:e.clientY, v0:tr.getBoundingClientRect().height / em, pid:e.pointerId };
+  }
+  h.classList.add("on"); tb.classList.add("rsz");
+  try { h.setPointerCapture(e.pointerId); } catch(err){}
+}, true);
+boardEl.addEventListener("pointermove", e => {
+  const z = tblRsz; if (!z || e.pointerId !== z.pid) return;
+  const d = (z.col ? e.clientX : e.clientY) - z.s;
+  if (!z.moved){
+    if (Math.abs(d) < 3) return;
+    z.moved = true;
+    const T = z.T, tb = z.tb;
+    if (z.col && !T.w){
+      T.w = [...tb.querySelector("tr[data-r]").querySelectorAll("td[data-c]")].map(td => +(td.getBoundingClientRect().width / z.em).toFixed(2));
+      tb.classList.add("sized");
+      tb.querySelectorAll("td[data-c]").forEach(td => td.style.width = T.w[+td.dataset.c] + "em");
+    }
+    if (!z.col && !T.h) T.h = Array(T.c.length).fill(null);
+  }
+  const v = +Math.max(z.col ? 1.8 : 1.3, z.v0 + ((z.col ? e.clientX : e.clientY) - z.s) / z.em).toFixed(2);
+  if (z.col){ z.T.w[z.i] = v; z.tb.querySelectorAll(`td[data-c="${z.i}"]`).forEach(td => td.style.width = v + "em"); }
+  else { z.T.h[z.i] = v; z.tr.style.height = v + "em"; }
+});
+function tblRszEnd(e){
+  const z = tblRsz; if (!z || (e && e.pointerId !== z.pid)) return;
+  tblRsz = null; z.h.classList.remove("on"); z.tb.classList.remove("rsz");
+  if (z.moved){ save(); renderNote(z.n); }
+}
+boardEl.addEventListener("pointerup", tblRszEnd);
+boardEl.addEventListener("pointercancel", tblRszEnd);
+// double-click an edge: a column fits its longest line; a row goes back to automatic
+boardEl.addEventListener("dblclick", e => {
+  const h = e.target.closest ? e.target.closest(".tb-rc,.tb-rr") : null; if (!h) return;
+  const nn = h.closest(".note"), n = nn && findNote(nn.dataset.id), tb = h.closest("table"); if (!n || !tb || presenting || frozen || viewing) return;
+  e.preventDefault(); e.stopPropagation();
+  const T = tblOf(n), cell = h.parentElement;
+  if (h.classList.contains("tb-rr")){ if (T.h) T.h[+cell.dataset.r] = null; save(); renderNote(n); return; }
+  const c = +cell.dataset.c, em = tblEm(tb), scale = em / (parseFloat(getComputedStyle(tb).fontSize) || 16);
+  const ctx = (tblEm.cv || (tblEm.cv = document.createElement("canvas"))).getContext("2d");
+  if (!T.w) T.w = [...tb.querySelectorAll("tr[data-r]")[0].querySelectorAll("td[data-c]")].map(td => +(td.getBoundingClientRect().width / em).toFixed(2));
+  let px = 0;
+  tb.querySelectorAll(`td[data-c="${c}"]`).forEach(td => {
+    const el = td.querySelector(".tb-cell"), box = td.querySelector(".tb-box");
+    if (box){ px = Math.max(px, box.getBoundingClientRect().width / scale + 8); return; }
+    if (!el) return;
+    const cs = getComputedStyle(el);
+    ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const pad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 2;
+    el.textContent.split("\n").forEach(line => { px = Math.max(px, ctx.measureText(line).width + pad); });
+  });
+  T.w[c] = +Math.max(1.8, px * scale / em).toFixed(2);
+  save(); renderNote(n);
+}, true);
 boardEl.addEventListener("paste", e => {
   const t = e.target.closest ? e.target.closest(".tb-cell") : null; if (!t || !t.isContentEditable) return;
   const nn = t.closest(".note"), n = nn && findNote(nn.dataset.id); if (!n) return;
