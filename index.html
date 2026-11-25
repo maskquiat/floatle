@@ -1823,6 +1823,7 @@ const ICON = {
   pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
   file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>',
   print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/></svg>',
+  restart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v5h5"/></svg>',
   download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>'
 };
 // full address so the koi also shows inside the floating (picture-in-picture) window
@@ -1861,7 +1862,7 @@ const firstLine = n => n.kind === "list"
    The panel settings (open, position, Visual/Countdown, etc.) live in n.tp. */
 const ZONE = { green:"#2E9E6A", yellow:"#F0B429", red:"#D9452B" };
 const TINTS = ["#AFC4F5", "#F4BFD6", "#BFE3AE", "#F7D49B", "#CDB9F2"];
-const TACTS = new Set(["tplay","tnext","tless","tmore","tadd","tdel","treset","ttimer"]);
+const TACTS = new Set(["tplay","tnext","tless","tmore","tadd","tdel","treset","trestart","ttimer"]);
 const tpt = (a, r) => { const t = a * Math.PI / 180; return [150 + r * Math.sin(t), 150 - r * Math.cos(t)]; };
 function sector(s, e, r){
   const span = e - s;
@@ -1935,6 +1936,15 @@ function timedAct(n, act, i){
   } else if (act === "tdel"){
     if (i <= I.cur) return;
     n.tasks.splice(i, 1);
+  } else if (act === "trestart"){
+    // restart just the current task: back to its full time, paused, with an Undo
+    if (!I.t || (!I.running && I.rem === I.taskMs)) return;
+    const prev = { running:tm.running, endAt:tm.endAt, rem:tm.rem };
+    tm.running = false; tm.rem = I.taskMs; tm.endAt = 0;
+    toast("Task restarted", () => {
+      Object.assign(n.timer, prev);
+      save(); renderNote(n); renderPanel(n);
+    });
   } else if (act === "treset"){
     n.tasks.forEach(x => { x.actual = null; });
     n.cur = 0; tm.running = false; tm.rem = n.tasks[0] ? n.tasks[0].min * 60000 : null;
@@ -1949,6 +1959,7 @@ function timedBodyHTML(n, ed){
       <svg class="tm-mini" viewBox="0 0 300 300" aria-hidden="true"><circle cx="150" cy="150" r="140" fill="#FFFFFF" stroke="rgba(0,0,0,.35)" stroke-width="14"/><path class="lv-wedge" d=""/><circle cx="150" cy="150" r="20" fill="#1D1A14"/></svg>
       <div class="tm-now-txt"><b class="lv-readout"></b><span class="lv-cur"></span></div>
       <button class="tm-btn" data-act="tplay" title="${I.running ? "Pause" : "Start"}" aria-label="${I.running ? "Pause" : "Start"}" ${I.t ? "" : "disabled"}>${I.running ? ICON.pause : ICON.play}</button>
+      <button class="tm-btn alt" data-act="trestart" title="Restart task" aria-label="Restart this task" ${I.t && (I.running || I.rem !== I.taskMs) ? "" : "disabled"}>${ICON.restart}</button>
       <button class="tm-btn alt" data-act="tnext" title="Done, next task" aria-label="Done, next task" ${I.t ? "" : "disabled"}>${ICON.check}</button>
     </div>` : "";
   const rows = I.tasks.map((x, i) => {
@@ -2023,7 +2034,8 @@ function panelEl(n){
       <div class="tp-links">
         ${vis ? `<button data-act="pnum">${tp.numbers === false ? "Show numbers" : "Hide numbers"}</button><button data-act="panchor">${onClock ? "Start dial at 12" : "Show on the clock"}</button>` : ""}
         <button data-act="psound">${tp.sound === false ? "Sound: off" : "Sound: on"}</button>
-        <button data-act="treset">Start over</button>
+        ${I.t ? `<button data-act="trestart">Restart task</button>` : ""}
+        <button data-act="treset" title="Go back to the first task and clear every time">Start over (all tasks)</button>
       </div>
     </div>`;
   return el;
